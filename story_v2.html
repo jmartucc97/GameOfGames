@@ -167,6 +167,28 @@
 
 <script>
 
+
+// =================================================
+// SPRITE ASSETS (base64-encoded PNGs)
+// Source: FREE_Cat 2D Pixel Art (recolored to brown)
+// =================================================
+
+const SPRITES = {
+  cat_idle:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABACAYAAACNx/A2AAADbElEQVR4nO2YMWxTRxiAP1cVaxdXVRcPcYcsrpKH4AXqDCxkYWB5XZBqBqhkJJJK7ZAOnTo0gyvRRGqEwkCQvOClQxcysNjItiA8q1kqwfOQpUJk6UpRr8PLXe7Zjp1K7Z2B/5M83N3Te9an/7///gNBEARBEARBEARBEARBEARBEARBEN5CapVARUFeTXquuVVVtUow8TmfvO/6g7VKoGb38lACQDWeHuRGPdfcqqry3xegDDVQ32w/Hfmcb5wL1IyTaOS9AXgTqAlLBcJSwaRpWA4x8l4cwMe+/tnJ8Cbw99IBYTnMzHVbXbqtLuXzF1J5bwBeBH5QLRJSpHztZ1p3bph5LfTH1hoAX59fPfE723FiovjcfNHZful8Y9bV9/7uSzPXunOD9c2GGS9XIyCNSM24IqKUMvI6vf7bLTBYTY8lxZ19I/Hz0x+SXCwAMBvM8tfazr+SqAW6lgfwnsuP6TTb/WF3aM2e0/IAPvsqjczj5DW3qsreBlzjPALbcaI2nn1HPapn5q80rgCY+U6vD8DrJzUThaMkNreqCtJI9XFWdFZE7E2+HtXh+8108FEevowyQju9PgtzM3R6feJTlwE/cqaSdpyo9e0HSiml1O37SmPmDmnHiflNeqdu+U7SHv7XOD3GtONEnZsv5tpxojbu7XDm7Gke39sB4OYXF4Gj1F2Ym2HjcO0kWGfKY9vD/wNvaXFcZD3+7TkAZz79hEe3oszauDT2tRd631fWtx9kRI4SB9Dd2wfS1m9SMenu7eMqCr32wu04UQtzM2bc6fV5dCsy6airr5anqVUCNShp8fpmTkt0idNz4CC2PD22++OwHGYiLywV6O7tmzm7aPiQB54F6oIxDi0OspGo56Igby5dXacvTMEeaKdxp9fn9ZNaZl33yGGpkIlOO71twS7lwRTcB+qqq4lPXWb+1S/AkaRBeXCY3q2uSWvAuTyYAoHLlaVcFOTV4spRJ2JH1+JKnVcPv534Hh/yYAoEapo/pb3w4kp9qOqOw0fa2ngtIhpbwHJlKWeP765eSiuvda0FDI19MTURaO9lg+Pkjz+B4ajUKd6oLLn6m0NMhUD7QrQxX8yMdZG5u3qJQYn2vukL7wKVUkpfX40aa66u/cpyZSlnr/u4gRYEQRAEQRAEQRAEQRAE4d3lHxi42aTHLsYgAAAAAElFTkSuQmCC",
+  cat_swat:   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABACAYAAACNx/A2AAAD/klEQVR4nO2aP2/bRhiHHwXM3MVA4EUF7AxeFDgCDDqtPGRRPoGWCoiWtIALxA6KDp3boR0UIFHQCqjTIQG8hJ+gWTpYqUy4tgxr6WAZqJeiiL9BiV4H6q4nmqpoyTYp6H0AwySPPFIPf8c7/gFBEARBEARBEARBEARBEGaF3GVUEgQBgAJwHOdS6pwWJvqxfXEQyss5jjPxAU0bFxKohTmOM5A6ZlQeXECgJUxvo+XNXLO1uTHmdsqanll5AInaXSR9tjzSbrrtTs8cz727i9d+MpMmUA1Znmr6lFJqdXkhzUMYLdDqaSFD6dvZWlcAu4cnQDrpg2QJzGT6AFovP+fds0pq8mCEwEj6hBjG7YVTZ+3TpkldpTg3rJVcOaMEDj2wtHtfjVtycQv51PY/tQmEbKRwXIGpdyBZYaoTmAWmWqAeCwJ4B2eZHQdeiHqtqJJcj3a21lW9Vhz7uqW39Vs+fvd03Gom5lK70nqtqJa6c1AAQA1Lxc7Wuir9cx9KUAf15auDXLQeW4pbyGOvE5WXVvrgkgVq/k+ikRdBpzY6JNHzUalA6vJgfIH2c8GhuIU8biFvmqlbcjHy/jqD+XAyKkdPx8n0u6emPG15cEUJ/L1whltyB5b5LR+/5VP66H4ozy6LETZqcJwFeTBBJzLsPjlOHmCWPf31O7g1d758iDy35A7Ul+ZdRxyT9MLnelC7edk0mh6NpoffPcUtubRu/MLT3kv8lg/AxnrFbG/XNSAu5qRkgYmGMdEU9sp5euU8jaZH6dEPQChPL7/5VZlG0wP+E2L/X9vcNidhbXN7kkO7NiYdB5oU6kfr+9/um0It0V6m0wbw8RPvXIVrm9tTIw9GdyLn3oFECYIAx3F496zC9088ql6VN/vvTfmb/fdUvSpLxSW2K6EY/RQ5+K2O3/JxS25/TOdNlTwYMRSJvPsdyl73DzO9urwA3zTDmVtz8FllYN3dwxNWlxfYPTxh7+iYnedV0zHocV1x/qbZ5/OvH4Vl/etlloYwkGAsFwRBktutnOM4tDs9tXd0zOOHZfjRM/JevH4bLuujEwjhuwz71k+LsSV+Ug5H5XEdVNoikwiEhCm8d3cxpyWu3LnN3tExACt3bofr9OcfPyzz4vVbNmoPcjD4LM8WYksEWJz/4Nx+My8QRqbQvk6aJEZX0vI2ag9y7U5P6RdBw+TZaJEHf/498AD1i5/8VF8oJSYIAoIgUNYfkWkz3+70VLvTU41XP49MreoTJ1wTV1+S7a6LRMOY/vsP+0wPfCNjl68UPky0Y6WUsq+FcejLAWCau71dFtI3ztdZprn2/5tP2+zP3Wblg6ML/8hREgVBEARBEARBEARBEATh6vgXV0QKirWNLJsAAAAASUVORK5CYII=",
+  cat_strike: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABACAYAAACNx/A2AAADkElEQVR4nO2ZPU/bUBSGX1elv8ASYskQGLoEJZZQoE0GlkwdunjJ0CxQKUilVcUAazu0Qyq1QWqkQqUGqQtZusJAB0KNhbARWTpghiyoan4BSD0dzHWcxOEjxHZozyNFdq7v9Y2fnPtpgGEYhmEYhmEYhmEYhmEYhmEY5t9HCvsH9APNtEicTyVGA32mO0FW5gdERJPxaGj1+yawkFNIVWS6LN/2Sp4KOeXSfN3KAsDuwTGA4KMPAO76cdNCTqH7NRmIAQCoYjQ8H2x7JU+pP9NACigAtFA2ri2gujoHvaqjl7L9wBeBgoskOvJuOb4KFCRjESRjEaeZJlNJOPJ+NYCR3u6bni1Johmritw10v3EV4E/Yw0kU8mWNL2qQ6/qSD2YtuX1AVFHxejP/a6Db4OIlzyg+bDvfrwFhuUb15OeLUnp2ZKUTCWvPHD1E18iUK/VAaBDYLFUcc7n8yqq+A7d0gHLj18RDH2LQFWRSXysTARWJoJiqYLUzEcAtjyRPrSYcWS6Jfc6nQmTGwukc15+1gEA4rj/Zt/JIyS60+bzqnP+8IUts9epiBhIACCMgaRniIg00yJxBOwo0kyLsutZaie7nm1J10yLNNMiMZnuJQILOcUpH3T/B9xwLUxEJEmSJI7uNelkPAq8LtlfhmXgqdpSdvfgGJPxKHYPjrF3eITTraWWCBQyRX8KdEaXW7heq4cSfb5UqJkW7R0e4dmTDPCp4shbXtu0084RSzAA2Hlv53EGoFjE83u3PGE13b5XqpkWTSVGJSFxYnwMe4dHAODIE+Im41Esr23idGvJKe+W4yWvPR8Qbr/na8XuJu1GCJ0YH3MiD/COLC957rxhDxq+rkSmEqOSqsiUfv6145qIxp22dLewlvPz6Y5e1Z1r7igMi0D+PVWRaX3/d0d6dXUOQFOKF3qt3jLlcecPs+8TBLKhWjEaknvAaMc9mRZRpdfq0Gt1eEXvIBHIbgxgN2fNtK60e3wbxAkCEwg0JXa7fh1xg9B8gYAFAs1t92J5g3DvMRKn3zz7wC+Lj5rnAD68mgFwcX8ZBqH/g4C9omifligjQx2Rms3Y29uDMgcEBuStnNeczjg56xCzUDakQZi6uBkIgd0wTs6kdpEVoyGFHXVuBkJgt9XGZYits/8a99aW13Wx5VUsb9BVywRJqBFIRHTRS3GxIdGtDMMwDMMwDMMwDMMwDMMwTJD8BZIXA4XiQenHAAAAAElFTkSuQmCC",
+  john_idle: "data:image/png;base64,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",
+  john_friendly: "data:image/png;base64,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",
+  john_attack: "data:image/png;base64,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",
+  john_scowl: "data:image/png;base64,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",
+  john_cast: "data:image/png;base64,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",
+  john_impressed: "data:image/png;base64,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",
+  door_dne: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAFBklEQVR4nE2Vz48cxRXHP1Vd1VX9Y3ZmDWvW5mCI7cgxsbCUKBI5RMk5FqcQkAgQThyRcojkY378AVEIUiKRCxeIAgfnEKwI8uOAjAIICWKJDYhkww8vu7O7szM9PT3d9SOHHtY8qatflfp93/f73muVQBGJEqKBKAEHLEkAQb94IEZAaBASRADRAaAIAIH+DSBXTyAKEJHbFumTyND7ApRa+YEASCISgSawhNhD9aYB1bu+DxaASo7BewiPICL7j4XDR1aBCpAIApJ4zEyJFbMeNtyWIBIQ4rasKFdeQKz0SkCF47AAdMAXnHzPUQAxQHSr80BcAXQCBLInkBwXsedyuw2rDBFEXBX3S7VWyGMNqFWMAlyEsDqXEZLIcamdWAEIUF9kMRLO372G9A0iOrwOtA6SBJRTOO+JMYV8wNb2GBcBmyIwRNHCxc2cdFnzm1/9HOkbiL1S7wPaZCiV8Mxvf8/7/xtThZStWwf4IFG6hXtO5pSi5nfP/gKaAz56/19onVJVM/Ki5Gg6w9qM3B/xwH1nuP7qTS6dO8vNf28jzm/YeEep+PUvf8ru1ed6PT/YxMd+fH3wjNbvwLkOu7bB7Nk3ALjKjMop5J2l4mdXf4INNfJHX+0BXtrBKkGZW2yqOdzbwQh/HHz9PFy+cIaRFchuUXH4+ce8++brSF8jHiz6Hv/hFnvjMS7APffeS/X8fwEonvoG33ngm3z329+i2R8jmxouXTiLURLfdZSDIcWjpwEYXK9oo2bnmXf6/Y/PMt7bQRL4+2t/YW2UIk8MYe/zHVQiUFozrWqOqobw8BkAspe3+zY/dpZZ02GtpVsuMDrBtS2qcfDJp5+hO0eRKZJ8CCESfcuXrXMOpVOaZcuL1/5G5RUkGplruPC1i+R5QVU3zJtehnzpVj+dD/dywgvb1IuWznme+OEVNk+dxhiDmhxAQLJoltjUUOQl4/191p84x7Keo7XGPXSahQOjNaUt2asahmtrdB/vITdOWd597z1CjCAETbPE5gWzqsZ5RzWfkyiFtbb/0bynazsuff0+hBDIw1mDtRYfIkpp6sUC5zyj0YgsL8mLAYtFDdGjEsl0csipzbsoihwlIzJPBdPJBCnguZdfY2tri8WiYTqd0bZLlEqIMeKc66fRGA739yAGXLtE1m3kxIl18jyncfDBJwf86a9vsFw25FnG7u4uw7Uhw0HB9OgIa1JUIpAioqRApQkcHU2QcsHTj3yPybwlzyyZisyripMbG0ymM7SxDMoc5xx5PuTaK38mVQlSCDCpoev6vmulkDJhOpujjKFulnjvyLIMpRTzeYVznrIsCMEjY4TLly+TpoZZVZMai0wSsmJA23ZonZIay/hgColFKMMfr73C1ofbNK1HSgH/fOtt8nJAXg45mExpveRgOkeakt3DGSobkdiC2aIlMTlXrnyfRx9/El0MkT7Cma+co/VwVC2wgxEhSTHFiA5NuX6SJkiqNhJ1TlAZs8bz6j9eR2cDZNMJdg+m1B1IWxJVwbQJVB20pLTC8Nl4hiruRGYjDuuAGd6FyEb856MJ4v5TadSxJdNgFbQeSquoGoeW/d2iJHgS9ueedQtNVNRmkw6F8jLlyccfYxCnZEripGEynVHkORC5ceMGTdtBkrKBxKSa2itqd5K3bn6IuHi6jFZ61uQCKaBqITMKQWTRerTsr43GQZYXtIs5Ihuy3xmMMfwfNFZIKPxCqGwAAAAASUVORK5CYII=",
+  door_storage: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAE30lEQVR4nI2Uy48dxRXGf1Vd1dXdt+9jrudhwLIjGSRkZOEFG6T8AVkgVsmSRJGyjiIWSNlFyX8A2UQC1qAoCDaALCy8Qd6wQNhGGckhtrAmHuZ67p3bPf2sB4u+jNmFI1XVUanOd77v1KkSKAJBQjAQJGCBlggQDJMDQgCEBiFBeBA9AAoP4BlWALkZniBABJ5YYEgi/eALUGrjezwgCUgEGk8LYYAaTANqcN0QLAAVnYEPEA5BQA6HhcUFNoEKkAg8knDGTIkNswHWP5EgIhDiiawgN55HbPRKQPmzMA/0wI+c3MBRAMFDsJt9T9gA9AIEciAQnRVx4PLkGjYZAoiwKe5Paq2QZxpQmxgF2AB+sy8DRIGzUluxARCgfsxiJDyXT5BNg7AWd8HTWYgiUP9T2LkjhBjCmP3FAhuAJEZgCKKDK2lGnFT8/U9/RTYNhEGp8x6dpqgo4q133uHfiwVlHLNfHOO8ROkOfrGbkR9W/OPPf4PjY769cwcdx5RFQZbnnBQFSZqSnZzw8qVLfHrvLlcvXubu/QeI53aScK5WvPnGG5z3nq9u3EC27dC+gHOO2blz2L4n2dnhXzdv0szn3Do8pFQK8XKeh7+8/jpPdR1vLip+jiXXP+RkPufOwQGqL0uW333H0b17/No53HIJIZBub3N4fEw2mfDM3h7Lw0Pqvmd88SJHL71Esb3Nl++/jWwmcPXyZYyUuL4nn07JZjO+LwrmFy7Qac039+8TpGQ6mbB49AjpPTevX2fSxsj5Go4ePUIJgdKadVVx0jRkkwnL9RolJTqOEcZQ9D1JktDXNSaKsF2HaoCHBwdoaxkpRTSdQgiErmOqFL7r8NbSW4uKY5qu473PP6dUCrRGZsDzV66QjUaUTcPpRoZtW7QQRCFgtEYoRdV19M7xu1de4fzTT2OMQa5y8FJSty3KGCZbWyweP2Yyn9P2PVprkJKyrlFaM51OqZuG6WRC3/fIHZvw9e3b+BBACJq2JRmNKKoKay3l6SmRUiRJMjw05+j7nqsvvIAQArlsGpIkwYWA0pqqrrHOMZvNSPOcbDymripwDiUl6+WSp/b2GGUZKgRkJgTr1QoJvH3jBvv7+9RNw7oo6NoWFUWEELDWDt1oDMujI/Ae27aoKgTmW1ukITD/wx95CDz8P534q2/vYEMYrj4GTlYrZF3zm//cZtV1ZElCGgJ1WZKPRqyKAp0kOOdQSiGmUz76+GPiKEIKwBhD33UAaKWQUcT69BRlDFXb4qwlTVOUUpyWJdY58tEI7xwyANeuXSM2hqKqiJMEGUWk4zFd36PjmDhJWKzXkCQIY/jnJ5+w/+ABjXOIX0L47auv8kwIiLZlURRM53PK42MmoxEnyyXznR2qrsM6RxxF9GlKubvLux98gHTApWefpQNO6ppkNsPHMWY2o9eafHeXRkrKEAhZhk9TCuf47Isv0OMxstkVfL9eUwEyzwmjEWvvKYEujumM4aAoUNvbyNmMpfeYvT3EbMZ/lyvEi3EcdNeRAgnQAblSlNaif/JLuyjisXNsAY1SVOfP0yuFcnHM7197jfF6TSol1hhWRcEoyyAEbt26RdP3EMfsSInRmkopqtkuX969h7iS5yFxjkldI4ESSJVChEDtHHrzNzZAOhrRnZ4iplMeG4Mxhh8ADulOoN06YPcAAAAASUVORK5CYII=",
+  door_exit: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAFG0lEQVR4nE2VzY8cRxnGf1Vd3dXd0zszO/aubTgkyAlEtizvIQRZoMQGJIQUgkjEMUT5C5BAyhmF/wAuHAhnJGQQQdqYyA4r0LKW4gOKsxJLTJSQxB+7s7vz0TP9VR859GSWkrr6Vame532et0pvCRQeL8Fr8BIwQEUACNrJAt4DIgQhQTgQDQAKB+Bo/wBy8Tm8AOE5GZ42iXRtLECpRexwgMQjEYQ4KvAtVTtCQLWhbcECUMGSvKWwCDyy3SwM1rMAKkAicEj8UpkSC2UtrTuxIAIQ4sSWl4vIIRZ+JaDcEuaABvhCk201CsA78Gax7vALgkaAQLYCgmURWy0nx7DI4EH4RXH/r9YKufSAWmAUYDy4xbr0EHiWpTZiQSBAfZFFS1CXupSyxAjDpaGjNhAEsHdK8dX7Fu8jHq2vMNodYjwQRwg0XtSQXEj52oM5L/7ldUpZtrIcWOtIwgSlAt749Rvs/3uIziNGHxxhnUSFNTy+nnIvm/PSO7/kiCN2P3yfKIyY5lOyNGM6nhLHCaN0zONXHqP5zS79i+f5392PEU+uxf7hecVrv3oNd9bxzr9uUclqcX/BWcugfwpjGk7Ha2xd32JQDniw8wiVK0R2JfM//8XPaM7V3Pn0DpNggu5q6knNW9/4KwBXbz5L/3Qf1Sg4gnv/uMfqeMBn799HzpqcT44/Yfu9bQo5JzdThkcHSzDA1nf/Tt3UjIsxvfUeTz/7NM9cfYZTHw6RF/8DT1w6j9SS2jZ0sx7b37zNtRvPLQmuvfkcm1+/QbfX5dHwIVY63t56m4+eipC7G/Dg4CFCCSIVsnn5Bt/euko37S4JojDipXd/xPXLfyKOY4qmINABlalRlPDg0/uY0BB0FD/85w/Igoza1yc3MzKYxvDj2y/S2IZbv/8bYa4ICZGkcOGpC3TSDmVe0swaelmP2lRLAqVDQqGo5jW2sTz/yvOcO/sltNaoy3dAOElVVOhYs9LJOBweMlgd8P3t7xHFERLJPC9IdYLOMqqDkm6vy35zgNy7EnP3vbt417aSqqzI4g6z6RxrDPN8hgoUcRy3dqylbhouXrqIEAJZHpfEcYy3HqVCinmBNZbVfp9OkpGlKxTFHIdFKMnR5Jgz586QdlJQHilSwWgyAgk3f3uLvb09iqJkMplS1xVKBXjvMcZgTIOONYfHBzgctamQfu4ZDFZJ0xRKGH5wxM6btymrkjhNeLS/T7fXo9PrMJqMieIIoQReeoQSKCIYjUcUsuA7P71GNapJ0hifeKaznLX1NaajKXEY01lJMcbQT3ts/nkTGQVIBERa0zTtuatQIWXAbDJDK001r7DWkCYJSilmsxxjLFnWwTnbNrSNjQ10pJlN58RRjJIBWbKCqRuiMCKOYsbDCZqYSGg2//AWH+19jCktQnwL/8JPXkB82VOKinw4ZbU34Dg/otPtcDw+5vRgjWZeY4xFRQFxk7CWr3P9d39EYuHJx57A1VCMC3pxn8hFdHUf1YSsZevIUuJyT+pTYpdgppbtm9t0wxXkxn8Fk/0JzKEjM1LfwU4cIoewjohqzeT+lFPqNH3Zxx47zugz9EUf+e4IEV2OfBPWkAAxUEOYKZrctK/Zok0HNsAeWliFsFSsz8+iGoWKbMTLr75MvjJBJBJtNPloStJJ8Xh2dnYwZUNEhFiThDokmCu+8tk6d3bvIVYuZN7ElrJbtL0+B5UovPDYwkLYvtC+hDTpMK9n9EQPfaiJtOZzWiJPCYnbUysAAAAASUVORK5CYII=",
+  three_doors: "data:image/png;base64,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",
+};
+
 const PALETTE = {
   ".": "transparent",
   "K": "#0a0a0e", "W": "#f0f0f0", "G": "#3a7a3a", "g": "#5aaa4a",
@@ -231,26 +253,28 @@ const SCENES = {
   // -----------------------------------------------
 
   scene_test: {
-    art: [
-      "DDDDDDDDDDDDDDDDDDD",
-      "DDDDDDDDDDDDDDDDDDD",
-      "DkkkkkDkkkkkDkkkkkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkOOYkDkOOYkDkOOYkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkOOOkDkOOOkDkOOOkD",
-      "DkkkkkDkkkkkDkkkkkD",
-      "sssssssssssssssssss",
-      "sssssssssssssssssss",
-    ],
-    text: "You awake in a dark basement with three doors before you: \"Do Not Enter\", \"Storage\", \"Exit\".\n\nGroggy and confused, you must choose a door.",
+    sprite: "three_doors",
+    text: (s) => {
+      if (s.john_appeared && !s.samara_resolved) return "You're back in the basement with the three doors. John Prime is leaning against the wall, fiddling with his phone, looking impatient.\n\nThe doors: \"Do Not Enter\", \"Storage\", \"Exit\".";
+      if (s.samara_resolved) return "You're back in the basement. John Prime is still leaning against the wall, looking marginally more relaxed now.\n\nThe doors: \"Do Not Enter\", \"Storage\", \"Exit\".";
+      return "You awake in a dark basement with three doors before you: \"Do Not Enter\", \"Storage\", \"Exit\".\n\nGroggy and confused, you must choose a door.";
+    },
     choices: [
+      { text: "Talk to John Prime", next: "scene_john_basement", requires: ["john_appeared"] },
       { text: "Do Not Enter", next: "scene_donotenter_router" },
       { text: "Storage", next: "scene_detritus" },
       { text: "Exit", next: "scene_regret" }
+    ]
+  },
+
+  scene_john_basement: {
+    text: (s) => {
+      if (s.samara_resolved) return "John Prime nods at you. \"Samara handled, then. Good. Hey, listen — about that pit. Got a minute?\"";
+      if (s.john_handled) return "John Prime glances up from his phone. \"Still working on the cat thing? Go on.\"";
+      return "John Prime tilts his head. \"What.\"";
+    },
+    choices: [
+      { text: "Back to the basement", next: "scene_test" }
     ]
   },
 
@@ -438,13 +462,19 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: (s) => s.wish_used
-      ? "The genie scowls at you. \"I told you. ONE wish per customer. The other guy used them all. Now scram.\""
-      : "A genie bursts forth in a cloud of blue smoke.\n\n\"Hello traveler! Listen, before you get excited — you get ONE wish. The other guy used the rest. So make it count.\"",
+    text: (s) => {
+      if (s.john_handled && !(s.has_tube || s.has_hard_treats || s.has_catnip)) return "The genie sighs as you approach.\n\n\"You again. No, I'm still out of wishes. But — John sent you, didn't he? Here. The cat needs to be fed. Pick one.\"\n\nHe holds out three small packages.";
+      if (s.has_tube || s.has_hard_treats || s.has_catnip) return "The genie waves you off. \"You've got your treat. Go on.\"";
+      if (s.wish_used) return "The genie scowls at you. \"I told you. ONE wish per customer. The other guy used them all. Now scram.\"";
+      return "A genie bursts forth in a cloud of blue smoke.\n\n\"Hello traveler! Listen, before you get excited — you get ONE wish. The other guy used the rest. So make it count.\"";
+    },
     choices: [
-      { text: "I wish for a bottomless pit", next: "scene_wish_pit", unless: ["wish_used"] },
-      { text: "I wish for world peace", next: "scene_wish_peace", unless: ["wish_used"] },
-      { text: "I wish for infinite money", next: "scene_wish_money", unless: ["wish_used"] },
+      { text: "Take the treat tube", next: "scene_pile_3", set: { has_tube: true, has_hard_treats: false, has_catnip: false }, requires: ["john_handled"], unless: ["has_tube", "has_hard_treats", "has_catnip"] },
+      { text: "Take the hard treats", next: "scene_pile_3", set: { has_tube: false, has_hard_treats: true, has_catnip: false }, requires: ["john_handled"], unless: ["has_tube", "has_hard_treats", "has_catnip"] },
+      { text: "Take the catnip", next: "scene_pile_3", set: { has_tube: false, has_hard_treats: false, has_catnip: true }, requires: ["john_handled"], unless: ["has_tube", "has_hard_treats", "has_catnip"] },
+      { text: "I wish for a bottomless pit", next: "scene_wish_pit", unless: ["wish_used", "john_handled"] },
+      { text: "I wish for world peace", next: "scene_wish_peace", unless: ["wish_used", "john_handled"] },
+      { text: "I wish for infinite money", next: "scene_wish_money", unless: ["wish_used", "john_handled"] },
       { text: "Attack the genie", next: "ending_attack_genie" },
       { text: "Put the lamp away", next: "scene_pile_3" }
     ]
@@ -540,7 +570,7 @@ const SCENES = {
   // -----------------------------------------------
 
   scene_tiki_router: {
-    route: (s) => s.tiki_tried ? "ending_tiki_dead" : "scene_tiki_first"
+    route: (s) => s.tiki_taken ? "scene_tiki_already_taken" : "scene_tiki_first"
   },
 
   scene_tiki_first: {
@@ -558,32 +588,42 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "A genie in a hawaiian shirt drags himself out of the lamp, squinting and clutching his head.\n\n\"Ohhh no. No no no. I am NOT doing this today. No wishes. No games. Pick a different lamp.\"\n\nHe shoves you back toward the pile.",
+    text: "A genie in a hawaiian shirt drags himself out of the lamp, squinting and clutching his head.\n\n\"Ohhhh, you again. Listen, I'm done with wishes. Hungover. But I've got some stuff lying around. Take ONE.\"\n\nHe gestures vaguely at a pile of junk at his feet.",
     set: { tiki_tried: true },
+    choices: [
+      { text: "Take the Magic: The Gathering deck", next: "scene_tiki_took", set: { has_mtg_deck: true, tiki_taken: true } },
+      { text: "Take the micro USB charger", next: "scene_tiki_took", set: { has_charger: true, tiki_taken: true } },
+      { text: "Take the Kalashnikov", next: "scene_tiki_took", set: { has_kalashnikov: true, tiki_taken: true } },
+      { text: "Back to the pile", next: "scene_pile_3" }
+    ]
+  },
+
+  scene_tiki_took: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDgggGGggDDDD",
+      "DDDggGGGGGGggDDD",
+      "DDgGGKKGGKKGGgDD",
+      "DDgGGGGGGGGGGgDD",
+      "DDgGGGGTTGGGGgDD",
+      "DDDgGGGGGGGGgDDD",
+      "DDDDggGGGGggDDDD",
+      "DDDDDOOOOOODDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "The tiki genie grunts noncommittally, scratches himself, and slides back into the lamp.\n\nThe lamp goes cold. You don't think he's coming back out.",
     choices: [
       { text: "Back to the pile", next: "scene_pile_3" }
     ]
   },
 
-  ending_tiki_dead: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDxxxxxxDDDDD",
-      "DDDxxRRxxxxRRxDD",
-      "DDxxxxxxxxxxxxDD",
-      "DDxxxxxxxxxxxxDD",
-      "DDxxxxxxxxxxxxDD",
-      "DDDxxxxxxxxxxDDD",
-      "DDDDxxxxxxxxDDDD",
-      "DDDDDDOOOODDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
-    text: "The tiki genie surges out of the lamp, eyes blazing.\n\n\"I TOLD YOU. TO TAKE. THE HINT.\"\n\nHe ends you with a coconut.",
-    ending: true,
-    ending_label: "You Died",
-    ending_class: "bad"
+  scene_tiki_already_taken: {
+    text: "The tiki lamp is cold. You're not getting anything else out of it.",
+    choices: [
+      { text: "Back to the pile", next: "scene_pile_3" }
+    ]
   },
 
   // -----------------------------------------------
@@ -593,7 +633,10 @@ const SCENES = {
   scene_donotenter_router: {
     route: (s) => {
       if (s.has_plums) return "ending_plumpy_plums";
-      if (s.has_pit && !s.has_flashlight && !s.met_plumpy) return "ending_fall_in_pit";
+      // Pit-fall: pit exists, no flashlight, haven't met Plumpy (room is dark)
+      if (s.has_pit && !s.has_flashlight && !s.plumpy_lit_room) return "ending_fall_in_pit";
+      // Samara spawns when player re-enters Plumpy room after John interaction (and pit exists)
+      if (s.john_handled && s.has_pit && !s.samara_spawned && !s.samara_resolved) return "scene_samara_intro";
       if (s.reactor_powered) return "scene_plumpy_main";
       if (s.has_flashlight && !s.met_plumpy) return "scene_plumpy_first";
       if (s.met_plumpy) return "scene_plumpy_main";
@@ -732,11 +775,11 @@ const SCENES = {
       "ssssssssssssssss",
     ],
     text: (s) => {
-      let base = "You flick on the flashlight. The darkness recoils.\n\nStanding before you is a large, shaggy green creature with a fistful of small purple buttons stuck to his belly and a wicker basket of plums tucked under one arm. He waves the other paw.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask.\"\n\nBehind him, an enormous industrial reactor labeled \"RBMK — PRIPYAT\" hums quietly in the dark. Next to it sits a small steel barrel, stenciled \"K-40\"";
+      let base = "You flick on the flashlight. The darkness recoils.\n\nStanding before you is a large, shaggy green creature with a fistful of small purple buttons stuck to his belly and a wicker basket of plums tucked under one arm. He waves the other paw.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask.\"\n\nHe squints at your flashlight. \"Oh — hold on a sec.\"\n\nHe shuffles over to a wall, flicks a switch, and the entire room floods with normal indoor lighting. He plucks the flashlight from your hand and pockets it.\n\n\"Don't need that anymore. Knew there was a switch in here somewhere.\"\n\nBehind him, an enormous industrial reactor labeled \"RBMK — PRIPYAT\" hums quietly in the now-lit room. Next to it sits a small steel barrel, stenciled \"K-40\"";
       if (s.has_pit) base += ", and a black, inky bottomless pit yawns open right beside it";
       return base + ".";
     },
-    set: { met_plumpy: true },
+    set: { met_plumpy: true, has_flashlight: false, plumpy_lit_room: true },
     choices: [
       { text: "Continue", next: "scene_plumpy_main" }
     ]
@@ -942,57 +985,260 @@ const SCENES = {
 
   scene_backroom_router: {
     route: (s) => {
-      if (s.investigated_noise && (s.has_tube || s.has_hard_treats || s.has_catnip)) return "scene_feed_cat";
+      if (s.has_tube || s.has_hard_treats || s.has_catnip) return "scene_approach_cat";
       if (s.investigated_noise) return "scene_backroom_postjohn";
       return "scene_backroom_first";
     }
   },
 
   scene_backroom_first: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDDTTDDDSSDDDDDD",
-      "DDTTTTDDSSDDDDDD",
-      "DDTKKTDDSSDDDDDD",
-      "DDTTTTTTDDDDDDDD",
-      "DDDTTTTTDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "cat_idle",
     text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, batting it back and forth with rhythmic patience. Open, closed, open, closed.\n\nFrom back toward the entrance, you hear an unfamiliar noise. Footsteps?",
     choices: [
       { text: "Investigate the noise", next: "scene_investigate_noise", set: { investigated_noise: true } },
-      { text: "Approach the cat", next: "ending_ww3_cat_first" },
+      { text: "Approach the cat", next: "scene_cat_warning" },
       { text: "Attack the cat", next: "ending_attack_cat" }
     ]
   },
 
   scene_backroom_postjohn: {
-    text: "You're back in the lever room. The cat eyes you. Better grab a treat from the genie first.",
+    text: "The cat eyes you. You don't have a treat for it yet. Best go find one — John mentioned his genie has treats.",
     choices: [
-      { text: "Back to the genie", next: "scene_genie_returning" }
+      { text: "Back to the Plumpy room", next: "scene_plumpy_main" }
+    ]
+  },
+
+  scene_cat_warning: {
+    text: "As you approach the cat, it glares at you menacingly. Almost as if to indicate that another step forward could be your ruin.",
+    choices: [
+      { text: "Back away slowly to the Plumpy room", next: "scene_plumpy_main" },
+      { text: "Take another step forward anyway", next: "ending_ww3_cat_first" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // SAMARA — three-round encounter
+  // -----------------------------------------------
+
+  scene_samara_intro: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDWWKKKKWWDDDD",
+      "DDDWWKKKKKKWWDDD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDDWKKKKKKWDDDD",
+      "DDDDDKKKKKKDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDDDKKDDDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDKKDDKKDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You step into the Plumpy room. The pit yawns black where you left it.\n\nA hand emerges from the pit. Long, pale fingers. Then another.\n\nA girl crawls out — wet black hair plastered over her face, white shroud, dripping. She turns toward you and starts walking.\n\nThis is Samara. From The Ring.",
+    set: { samara_spawned: true, samara_round: 1 },
+    choices: [
+      { text: "Continue", next: "scene_samara_round_1" }
+    ]
+  },
+
+  scene_samara_round_1: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDWWKKKKKKWWDDD",
+      "DDWKKKKKKKKKKWDD",
+      "DDWKKKKKKKKKKWDD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDDWKKKKKKWDDDD",
+      "DDDDDKKKKKKDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDKKKKKKKKDDDD",
+      "DDDKKWWDDDDWWKDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "Samara stands three feet from you. The room is silent except for her breathing.",
+    choices: [
+      { text: "Flee", next: "ending_samara_flee" },
+      { text: "Fight", next: "ending_samara_fight_early" },
+      { text: "Yell sexist remarks at her", next: "scene_samara_round_2" },
+      { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
+      { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
+    ]
+  },
+
+  scene_samara_round_2: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDWWKKKKWWDDDD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDDWKKKKKKWDDDD",
+      "DDDDDKKKKKKDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDDDKKDDDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDKKDDKKDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "Samara recoils, moaning. She seems weakened — visibly diminished by your remarks.\n\nShe re-gathers herself and advances again, but slower.",
+    set: { samara_round: 2 },
+    choices: [
+      { text: "Flee", next: "ending_samara_flee" },
+      { text: "Fight", next: "ending_samara_fight_early" },
+      { text: "Tell her you think the 19th Amendment was a mistake", next: "scene_samara_round_3" },
+      { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
+      { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
+    ]
+  },
+
+  scene_samara_round_3: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDDWKKKKWDDDDD",
+      "DDDDDWKKKKWDDDDD",
+      "DDDDDDWKKWDDDDDD",
+      "DDDDDDDKKDDDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDKKKKKKDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "Samara is on her knees now. Her hair hangs limp. The Ring iconography is fading — she's barely a threat anymore.\n\nThis is your moment.",
+    set: { samara_round: 3 },
+    choices: [
+      { text: "Apologize for what you said earlier", next: "ending_samara_apology" },
+      { text: "Seize the moment, finish her", next: "ending_samara_win" },
+      { text: "Run for help", next: "ending_samara_flee" },
+      { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
+      { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
+    ]
+  },
+
+  ending_samara_kalash: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDTTTTTTTTTTDDDD",
+      "DDTSSSSSSSSTDDDD",
+      "DDTTTTTTTTTTDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDxxxxDDDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxxxxxxxxxxxDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You raise the Kalashnikov, sight Samara down the barrel, and squeeze the trigger.\n\nClick.\n\nClick.\n\nNothing.\n\nA voice that sounds suspiciously like John Prime's whispers from somewhere: \"Should've checked it was loaded first there, Rambo.\"\n\nSamara takes the rifle from your hands and kills you with it.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_samara_flee: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWWWDDDD",
+      "DDDWWKKKKKKKKWDD",
+      "DDWKKKKKKKKKKKWD",
+      "DDWKKKKxxKKKKKWD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDDWKKKKKKWDDDD",
+      "DDDDDKKxxKKDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDDKKKKDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You turn to run. She is already in front of you.\n\nShe was always going to be already in front of you. That's her whole thing.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_samara_fight_early: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDxxxxxxDDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxRRxxxxRRxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxKKKKKKKKxxDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDDDxxxxxxxxDDDD",
+      "DDDDDxxxxxxDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You swing at Samara.\n\nShe is a ghost. You are not.\n\nThis was a poor matchup.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_samara_apology: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWWWDDDD",
+      "DDDWWKKKKKKKKWDD",
+      "DDWKKKKxxKKKKKWD",
+      "DDWKKKKKKKKKKKWD",
+      "DDDWKKKKKKKKWDDD",
+      "DDDDWKKKKKKWDDDD",
+      "DDDDDKKKKKKDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You start to apologize.\n\nShe was faking it. She surges upright, fully restored, eyes bright with vindication.\n\n\"GOT YOU.\"\n\nShe gets you.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_samara_win: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDDWKKKKWDDDDD",
+      "DDDDDDWKKWDDDDDD",
+      "DDDDDDDKKDDDDDDD",
+      "DDDDDDDKKDDDDDDD",
+      "DDDDDDDKDDDDDDDD",
+      "DDDDDDDKDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You step forward, scoop her up by the waist, and hoist her overhead like a barbell.\n\nWith one fluid motion, you bring her down across your knee.\n\nThere's a crack like a folding chair. Samara crumples to the floor and dissolves into a puddle of damp shadow.\n\nThe pit accepts her remains.",
+    set: { samara_resolved: true },
+    choices: [
+      { text: "Continue to the Plumpy room", next: "scene_plumpy_main" }
+    ]
+  },
+
+  scene_samara_john_save: {
+    sprite: "john_friendly",
+    text: (s) => {
+      if (s.charger_path_used) return "You shout for John Prime.\n\nHe phases in immediately, speaker blasting.\n\n\"Samara! Yeah. Hey, come play some Magic the Gathering with me. Bring snacks.\"\n\nSamara perks up, glances at you, shrugs, and follows John out of the room.\n\nThe pit returns to its quiet, void-y self.";
+      return "You shout for John Prime.\n\nHe phases in, mid-yawn, and squints at Samara.\n\n\"Oh, hey. Look, you can't keep crawling out of MY pit. C'mon. I'll set you up at the table.\"\n\nSamara turns and follows him out of the room without acknowledging you.\n\nThe pit returns to its quiet, void-y self.";
+    },
+    set: { samara_resolved: true },
+    choices: [
+      { text: "Continue to the Plumpy room", next: "scene_plumpy_main" }
     ]
   },
 
   ending_ww3_cat_first: {
-    art: [
-      "RRRRRRRRRRRRRRRR",
-      "RxxxRRRRRRRRxxRR",
-      "RxKKxRRRRRRxxxRR",
-      "RxKKxRRRRRRxKKRR",
-      "RxxxxRRRRRRxKKRR",
-      "RRxxxxxxxxxxxxRR",
-      "RRRRRxxxxxxRRRRR",
-      "RRRRRRRRRRRRRRRR",
-      "RRRRRRRRRRRRRRRR",
-      "xxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxx",
-    ],
+    sprite: "cat_swat",
     text: "You step toward the cat. Startled, it swats wildly at the lever.\n\nThere's a CRACK.\n\nThe lever snaps clean off. The Strait of Hormuz is now permanently locked in a state of both open AND closed. Global markets cannot resolve the paradox. World War Three begins within the hour.",
     ending: true,
     ending_label: "World War Three",
@@ -1000,20 +1246,7 @@ const SCENES = {
   },
 
   ending_attack_cat: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDxxDDDDDDDD",
-      "DDDDDxRRxDDDDDDD",
-      "DDDDxxxxxxDDDDDD",
-      "DDDxxKKKKxxDDDDD",
-      "DDDDxxxxxxDDDDDD",
-      "DDDDDxxxxDDDDDDD",
-      "DDDDDDxxDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "cat_strike",
     text: "You swing at the cat.\n\nThe cat is faster than you, smarter than you, and has nine lives. You have one.\n\nIt does the math.",
     ending: true,
     ending_label: "You Died",
@@ -1029,45 +1262,21 @@ const SCENES = {
   },
 
   scene_john_prime: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWKKKKWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_idle",
     text: "You head back toward the entrance.\n\nStanding in the doorway is a tall, robed figure. Mystical aura. Annoyed expression.\n\n\"I am John Prime. You've been poking around in my space. Did you... touch anything?\"",
+    set: { john_appeared: true },
     choices: [
       { text: "Yes, I touched things", next: "ending_john_admit" },
       { text: "No, I haven't touched anything", next: "ending_john_lie" },
       { text: "Hey, want to listen to some music? I've got a speaker.", next: "scene_john_speaker", requires: ["has_speaker"] },
-      { text: "Would you like to play a game of Magic: The Gathering?", next: "scene_mtg_color" },
+      { text: "Here, you can have my charger if your speaker's dead", next: "scene_john_charger", requires: ["has_charger"] },
+      { text: "Would you like to play some Magic: The Gathering?", next: "scene_mtg_loop", requires: ["has_mtg_deck"] },
       { text: "Attack John Prime", next: "ending_attack_john" }
     ]
   },
 
   ending_john_caught: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZxxxZZDDDD",
-      "DDDDZZxRRRxZZDDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxxRRRxxZZDD",
-      "DDDZZxxxxxxxZZDD",
-      "DDDDZZxxxxxxZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_scowl",
     text: "John Prime appears in the doorway, takes one look at the documents poking out of your pocket, and his eyes go black.\n\n\"That's my passport. That's my SOCIAL SECURITY CARD.\"\n\nHe doesn't even let you speak. You cease to exist.",
     ending: true,
     ending_label: "You Died",
@@ -1075,20 +1284,7 @@ const SCENES = {
   },
 
   ending_john_admit: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZxxxZZDDDD",
-      "DDDDZZxRRRxZZDDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxxRRRxxZZDD",
-      "DDDZZxxxxxxxZZDD",
-      "DDDDZZxxxxxxZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_attack",
     text: "\"HOW DARE YOU TOUCH MY THINGS.\"\n\nJohn Prime gestures. You cease to exist.",
     ending: true,
     ending_label: "You Died",
@@ -1096,20 +1292,7 @@ const SCENES = {
   },
 
   ending_john_lie: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZxxxZZDDDD",
-      "DDDDZZxRRRxZZDDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxRRRRRxZZDD",
-      "DDDZZxxRRRxxZZDD",
-      "DDDZZxxxxxxxZZDD",
-      "DDDDZZxxxxxxZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_attack",
     text: "John Prime narrows his eyes.\n\n\"Funny. I can see exactly which things have been moved. Pathetic.\"\n\nHe gestures. You cease to exist.",
     ending: true,
     ending_label: "You Died",
@@ -1117,20 +1300,7 @@ const SCENES = {
   },
 
   ending_attack_john: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDxxxxxxDDDDD",
-      "DDDxxxxxxxxxxDDD",
-      "DDxxxxxxxxxxxxDD",
-      "DxxxRRxxxxRRxxxD",
-      "DxxxxxxxxxxxxxxD",
-      "DDxxxxxxxxxxxxDD",
-      "DDDDxxxxxxxxDDDD",
-      "DDDDDDxxxxDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_attack",
     text: "You swing at John Prime.\n\nHe is a being of pure magical essence. You are a person with a flashlight.\n\nThis was a poor matchup.",
     ending: true,
     ending_label: "You Died",
@@ -1142,24 +1312,62 @@ const SCENES = {
   // -----------------------------------------------
 
   scene_john_speaker: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDZZZZZDDDDD",
-      "DDDDZZZWWWZZZDDD",
-      "DDDZZWWKKWWZZDDD",
-      "DDDZZWWWWWWZZDDD",
-      "DDDZZWWKKKKWZZDD",
-      "DDDDZZZZZZZZZDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDDOOOOOOOODDDDD",
-      "DDDOWWWWWWWODDDD",
-      "DDDOOOOOOOODDDDD",
-      "ssssssssssssssss",
-    ],
-    text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? My genie has treats. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed.\"",
-    set: { mtg_played: true },
+    sprite: "john_friendly",
+    text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? My genie has treats. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed.\"\n\nHe heads off toward the basement.",
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true },
     choices: [
-      { text: "Head back to the genie", next: "scene_genie_returning" }
+      { text: "Head back through the basement", next: "scene_test" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // CHARGER path — John's speaker is dead
+  // -----------------------------------------------
+
+  scene_john_charger: {
+    sprite: "john_friendly",
+    text: "John Prime's eyes brighten.\n\n\"YOU HAVE A CHARGER? My speaker died this morning. I've been STEWING.\"\n\nHe takes the charger, plugs in, and within seconds is blasting his jams. The aura of menace dissolves into pure vibes.\n\n\"You're alright, kid. Listen — by the way, I heard there's a bottomless pit in the other room. The genie has been putting the Ring girl, Samara, in there recently. If she gives you any trouble, just send her in to play some Magic the Gathering with me.\"\n\n\"Now, feed my cat. My genie has treats. The tube is the good one.\"\n\nHe heads off toward the basement.",
+    set: { john_handled: true, has_charger: false, samara_eligible_john_call: true, charger_path_used: true },
+    choices: [
+      { text: "Head back through the basement", next: "scene_test" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // MAGIC: THE GATHERING — 13-game loop
+  // -----------------------------------------------
+
+  scene_mtg_loop: {
+    sprite: "john_cast",
+    text: (s) => {
+      if (s.mtg_games_played === 0) return "John Prime grins. \"Oh, NOW you're speaking my language.\"\n\nHe conjures a deck of his own. You shuffle. You play. You lose. Vigorously.\n\nHe stretches. \"Play again?\"";
+      return "You shuffle. You play. You lose. Again.\n\nJohn Prime stretches. \"Play again?\"";
+    },
+    choices: [
+      { text: "Yes, again", next: "scene_mtg_check", action: "increment_mtg" },
+      { text: "No, I'm done", next: "scene_mtg_done_early" }
+    ]
+  },
+
+  scene_mtg_check: {
+    route: (s) => s.mtg_games_played >= 13 ? "scene_mtg_done_13" : "scene_mtg_loop"
+  },
+
+  scene_mtg_done_early: {
+    sprite: "john_friendly",
+    text: "John Prime shrugs. \"Suit yourself. Hey — feed my cat while I'm gone, would you? My genie has treats.\"\n\nHe heads off toward the basement, humming.",
+    set: { mtg_played: true, john_handled: true },
+    choices: [
+      { text: "Head back through the basement", next: "scene_test" }
+    ]
+  },
+
+  scene_mtg_done_13: {
+    sprite: "john_impressed",
+    text: "After the thirteenth game, John Prime sets down his cards. He looks at you with something approaching respect.\n\n\"You've got stamina, I'll give you that. Listen — by the way, I heard the bottomless pit in the other room. I too am a fan. Just be warned, the genie has been putting the Ring girl, Samara, in them recently. If she gives you any trouble, just call for me.\"\n\n\"Now go feed my cat. My genie has treats. The tube is the good one.\"\n\nHe heads off toward the basement.",
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, mtg_thirteen_done: true },
+    choices: [
+      { text: "Head back through the basement", next: "scene_test" }
     ]
   },
 
@@ -1369,20 +1577,7 @@ const SCENES = {
   },
 
   ending_john_dust: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDDZZZZZZZZZDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDSSSSSSSSSSSSDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_attack",
     text: "John Prime tilts his head.\n\n\"You know I can see the lever, right? I put it there.\"\n\nHe gestures. You become a small, sad pile of dust on the floor. The cat sniffs you once, unimpressed.",
     ending: true,
     ending_label: "You Died",
@@ -1390,20 +1585,7 @@ const SCENES = {
   },
 
   scene_john_truth_open: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDWWWWWWWWDDDD",
-      "DDDDWKKKKKKKWDDD",
-      "DDDDWKWKKKKKWDDD",
-    ],
+    sprite: "john_idle",
     text: "John Prime sighs the sigh of a man who has watched too many people make exactly this mistake.\n\n\"You know what? You've shown initiative. I'm gonna give you a job.\"\n\nHe hands you a clipboard and a pen.\n\n\"Bottomless Pit Supervisor. The pay is bad. The work is steady. Get to it.\"",
     choices: [
       { text: "Accept the position", next: "scene_pit_cycle_1" }
@@ -1893,20 +2075,7 @@ const SCENES = {
   },
 
   scene_john_kitties: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWxxWWxxWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDDZZZZZZZZZDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDSSSSSSSSSSSSDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_attack",
     text: "John Prime looks at the cat. Then at the lever. Then back at you.\n\n\"Yeah. The kitties always go crazy when I'm gone.\"\n\nHe pauses. His eyes narrow.\n\n\"But what I ALSO know is that the kitties don't touch my things. And I was just bumpin' around my detritus room... and some of my things seem to be moved.\"\n\nHe gestures. You become a small, sad pile of dust on the floor.",
     ending: true,
     ending_label: "You Died",
@@ -2003,6 +2172,18 @@ function resetState() {
     investigated_noise: false,
     mtg_played: false,
     tiki_tried: false,
+    tiki_taken: false,
+    has_mtg_deck: false,
+    has_charger: false,
+    has_kalashnikov: false,
+    mtg_games_played: 0,
+    john_appeared: false,
+    john_handled: false,
+    samara_eligible_john_call: false,
+    samara_round: 0,
+    samara_spawned: false,
+    samara_resolved: false,
+    plumpy_lit_room: false,
     fracking_initiated: false,
     frack_q1_wrong: false,
     frack_q2_wrong: false,
@@ -2048,6 +2229,9 @@ function buildInventory() {
   if (state.has_note) items.push("scrap of paper");
   if (state.has_zynns) items.push("Zynns");
   if (state.has_plums) items.push("plums");
+  if (state.has_mtg_deck) items.push("MtG deck");
+  if (state.has_charger) items.push("micro USB charger");
+  if (state.has_kalashnikov) items.push("Kalashnikov");
   if (state.has_bananas) items.push("10²¹ bananas");
   if (state.has_tube) items.push("treat tube");
   if (state.has_hard_treats) items.push("hard treats");
@@ -2091,7 +2275,9 @@ function render(sceneId) {
   let html = "";
   html += buildInventory();
 
-  if (scene.art) {
+  if (scene.sprite && SPRITES[scene.sprite]) {
+    html += `<img class="pixel-art" src="${SPRITES[scene.sprite]}" alt="">`;
+  } else if (scene.art) {
     const url = artToDataUrl(scene.art);
     if (url) html += `<img class="pixel-art" src="${url}" alt="">`;
   }
@@ -2157,6 +2343,10 @@ function render(sceneId) {
       btn.addEventListener("click", () => {
         const c = visible[parseInt(btn.dataset.idx)];
         if (c.set) Object.assign(state, c.set);
+        // Handle named actions (e.g. mtg counter)
+        if (c.action === "increment_mtg") {
+          state.mtg_games_played = (state.mtg_games_played || 0) + 1;
+        }
         // Count turns
         state._turns = (state._turns || 0) + 1;
         // Count near-miss: there was a deadly option, but THIS choice doesn't end the game
