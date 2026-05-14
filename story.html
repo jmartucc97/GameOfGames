@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Story</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f0f12;
+    color: #e8e8ea;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px 40px;
+    line-height: 1.6;
+  }
+  .container {
+    width: 100%;
+    max-width: 600px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .pixel-art {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    display: block;
+    margin: 0 auto 28px;
+    background: #16161c;
+    border-radius: 8px;
+    padding: 12px;
+    animation: fadeIn 0.4s ease;
+  }
+  .scene-text {
+    font-size: 1.15rem;
+    margin-bottom: 32px;
+    white-space: pre-wrap;
+    animation: fadeIn 0.4s ease;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeIn 0.4s ease 0.1s both;
+  }
+  .choice {
+    background: #1c1c22;
+    border: 1px solid #2a2a32;
+    color: #e8e8ea;
+    padding: 16px 18px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+    line-height: 1.4;
+  }
+  .choice:hover { background: #25252e; }
+  .choice:active { transform: scale(0.98); background: #2e2e38; }
+  .ending-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .restart {
+    background: #e8e8ea;
+    color: #0f0f12;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .restart:active { transform: scale(0.98); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+// ============================================================
+// STORY CONTENT — EDIT THIS SECTION
+// ============================================================
+//
+// PALETTE: maps single characters to colors. "." is transparent.
+// Add or change colors as you like. Use any single character.
+//
+// SCENES: each has an id, optional `art` (array of equal-length
+// strings, each char a palette key), text, and either `choices`
+// or `ending: true`. Choices have `text` and `next` (scene id).
+//
+// ============================================================
+
+const STORY = {
+  start: "scene_test",
+
+  palette: {
+    ".": "transparent",
+    "K": "#0a0a0e",   // black
+    "W": "#f0f0f0",   // white
+    "G": "#3a7a3a",   // forest green
+    "g": "#5aaa4a",   // light green
+    "T": "#5a3a1a",   // tree trunk brown
+    "S": "#7a7a8a",   // stone gray
+    "B": "#3a5a9a",   // blue
+    "L": "#a0c0e0",   // light blue / sky
+    "Y": "#f0c050",   // yellow / sun
+    "R": "#c03a3a",   // red
+    "M": "#9a6ac0",   // magenta / mystical
+    "D": "#1a1a2a",   // dark (basement walls)
+    "O": "#d09040",   // orange / wood door
+    "E": "#5a4a2a",   // earth brown
+    "s": "#3a3a44",   // floor stone
+    "k": "#1a1a1a",   // doorway shadow
+  },
+
+  scenes: {
+
+    scene_test: {
+      art: [
+        "DDDDDDDDDDDDDDDDDDD",
+        "DDDDDDDDDDDDDDDDDDD",
+        "DkkkkkDkkkkkDkkkkkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkOOYkDkOOYkDkOOYkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkOOOkDkOOOkDkOOOkD",
+        "DkkkkkDkkkkkDkkkkkD",
+        "sssssssssssssssssss",
+        "sssssssssssssssssss",
+      ],
+      text: "You awake in a dark basement with three doors before you: \"Do Not Enter\", \"Storage\", \"Exit\".\n\nGroggy and confused, you must choose a door.",
+      choices: [
+        { text: "Do Not Enter", next: "scene_donotenter" },
+        { text: "Storage", next: "scene_storage" },
+        { text: "Exit", next: "scene_exit" }
+      ]
+    },
+
+    // ---- Placeholder branches — to be written next ----
+
+    scene_donotenter: {
+      text: "[placeholder: Do Not Enter branch — awaiting next scene]",
+      ending: true
+    },
+
+    scene_storage: {
+      text: "[placeholder: Storage branch — awaiting next scene]",
+      ending: true
+    },
+
+    scene_exit: {
+      text: "[placeholder: Exit branch — awaiting next scene]",
+      ending: true
+    }
+
+  }
+};
+
+// ============================================================
+// ENGINE — you shouldn't need to edit below this line
+// ============================================================
+
+const app = document.getElementById("app");
+
+function artToDataUrl(artLines) {
+  if (!artLines || !artLines.length) return null;
+  const width = artLines[0].length;
+  const height = artLines.length;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const ch = artLines[y][x];
+      const color = STORY.palette[ch];
+      if (color && color !== "transparent") {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  return canvas.toDataURL();
+}
+
+function render(sceneId) {
+  const scene = STORY.scenes[sceneId];
+  if (!scene) {
+    app.innerHTML = `<div class="scene-text">Error: scene "${sceneId}" not found.</div>`;
+    return;
+  }
+
+  let html = "";
+
+  if (scene.art) {
+    const url = artToDataUrl(scene.art);
+    if (url) html += `<img class="pixel-art" src="${url}" alt="">`;
+  }
+
+  if (scene.ending) {
+    html += `<div class="ending-label">— The End —</div>`;
+  }
+
+  html += `<div class="scene-text">${escapeHtml(scene.text)}</div>`;
+
+  if (scene.ending) {
+    html += `<button class="restart" id="restartBtn">Play again</button>`;
+  } else if (scene.choices && scene.choices.length) {
+    html += `<div class="choices">`;
+    scene.choices.forEach(choice => {
+      html += `<button class="choice" data-next="${escapeHtml(choice.next)}">${escapeHtml(choice.text)}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  app.innerHTML = html;
+
+  document.querySelectorAll(".choice").forEach(btn => {
+    btn.addEventListener("click", () => render(btn.dataset.next));
+  });
+  const restartBtn = document.getElementById("restartBtn");
+  if (restartBtn) restartBtn.addEventListener("click", start);
+
+  window.scrollTo(0, 0);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function start() {
+  render(STORY.start);
+}
+
+start();
+</script>
+</body>
+</html>
