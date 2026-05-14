@@ -387,11 +387,10 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "Two lamps catch the light:\n\n• a shiny gold lamp\n• a tiki lamp\n\n(Take one. Rub it to find out what's inside.)",
+    text: "Two lamps catch the light:\n\n• a shiny gold lamp\n• a tiki lamp\n\n(Touch one to find out what's inside.)",
     choices: [
-      ...pileChoices(PILE_3_ITEMS, "self"),
-      { text: "Rub the gold lamp", next: "scene_genie", requires: ["has_gold_lamp"] },
-      { text: "Rub the tiki lamp", next: "scene_tiki_router", requires: ["has_tiki_lamp"] },
+      { text: "Rub the gold lamp", next: "scene_genie" },
+      { text: "Rub the tiki lamp", next: "scene_tiki_router" },
       { text: "Back to the back of the room", next: "scene_detritus_back" }
     ]
   },
@@ -1333,8 +1332,6 @@ function resetState() {
     has_note: false,
     has_zynns: false,
     has_plums: false,
-    has_gold_lamp: false,
-    has_tiki_lamp: false,
     has_pit: false,
     has_bananas: false,
     has_tube: false,
@@ -1382,8 +1379,6 @@ function buildInventory() {
   if (state.has_note) items.push("scrap of paper");
   if (state.has_zynns) items.push("Zynns");
   if (state.has_plums) items.push("plums");
-  if (state.has_gold_lamp) items.push("gold lamp");
-  if (state.has_tiki_lamp) items.push("tiki lamp");
   if (state.has_bananas) items.push("10²¹ bananas");
   if (state.has_tube) items.push("treat tube");
   if (state.has_hard_treats) items.push("hard treats");
@@ -1469,7 +1464,7 @@ function render(sceneId) {
         const c = visible[parseInt(btn.dataset.idx)];
         if (c.set) Object.assign(state, c.set);
         // "self" means stay on same scene (used for piles where picking re-renders)
-        const target = c.next === "self" || c.next === null ? sceneId : c.next;
+        const target = (c.next === "self" || c.next == null) ? sceneId : c.next;
         render(target);
       });
     });
