@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Story</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f0f12;
+    color: #e8e8ea;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px 40px;
+    line-height: 1.6;
+  }
+  .container { width: 100%; max-width: 600px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .inventory {
+    font-size: 0.78rem;
+    color: #6a6a72;
+    text-align: center;
+    margin-bottom: 16px;
+    letter-spacing: 0.02em;
+    animation: fadeIn 0.4s ease;
+  }
+  .inventory-label { color: #4a4a52; }
+  .pixel-art {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    display: block;
+    margin: 0 auto 24px;
+    background: #16161c;
+    border-radius: 8px;
+    padding: 12px;
+    animation: fadeIn 0.4s ease;
+  }
+  .scene-text {
+    font-size: 1.1rem;
+    margin-bottom: 28px;
+    white-space: pre-wrap;
+    animation: fadeIn 0.4s ease;
+  }
+  .choices { display: flex; flex-direction: column; gap: 12px; animation: fadeIn 0.4s ease 0.1s both; }
+  .choice {
+    background: #1c1c22;
+    border: 1px solid #2a2a32;
+    color: #e8e8ea;
+    padding: 16px 18px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+    line-height: 1.4;
+  }
+  .choice:hover { background: #25252e; }
+  .choice:active { transform: scale(0.98); background: #2e2e38; }
+  .ending-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .ending-label.win { color: #5aaa4a; }
+  .ending-label.bad { color: #c03a3a; }
+  .restart {
+    background: #e8e8ea;
+    color: #0f0f12;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    width: 100%;
+  }
+  .restart:active { transform: scale(0.98); }
+  .text-input {
+    background: #1c1c22;
+    border: 1px solid #2a2a32;
+    color: #e8e8ea;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .text-input:focus { outline: none; border-color: #4a4a52; }
+  .submit-button {
+    background: #e8e8ea;
+    color: #0f0f12;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .submit-button:active { transform: scale(0.98); }
+  .input-error {
+    color: #c03a3a;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    text-align: center;
+    min-height: 1.2em;
+  }
+  .restart-link {
+    display: block;
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.78rem;
+    color: #444;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .restart-link:hover { color: #777; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+// =================================================
+// PALETTE
+// =================================================
+
+const PALETTE = {
+  ".": "transparent",
+  "K": "#0a0a0e",   // black
+  "W": "#f0f0f0",   // white
+  "G": "#3a7a3a",   // forest green
+  "g": "#5aaa4a",   // light green
+  "T": "#5a3a1a",   // brown (cat, wood)
+  "t": "#8a5a2a",   // light brown
+  "S": "#7a7a8a",   // stone gray
+  "B": "#3a5a9a",   // blue
+  "L": "#a0c0e0",   // light blue
+  "Y": "#f0c050",   // yellow
+  "R": "#c03a3a",   // red
+  "M": "#9a6ac0",   // magenta / mystical
+  "m": "#cd8eea",   // light pink
+  "D": "#1a1a2a",   // dark walls
+  "O": "#d09040",   // orange wood
+  "E": "#5a4a2a",   // earth brown
+  "s": "#3a3a44",   // floor stone
+  "k": "#1a1a1a",   // doorway shadow
+  "P": "#ff7799",   // pink (Plumpy)
+  "p": "#ffaacc",   // light pink
+  "c": "#88bbff",   // ice blue (genie)
+  "C": "#5588dd",   // genie blue
+  "F": "#ffe9a0",   // flashlight beam
+  "N": "#22aa44",   // reactor green
+  "n": "#66ff88",   // bright reactor
+  "x": "#aa2222",   // dark red
+  "Z": "#552255",   // purple-magic
+  "w": "#ddeeff",   // wish sparkle
+  "y": "#ffd770",   // banana yellow
+};
+
+// =================================================
+// STORY
+// =================================================
+
+const START_SCENE = "scene_test";
+
+const SCENES = {
+
+  // -----------------------------------------------
+  // OPENING — basement with 3 doors
+  // -----------------------------------------------
+
+  scene_test: {
+    art: [
+      "DDDDDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDDDDD",
+      "DkkkkkDkkkkkDkkkkkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkOOYkDkOOYkDkOOYkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkOOOkDkOOOkDkOOOkD",
+      "DkkkkkDkkkkkDkkkkkD",
+      "sssssssssssssssssss",
+      "sssssssssssssssssss",
+    ],
+    text: "You awake in a dark basement with three doors before you: \"Do Not Enter\", \"Storage\", \"Exit\".\n\nGroggy and confused, you must choose a door.",
+    choices: [
+      { text: "Do Not Enter", next: "scene_donotenter_router" },
+      { text: "Storage", next: "scene_detritus" },
+      { text: "Exit", next: "scene_regret" }
+    ]
+  },
+
+  scene_regret: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDYYYYYYDDDDD",
+      "DDDYYYYYYYYYYDDD",
+      "DDYYYYYYYYYYYYDD",
+      "DYYYYYYYYYYYYYYD",
+      "DYYYKKYYYYKKYYYD",
+      "DYYYKKYYYYKKYYYD",
+      "DYYYYYYYYYYYYYYD",
+      "DYYYYYYYYYYYYYYD",
+      "DYYYYKKKKKKKYYYD",
+      "DYYYKYYYYYYYKYYD",
+      "DYYKYYYYYYYYYKYD",
+      "DYYYYYYYYYYYYYYD",
+      "DDYYYYYYYYYYYYDD",
+      "DDDYYYYYYYYYYDDD",
+      "DDDDDYYYYYYDDDDD",
+    ],
+    text: "Yeah, I guess a square like you would just choose to leave.\n\nEnjoy your freedom.",
+    ending: true,
+    ending_label: "The End"
+  },
+
+  // -----------------------------------------------
+  // STORAGE ROOM
+  // -----------------------------------------------
+
+  scene_detritus: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDSDDDDDDDD",
+      "DDDDDDSSSDDDDDDD",
+      "DDDDDESSSEDDDDDD",
+      "DDDDESSSREEDDDDD",
+      "DDDOTSSEEERREDDD",
+      "DDOTTESSREEERRDD",
+      "DOOOTTSSEERREERD",
+      "OOOTTTSSSEERRREE",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You walk into a large open room. There are piles of detritus around you, with no discernable organization to them.\n\nYou notice it feels warmer in here than it did in the previous room.",
+    choices: [
+      { text: "Rummage through the closest pile", next: "scene_rummage_close", unless: ["searched_close"] },
+      { text: "The closest pile has already been picked clean", next: "scene_detritus", requires: ["searched_close"] },
+      { text: "Explore deeper into the room", next: "scene_detritus_middle" },
+      { text: "Turn back the way you came", next: "scene_test" }
+    ]
+  },
+
+  scene_rummage_close: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDFFFFDDDDD",
+      "DDDDDDFYYYYFDDDD",
+      "DDDDDFFYYYYFFDDD",
+      "DDETTYYYYTTREEDD",
+      "DETTRYYYYRTTRREE",
+      "ETTRREEERRRTREEE",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You dig through the closest pile. Mostly junk... wait — there's something hard and rectangular.\n\nYou pull out a flashlight. It even turns on.",
+    set: { has_flashlight: true, searched_close: true },
+    choices: [
+      { text: "Back to the storage room", next: "scene_detritus" }
+    ]
+  },
+
+  scene_detritus_middle: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDSDDDDDDDDSDD",
+      "DDDSSSDDDDDDSSSD",
+      "DDESSEDDDDDESSED",
+      "DESSSREDDDDESEED",
+      "OTSSEEERRDETTRRD",
+      "OTTESSREEDOTTRRE",
+      "TTTSSEEERREOTTRE",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "Further in, the piles get larger and more chaotic. There's a particularly suspicious pile leaning against the wall.",
+    choices: [
+      { text: "Rummage through the suspicious pile", next: "scene_rummage_middle", unless: ["searched_middle"] },
+      { text: "This pile has already been picked clean", next: "scene_detritus_middle", requires: ["searched_middle"] },
+      { text: "Go deeper still", next: "scene_detritus_back" },
+      { text: "Back toward the entrance", next: "scene_detritus" }
+    ]
+  },
+
+  scene_rummage_middle: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDWWWWWWWWWDDD",
+      "DDDWWKKKWWKKWWDD",
+      "DDDWKKKKKKKKKWDD",
+      "DDDWKKKK210KKWDD",
+      "DDDWKKKKKKKKKWDD",
+      "DDDWWWWWWWWWWWDD",
+      "DDDDDDDDDDDDDDDD",
+      "OTTOTTRREEEOTTRD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You shove aside an old crate. Tucked behind it is a yellowed note, hastily scrawled.\n\nIt reads:\n\"BANANAS NEEDED: 10²¹\"\n\nYou pocket the note.",
+    set: { has_note: true, searched_middle: true },
+    choices: [
+      { text: "Back to the middle of the room", next: "scene_detritus_middle" }
+    ]
+  },
+
+  scene_detritus_back: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDOODDDDDDD",
+      "DDDDDDOyyODDDDDD",
+      "DDDDDOyOOyODDDDD",
+      "DDDDOyOyyOyODDDD",
+      "DDDDOyyOOyyODDDD",
+      "DDDDDOyyyyODDDDD",
+      "DDDDDDOOOODDDDDD",
+      "DDOTTTEEEERRDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "The deepest part of the room. One pile catches your eye — something gold glints from beneath the junk.",
+    choices: [
+      { text: "Rummage through the glinting pile", next: "scene_rummage_back", unless: ["searched_back"] },
+      { text: "Nothing left in this pile but a faintly warm spot", next: "scene_detritus_back", requires: ["searched_back"] },
+      { text: "Back toward the middle", next: "scene_detritus_middle" }
+    ]
+  },
+
+  scene_rummage_back: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDwwDDDDDDDD",
+      "DDDDDwwOOwwDDDDD",
+      "DDDDOOyyyyOODDDD",
+      "DDDOyOOyyOOyODDD",
+      "DDDOyyyyyyyyODDD",
+      "DDDDOOyyyyOODDDD",
+      "DDDDDOOyyOODDDDD",
+      "DDDDDDOOOODDDDDD",
+      "DDDDDDDOODDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You pull out an old brass lamp. It's heavy, and warm to the touch.\n\nYou should probably give it a rub.",
+    set: { searched_back: true },
+    choices: [
+      { text: "Rub the lamp", next: "scene_genie" },
+      { text: "Leave it. This seems like trouble.", next: "scene_detritus_back" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // GENIE
+  // -----------------------------------------------
+
+  scene_genie: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDwwccccwwDDDD",
+      "DDDccccccccccDDD",
+      "DDccKKccccKKccDD",
+      "DDccKKccccKKccDD",
+      "DDcccccCCccccсDD",
+      "DDccCCCCCCCCccDD",
+      "DDDCCCCCCCCCCDDD",
+      "DDDDCCCCCCCCDDDD",
+      "DDDDDOOOOOODDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: (s) => s.wish_used
+      ? "The genie scowls at you. \"I told you. ONE wish per customer. The other guy used them all. Now scram.\""
+      : "A genie bursts forth in a cloud of blue smoke.\n\n\"Hello traveler! Listen, before you get excited — you get ONE wish. The other guy used the rest. So make it count.\"",
+    choices: [
+      { text: "I wish for a bottomless pit", next: "scene_wish_pit", unless: ["wish_used"] },
+      { text: "I wish for world peace", next: "scene_wish_peace", unless: ["wish_used"] },
+      { text: "I wish for infinite money", next: "scene_wish_money", unless: ["wish_used"] },
+      { text: "Attack the genie", next: "ending_attack_genie" },
+      { text: "Leave the lamp", next: "scene_detritus_back" }
+    ]
+  },
+
+  scene_wish_pit: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "sssKKKKKKKKKKsss",
+      "ssKKKKKKKKKKKKss",
+      "sKKKKKKKKKKKKKKs",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "\"A bottomless pit? Oddly specific. Whatever — your wish is granted.\"\n\nThe genie snaps his fingers. A small, portable bottomless pit appears in your hand. You can feel it tugging gently at the floor.",
+    set: { has_pit: true, wish_used: true },
+    choices: [
+      { text: "Back to the storage room", next: "scene_detritus_back" }
+    ]
+  },
+
+  scene_wish_peace: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDGGGGGGGDDDD",
+      "DDDDGGGWWWGGGDDD",
+      "DDDGGWWKKKWWGGDD",
+      "DDDGGWWKKKWWGGDD",
+      "DDDDGGGWWWGGGDDD",
+      "DDDDDGGGGGGGDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "\"World peace! Aw, that's sweet.\"\n\nThe genie strokes his chin. \"You know, the most efficient way to achieve peace is to eliminate everyone except one very special and handsome man. Hold still.\"\n\nYou are not that man.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  scene_wish_money: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDgYYYgYYYgDDD",
+      "DDDgYYYgYYYgYDDD",
+      "DDDYYYgYYYgYYDDD",
+      "DDDgYYYgYYYgYDDD",
+      "DDDDgYYYgYYYgDDD",
+      "DDDDDgYYYgYYYDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "The genie rolls his eyes so hard you hear them.\n\n\"OK jackass. Like no one's tried that one before.\"\n\nA pile of Monopoly money flutters down at your feet. The genie disappears. The lamp goes cold.\n\nYou are now, technically, a millionaire. In Monopoly money. In a basement.",
+    ending: true,
+    ending_label: "You Lose",
+    ending_class: "bad"
+  },
+
+  ending_attack_genie: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDxxDDDDDDD",
+      "DDDDDxxxxxxxDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxRRxxxxRRxxDD",
+      "DDxxRRxxxxRRxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxxxKKKKxxxxDD",
+      "DDDxxKKKKKKxxDDD",
+      "DDDDxxxxxxxxDDDD",
+      "DDDDDDxxxxDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "You swing at the genie.\n\nHe is, in fact, a genie. You are, in fact, a human.\n\nThis was a poor matchup.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // DO NOT ENTER — Router
+  // -----------------------------------------------
+
+  scene_donotenter_router: {
+    route: (s) => {
+      if (s.reactor_powered) return "scene_plumpy_main";
+      if (s.has_flashlight) return s.met_plumpy ? "scene_plumpy_main" : "scene_plumpy_first";
+      return "scene_chubba";
+    }
+  },
+
+  scene_chubba: {
+    art: [
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKDDDDDDKKKKK",
+      "KKKDDDDDDDDDDKKK",
+      "KKDDDDKKKKDDDDKK",
+      "KKDDDKKKKKKDDDKK",
+      "KKDDDKKKKKKDDDKK",
+      "KKDDDDKKKKDDDDKK",
+      "KKKDDDDDDDDDDKKK",
+      "KKKKKDDDDDDKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "Cautiously, you enter the room, and an unnatural darkness flows out. You hear a voice boom out from deeper in the room, asking you to state your business.",
+    choices: [
+      { text: "Turn back the way you came", next: "scene_test" },
+      { text: "Talk to the void — say you are lost and confused", next: "scene_void_talk" },
+      { text: "Put your guard up and walk deeper into the room", next: "ending_void_death" }
+    ]
+  },
+
+  scene_void_talk: {
+    art: [
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKDDDDDDKKKKK",
+      "KKKDDDDDDDDDDKKK",
+      "KKDDDDKKKKDDDDKK",
+      "KKDDDKKKKKKDDDKK",
+      "KKDDDKKKKKKDDDKK",
+      "KKDDDDKKKKDDDDKK",
+      "KKKDDDDDDDDDDKKK",
+      "KKKKKDDDDDDKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You stammer that you are lost and confused.\n\nThe voice pauses. Then booms:\n\n\"FIND A LIGHT. THEN WE CAN TALK.\"\n\nIt feels like a hint.",
+    choices: [
+      { text: "Back to the basement", next: "scene_test" }
+    ]
+  },
+
+  ending_void_death: {
+    art: [
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKxxxKKKxxxKKK",
+      "KKxxxRRRxRRRxxKK",
+      "KKKxxRRRxRRRxxKK",
+      "KKKKxxxKKKxxxKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: "You walk deeper. The darkness folds around you.\n\nYou never come back.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // PLUMPY
+  // -----------------------------------------------
+
+  scene_plumpy_first: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDPPPPPPDDDDD",
+      "DDDPPPPPPPPPPDDD",
+      "DDPPPPPPPPPPPPDD",
+      "DPPPpWWPPPPWWpPD",
+      "DPPPpWWPPPPWWpPD",
+      "DPPPPPPPPPPPPPPD",
+      "DPPPPKKPPPPKKPPD",
+      "DPPPPPKKKKKKPPPD",
+      "DDPPPPPPPPPPPPDD",
+      "DDDPPPPPPPPPPDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You flick on the flashlight.\n\nThe darkness recoils. Standing before you is a smiling, gumdrop-shaped figure with pink skin and a button nose. He waves.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask. My boss has been working on a pet project — keeps all his supplies in the other room. You should check it out!\"\n\nBehind him, you notice a massive industrial reactor.",
+    set: { met_plumpy: true },
+    choices: [
+      { text: "Continue talking to Plumpy", next: "scene_plumpy_main" }
+    ]
+  },
+
+  scene_plumpy_main: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDPPPPPPDDNND",
+      "DDDPPPPPPPPPPNND",
+      "DDPPPPPPPPPPPPND",
+      "DPPPpWWPPPPWWpPN",
+      "DPPPpWWPPPPWWpPN",
+      "DPPPPPPPPPPPPPPN",
+      "DPPPPKKKKKKPPPPN",
+      "DPPPPPPPPPPPPPPN",
+      "DDPPPPPPPPPPPPNN",
+      "DDDPPPPPPPPPPNND",
+      "ssssssssssssssss",
+    ],
+    text: (s) => {
+      if (s.reactor_powered) return "Plumpy stands next to the now-humming reactor. \"The back door is open! Whatever's in there has been locked away forever. Probably for a reason. Have fun!\"";
+      if (s.has_bananas) return "Plumpy gives you a thumbs up. \"You've got the bananas and the pit. Reactor's right there. Knock yourself out.\"";
+      if (s.has_note && s.has_pit) return "Plumpy beams. \"Looks like you've got everything you need. Want me to set you up with some bananas?\"";
+      if (s.has_note) return "Plumpy looks at the note. \"Ah, 10 to the 21st bananas. Got it. But uh... where are you planning to put them all? Come back when you've figured that out.\"";
+      return "Plumpy hums to himself. \"My boss left some supplies in the storage room. You should poke around in there.\"";
+    },
+    choices: [
+      { text: "Tell Plumpy how many bananas you need", next: "scene_plumpy_bananas", requires: ["has_note", "has_pit"], unless: ["has_bananas"] },
+      { text: "Approach the reactor", next: "scene_fuel_reactor", requires: ["has_bananas"], unless: ["reactor_powered"] },
+      { text: "Enter the back room", next: "scene_backroom_router", requires: ["reactor_powered"] },
+      { text: "Attack Plumpy", next: "ending_attack_plumpy" },
+      { text: "Leave the room", next: "scene_test" }
+    ]
+  },
+
+  scene_plumpy_bananas: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDPPPPPPDDDDD",
+      "DDDPPPPPPPPPPDDD",
+      "DDPPPPPPPPPPPPDD",
+      "DPPPpWWPPPPWWpPD",
+      "DPPPpWWPPPPWWpPD",
+      "DPPPPPPPPPPPPPPD",
+      "DPPPPPKKKKKPPPPD",
+      "DPPPPPPPPPPPPPPD",
+      "DDPPPPPPPPPPPPDD",
+      "DDDPPPPPPPPPPDDD",
+      "ssssssssssssssss",
+    ],
+    text: "Plumpy adjusts his hat. \"Okay. How many bananas do you need?\"",
+    input: {
+      placeholder: "Number of bananas",
+      accept: ["10^21", "10**21", "1e21", "1e+21", "10e21", "1000000000000000000000"],
+      error: "Plumpy frowns. \"That doesn't sound right. Check your notes.\"",
+      success_next: "scene_plumpy_bananas_done",
+      set: { has_bananas: true }
+    }
+  },
+
+  scene_plumpy_bananas_done: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDyyyyyyyyyyyyDD",
+      "DyyyyyyyyyyyyyDD",
+      "DyyyyyyyyyyyyyyD",
+      "DyyyyyyyyyyyyyyD",
+      "DDyyyyyyyyyyyyDD",
+      "DDDyyyyyyyyyyDDD",
+      "DDDDyyyyyyyyDDDD",
+      "DDDDDyyyyyyDDDDD",
+      "DDDDDDyyyyDDDDDD",
+      "DDDDDDDyyDDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "Plumpy claps his hands.\n\n\"1,000 years of global banana production coming right up!\"\n\nA cascade of bananas pours from the ceiling directly into your bottomless pit. The pit absorbs them without complaint.",
+    choices: [
+      { text: "Now approach the reactor", next: "scene_fuel_reactor" }
+    ]
+  },
+
+  ending_attack_plumpy: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDxxxxxxDDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxxxxxxxxxxxDD",
+      "DxxxRRxxxxRRxxxD",
+      "DxxxRRxxxxRRxxxD",
+      "DxxxxxxxxxxxxxxD",
+      "DxxxxKKKKKKxxxxD",
+      "DxxxxxxxxxxxxxxD",
+      "DDxxxxxxxxxxxxDD",
+      "DDDxxxxxxxxxxDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You swing at Plumpy.\n\nIt turns out Plumpy is made of nearly-indestructible candy. Your fist shatters on impact. Plumpy looks concerned but cannot help.\n\nYou bleed out among the lollipops.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // REACTOR
+  // -----------------------------------------------
+
+  scene_fuel_reactor: {
+    art: [
+      "DDDDNNNNNNNNNNDD",
+      "DDNNnnnnnnnnnNND",
+      "DNNnnSSSSSSSSnNN",
+      "DNnnSSnnnnnnSSNN",
+      "DNnnSnnnnnnnnSNN",
+      "DNnnSnnnnnnnnSNN",
+      "DNnnSnnnnnnnnSNN",
+      "DNnnSSnnnnnnSSNN",
+      "DNNnnSSSSSSSSnNN",
+      "DDNNnnnnnnnnnNND",
+      "DDDDNNNNNNNNNNDD",
+      "ssssssssssssssss",
+    ],
+    text: "You approach the RBMK reactor. There's a fuel chute. You connect the bottomless pit.\n\n10^21 bananas pour into the reactor over the next twelve seconds.\n\nThe reactor hums to life. Behind you, a heavy door grinds open in the back wall.",
+    set: { reactor_powered: true },
+    choices: [
+      { text: "Enter the back room", next: "scene_backroom_router" },
+      { text: "Stay and chat with Plumpy", next: "scene_plumpy_main" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // BACK ROOM — Hormuz lever + cat
+  // -----------------------------------------------
+
+  scene_backroom_router: {
+    route: (s) => {
+      if (s.investigated_noise && (s.has_tube || s.has_hard_treats || s.has_catnip)) return "scene_feed_cat";
+      if (s.investigated_noise) return "scene_backroom_postjohn";
+      return "scene_backroom_first";
+    }
+  },
+
+  scene_backroom_first: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDDTTDDDSSDDDDDD",
+      "DDTTTTDDSSDDDDDD",
+      "DDTKKTDDSSDDDDDD",
+      "DDTTTTTTDDDDDDDD",
+      "DDDTTTTTDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, pawing at it lazily.\n\nFrom back toward the entrance of the do-not-enter room, you hear an unfamiliar noise. Footsteps?",
+    choices: [
+      { text: "Investigate the noise", next: "scene_investigate_noise", set: { investigated_noise: true } },
+      { text: "Approach the cat", next: "ending_ww3_cat_first" },
+      { text: "Attack the cat", next: "ending_attack_cat" }
+    ]
+  },
+
+  ending_ww3_cat_first: {
+    art: [
+      "RRRRRRRRRRRRRRRR",
+      "RxxxRRRRRRRRxxRR",
+      "RxKKxRRRRRRxxxRR",
+      "RxKKxRRRRRRxKKRR",
+      "RxxxxRRRRRRxKKRR",
+      "RRxxxxxxxxxxxxRR",
+      "RRRRRxxxxxxRRRRR",
+      "RRRRRRRRRRRRRRRR",
+      "RRRRRRRRRRRRRRRR",
+      "xxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxx",
+    ],
+    text: "You step toward the cat. Startled, it swats wildly at the lever.\n\nThe lever flips.\n\nThe Strait of Hormuz is now closed.\n\nGlobal markets implode. World War Three begins within the hour.",
+    ending: true,
+    ending_label: "World War Three",
+    ending_class: "bad"
+  },
+
+  ending_attack_cat: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDxxDDDDDDDD",
+      "DDDDDxRRxDDDDDDD",
+      "DDDDxxxxxxDDDDDD",
+      "DDDxxKKKKxxDDDDD",
+      "DDDDxxxxxxDDDDDD",
+      "DDDDDxxxxDDDDDDD",
+      "DDDDDDxxDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You swing at the cat.\n\nThe cat is faster than you, smarter than you, and has nine lives. You have one.\n\nIt does the math.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // JOHN PRIME
+  // -----------------------------------------------
+
+  scene_investigate_noise: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWKKKKWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You head back toward the entrance.\n\nStanding in the doorway is a tall, robed figure. Mystical aura. Annoyed expression.\n\n\"I am John Prime. You've been poking around in my space. Did you... touch anything?\"",
+    choices: [
+      { text: "Yes, I touched things", next: "ending_john_admit" },
+      { text: "No, I haven't touched anything", next: "ending_john_lie" },
+      { text: "Would you like to play a game of Magic: The Gathering?", next: "scene_mtg_color" },
+      { text: "Attack John Prime", next: "ending_attack_john" }
+    ]
+  },
+
+  ending_john_admit: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZxxxZZDDDD",
+      "DDDDZZxRRRxZZDDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxxRRRxxZZDD",
+      "DDDZZxxxxxxxZZDD",
+      "DDDDZZxxxxxxZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "\"HOW DARE YOU TOUCH MY THINGS.\"\n\nJohn Prime gestures. You cease to exist.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_john_lie: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZxxxZZDDDD",
+      "DDDDZZxRRRxZZDDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxxRRRxxZZDD",
+      "DDDZZxxxxxxxZZDD",
+      "DDDDZZxxxxxxZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime narrows his eyes.\n\n\"Funny. I can see exactly which things have been moved. Pathetic.\"\n\nHe gestures. You cease to exist.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_attack_john: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDxxxxxxDDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxxxxxxxxxxxDD",
+      "DxxxRRxxxxRRxxxD",
+      "DxxxxxxxxxxxxxxD",
+      "DDxxxxxxxxxxxxDD",
+      "DDDDxxxxxxxxDDDD",
+      "DDDDDDxxxxDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You swing at John Prime.\n\nHe is a being of pure magical essence. You are a person with a flashlight.\n\nThis was a poor matchup.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // MTG
+  scene_mtg_color: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DRRRBBBGGGKKKWWW",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "John Prime raises an eyebrow.\n\n\"Magic: The Gathering? Fine. I do enjoy a good game. What color is your deck?\"",
+    choices: [
+      { text: "Red", next: "ending_mtg_red" },
+      { text: "Blue", next: "ending_mtg_blue" },
+      { text: "Green", next: "ending_mtg_green" },
+      { text: "Black", next: "scene_mtg_black_played" },
+      { text: "White", next: "ending_mtg_white" }
+    ]
+  },
+
+  ending_mtg_red: {
+    text: "\"RED? Aggression with no plan? Get a load of this guy.\"\n\nJohn Prime laughs at you until you spontaneously combust.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_mtg_blue: {
+    text: "\"BLUE? Of course. You can't actually win, you just want to make sure I don't either. Pathetic.\"\n\nJohn Prime taps your forehead. You drown on dry land.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_mtg_green: {
+    text: "\"GREEN? Wow. Just play a 5/5 and call it strategy. I weep for you.\"\n\nA Llanowar Elf appears and chokes you to death with a vine.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_mtg_white: {
+    text: "\"WHITE? Soldiers and life-gain and lecturing everyone about morality? Get out.\"\n\nA tiny angel appears and stabs you with a tiny sword.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  scene_mtg_black_played: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DKKKKKKKKKKKKKKD",
+      "DKKMMMMMMMMMMKKD",
+      "DKMMxxMMMMxxMMKD",
+      "DKMMxxMMMMxxMMKD",
+      "DKMMMMMMMMMMMMKD",
+      "DKMMKKKKKKKKMMKD",
+      "DKMMMMMMMMMMMMKD",
+      "DKKKKKKKKKKKKKKD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "\"BLACK? Oh, finally. A person of taste.\"\n\nJohn Prime conjures a deck of his own. You play a vicious game. He destroys you, but graciously.\n\nAs you concede, he stretches and yawns.\n\n\"Good game! Listen, I've got to go set up for my tiki party. Can you feed my cat while I'm gone? My genie in the back should hook you up.\"",
+    set: { mtg_played: true },
+    choices: [
+      { text: "Head back to the genie", next: "scene_genie_returning" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // SECOND GENIE VISIT — treats
+  // -----------------------------------------------
+
+  scene_genie_returning: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDwwccccwwDDDD",
+      "DDDccccccccccDDD",
+      "DDccKKccccKKccDD",
+      "DDccKKccccKKccDD",
+      "DDccccCCCCccccDD",
+      "DDccCCCCCCCCccDD",
+      "DDDCCCCCCCCCCDDD",
+      "DDDDCCCCCCCCDDDD",
+      "DDDDDOOOOOODDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "The genie sighs as you approach.\n\n\"You again. No, I'm still out of wishes. But — I do have these. The cat needs to be fed. Pick one.\"\n\nHe holds out three small packages.",
+    choices: [
+      { text: "Take the treat tube", next: "scene_feed_cat", set: { has_tube: true } },
+      { text: "Take the hard treats", next: "scene_feed_cat", set: { has_hard_treats: true } },
+      { text: "Take the catnip", next: "scene_feed_cat", set: { has_catnip: true } },
+      { text: "Attack the genie", next: "ending_attack_genie" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // FEED THE CAT
+  // -----------------------------------------------
+
+  scene_feed_cat: {
+    route: (s) => {
+      if (s.has_tube) return "ending_win";
+      if (s.has_hard_treats) return "ending_ww3_hard";
+      if (s.has_catnip) return "ending_ww3_catnip";
+      return "scene_backroom_first"; // fallback
+    }
+  },
+
+  scene_backroom_postjohn: {
+    text: "You're back in the lever room. The cat eyes you. Better grab a treat from the genie first.",
+    choices: [
+      { text: "Back to the genie", next: "scene_genie_returning" }
+    ]
+  },
+
+  ending_win: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDETTDDDDDDETTDD",
+      "DDTTTTTTTTTTTTDD",
+      "DDTggTTTTTTggTDD",
+      "DDTTTTKKKKTTTTDD",
+      "DDTTTTTTTTTTTTDD",
+      "DDDTTTTTTTTTTDDD",
+      "DDDDTTTTTTTTDDDD",
+      "yyyyyyyyyyyyyyyy",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You squeeze the treat tube. The cat's eyes go wide. It licks furiously.\n\nThe cat purrs. It nuzzles you. It is no longer interested in the lever.\n\nThe Strait of Hormuz remains in superposition. Civilization endures.\n\nYou win.",
+    ending: true,
+    ending_label: "You Win!",
+    ending_class: "win"
+  },
+
+  ending_ww3_hard: {
+    art: [
+      "RRRRRRRRRRRRRRRR",
+      "RxxxRRRRRRRRxxRR",
+      "RxKKxRRRRRRxKKRR",
+      "RxxxxRRRRRRxxxRR",
+      "RRxxxxxxxxxxxxRR",
+      "RRRRRRRRRRRRRRRR",
+      "RRRRRRxxxxRRRRRR",
+      "RRRRxxxxxxxxRRRR",
+      "RRRRRRRRRRRRRRRR",
+      "xxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxx",
+    ],
+    text: "You offer the cat the hard treats. The cat sniffs them. The cat does not approve.\n\nThe cat returns to playing with the lever.\n\nThe lever flips. Strait of Hormuz: closed.\n\nWorld War Three begins on schedule.",
+    ending: true,
+    ending_label: "World War Three",
+    ending_class: "bad"
+  },
+
+  ending_ww3_catnip: {
+    art: [
+      "GGGGGGGGGGGGGGGG",
+      "GggggGGGGGGGggGG",
+      "GgggggggGggggggG",
+      "GggGggggggggGggG",
+      "GggGGggggGGggggG",
+      "GgggggGGGgggggGG",
+      "GGGGGggggGGGRRRG",
+      "RRRRRRRRRRRRxRRR",
+      "RRRRxxxxxxxxxxRR",
+      "RRRRRRxxxxxxRRRR",
+      "xxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxx",
+    ],
+    text: "You sprinkle the catnip on the floor.\n\nThe cat goes berserk. Limbs everywhere. The lever takes a direct hit and flips.\n\nStrait of Hormuz: closed.\n\nWorld War Three begins, but at least the cat had a great time.",
+    ending: true,
+    ending_label: "World War Three",
+    ending_class: "bad"
+  }
+};
+
+// =================================================
+// ENGINE
+// =================================================
+
+let state = {};
+
+function resetState() {
+  state = {
+    has_flashlight: false,
+    has_note: false,
+    has_pit: false,
+    has_bananas: false,
+    reactor_powered: false,
+    has_tube: false,
+    has_hard_treats: false,
+    has_catnip: false,
+    searched_close: false,
+    searched_middle: false,
+    searched_back: false,
+    wish_used: false,
+    met_plumpy: false,
+    investigated_noise: false,
+    mtg_played: false,
+  };
+}
+
+const app = document.getElementById("app");
+
+function artToDataUrl(artLines) {
+  if (!artLines || !artLines.length) return null;
+  const width = Math.max(...artLines.map(l => l.length));
+  const height = artLines.length;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  for (let y = 0; y < height; y++) {
+    const line = artLines[y];
+    for (let x = 0; x < line.length; x++) {
+      const ch = line[x];
+      const color = PALETTE[ch];
+      if (color && color !== "transparent") {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }
+  return canvas.toDataURL();
+}
+
+function buildInventory() {
+  const items = [];
+  if (state.has_flashlight) items.push("flashlight");
+  if (state.has_note) items.push("note");
+  if (state.has_pit) items.push("bottomless pit");
+  if (state.has_bananas) items.push("10²¹ bananas");
+  if (state.has_tube) items.push("treat tube");
+  if (state.has_hard_treats) items.push("hard treats");
+  if (state.has_catnip) items.push("catnip");
+  if (!items.length) return "";
+  return `<div class="inventory"><span class="inventory-label">Carrying:</span> ${items.join(" · ")}</div>`;
+}
+
+function isChoiceVisible(c) {
+  if (c.requires) for (const k of c.requires) if (!state[k]) return false;
+  if (c.unless) for (const k of c.unless) if (state[k]) return false;
+  return true;
+}
+
+function resolveText(t) {
+  return typeof t === "function" ? t(state) : t;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function render(sceneId) {
+  let scene = SCENES[sceneId];
+
+  // Handle routing scenes
+  while (scene && scene.route) {
+    const next = scene.route(state);
+    scene = SCENES[next];
+    sceneId = next;
+  }
+
+  if (!scene) {
+    app.innerHTML = `<div class="scene-text">Error: scene "${sceneId}" not found.</div>`;
+    return;
+  }
+
+  if (scene.set) Object.assign(state, scene.set);
+
+  let html = "";
+  html += buildInventory();
+
+  if (scene.art) {
+    const url = artToDataUrl(scene.art);
+    if (url) html += `<img class="pixel-art" src="${url}" alt="">`;
+  }
+
+  if (scene.ending) {
+    const cls = scene.ending_class ? ` ${scene.ending_class}` : "";
+    html += `<div class="ending-label${cls}">— ${scene.ending_label || "The End"} —</div>`;
+  }
+
+  html += `<div class="scene-text">${escapeHtml(resolveText(scene.text))}</div>`;
+
+  if (scene.input) {
+    html += `
+      <input type="text" class="text-input" id="textInput" placeholder="${escapeHtml(scene.input.placeholder || "")}" autocomplete="off" />
+      <button class="submit-button" id="submitInput">Submit</button>
+      <div class="input-error" id="inputError"></div>
+    `;
+  } else if (scene.ending) {
+    html += `<button class="restart" id="restartBtn">Play again</button>`;
+  } else if (scene.choices) {
+    const visible = scene.choices.filter(isChoiceVisible);
+    html += `<div class="choices">`;
+    visible.forEach((c, i) => {
+      html += `<button class="choice" data-idx="${i}">${escapeHtml(c.text)}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  if (!scene.ending) {
+    html += `<a class="restart-link" id="restartLink">Restart story</a>`;
+  }
+
+  app.innerHTML = html;
+
+  // Attach handlers
+  if (scene.choices && !scene.input) {
+    const visible = scene.choices.filter(isChoiceVisible);
+    document.querySelectorAll(".choice").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const c = visible[parseInt(btn.dataset.idx)];
+        if (c.set) Object.assign(state, c.set);
+        render(c.next);
+      });
+    });
+  }
+
+  if (scene.ending) {
+    document.getElementById("restartBtn").addEventListener("click", start);
+  }
+
+  if (scene.input) {
+    const inputEl = document.getElementById("textInput");
+    const submitEl = document.getElementById("submitInput");
+    const errorEl = document.getElementById("inputError");
+
+    const submit = () => {
+      const raw = inputEl.value.trim().toLowerCase().replace(/[\s,]+/g, "");
+      const accepted = (scene.input.accept || []).map(s => s.toLowerCase().replace(/[\s,]+/g, ""));
+      if (accepted.includes(raw)) {
+        if (scene.input.set) Object.assign(state, scene.input.set);
+        render(scene.input.success_next);
+      } else {
+        errorEl.textContent = scene.input.error || "That's not it. Try again.";
+      }
+    };
+
+    submitEl.addEventListener("click", submit);
+    inputEl.addEventListener("keypress", (e) => { if (e.key === "Enter") submit(); });
+    setTimeout(() => inputEl.focus(), 100);
+  }
+
+  const restartLink = document.getElementById("restartLink");
+  if (restartLink) restartLink.addEventListener("click", start);
+
+  window.scrollTo(0, 0);
+}
+
+function start() {
+  resetState();
+  render(START_SCENE);
+}
+
+start();
+</script>
+</body>
+</html>
