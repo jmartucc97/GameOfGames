@@ -142,53 +142,68 @@
 </div>
 
 <script>
-// =================================================
-// PALETTE
-// =================================================
 
 const PALETTE = {
   ".": "transparent",
-  "K": "#0a0a0e",   // black
-  "W": "#f0f0f0",   // white
-  "G": "#3a7a3a",   // forest green
-  "g": "#5aaa4a",   // light green
-  "T": "#5a3a1a",   // brown (cat, wood)
-  "t": "#8a5a2a",   // light brown
-  "S": "#7a7a8a",   // stone gray
-  "B": "#3a5a9a",   // blue
-  "L": "#a0c0e0",   // light blue
-  "Y": "#f0c050",   // yellow
-  "R": "#c03a3a",   // red
-  "M": "#9a6ac0",   // magenta / mystical
-  "m": "#cd8eea",   // light pink
-  "D": "#1a1a2a",   // dark walls
-  "O": "#d09040",   // orange wood
-  "E": "#5a4a2a",   // earth brown
-  "s": "#3a3a44",   // floor stone
-  "k": "#1a1a1a",   // doorway shadow
-  "P": "#ff7799",   // pink (Plumpy)
-  "p": "#ffaacc",   // light pink
-  "c": "#88bbff",   // ice blue (genie)
-  "C": "#5588dd",   // genie blue
-  "F": "#ffe9a0",   // flashlight beam
-  "N": "#22aa44",   // reactor green
-  "n": "#66ff88",   // bright reactor
-  "x": "#aa2222",   // dark red
-  "Z": "#552255",   // purple-magic
-  "w": "#ddeeff",   // wish sparkle
-  "y": "#ffd770",   // banana yellow
+  "K": "#0a0a0e", "W": "#f0f0f0", "G": "#3a7a3a", "g": "#5aaa4a",
+  "T": "#5a3a1a", "t": "#8a5a2a", "S": "#7a7a8a", "B": "#3a5a9a",
+  "L": "#a0c0e0", "Y": "#f0c050", "R": "#c03a3a", "M": "#9a6ac0",
+  "m": "#cd8eea", "D": "#1a1a2a", "O": "#d09040", "E": "#5a4a2a",
+  "s": "#3a3a44", "k": "#1a1a1a", "P": "#ff7799", "p": "#ffaacc",
+  "c": "#88bbff", "C": "#5588dd", "F": "#ffe9a0", "N": "#22aa44",
+  "n": "#66ff88", "x": "#aa2222", "Z": "#552255", "w": "#ddeeff",
+  "y": "#ffd770", "u": "#aaffaa", "U": "#44dd44",
 };
 
-// =================================================
-// STORY
-// =================================================
-
 const START_SCENE = "scene_test";
+
+// Pile choice helper builders
+const PILE_1_ITEMS = [
+  { id: "flashlight", label: "flashlight", flag: "has_flashlight" },
+  { id: "ssn", label: "social security card", flag: "has_ssn" },
+  { id: "passport", label: "passport", flag: "has_passport" },
+  { id: "speaker", label: "Bluetooth speaker", flag: "has_speaker" },
+];
+const PILE_2_ITEMS = [
+  { id: "note", label: "piece of paper", flag: "has_note" },
+  { id: "zynns", label: "pack of Zynns", flag: "has_zynns" },
+  { id: "plums", label: "small bag of plums", flag: "has_plums" },
+];
+const PILE_3_ITEMS = [
+  { id: "gold_lamp", label: "shiny gold lamp", flag: "has_gold_lamp" },
+  { id: "tiki_lamp", label: "tiki lamp", flag: "has_tiki_lamp" },
+];
+
+function pileChoices(pileItems, returnScene) {
+  const choices = [];
+  // Take each item (auto-swaps - clears other items in pile, sets this one)
+  pileItems.forEach(item => {
+    const set = {};
+    pileItems.forEach(other => { set[other.flag] = (other.id === item.id); });
+    choices.push({
+      text: `Take the ${item.label}`,
+      next: returnScene === "self" ? null : returnScene,
+      set: set,
+      unless: [item.flag]
+    });
+  });
+  // Put back current item
+  pileItems.forEach(item => {
+    const set = {};
+    set[item.flag] = false;
+    choices.push({
+      text: `Put back the ${item.label}`,
+      set: set,
+      requires: [item.flag]
+    });
+  });
+  return choices;
+}
 
 const SCENES = {
 
   // -----------------------------------------------
-  // OPENING — basement with 3 doors
+  // OPENING
   // -----------------------------------------------
 
   scene_test: {
@@ -240,7 +255,7 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // STORAGE ROOM
+  // STORAGE — three pile locations
   // -----------------------------------------------
 
   scene_detritus: {
@@ -260,29 +275,30 @@ const SCENES = {
     ],
     text: "You walk into a large open room. There are piles of detritus around you, with no discernable organization to them.\n\nYou notice it feels warmer in here than it did in the previous room.",
     choices: [
-      { text: "Rummage through the closest pile", next: "scene_rummage_close", unless: ["searched_close"] },
-      { text: "The closest pile has already been picked clean", next: "scene_detritus", requires: ["searched_close"] },
+      { text: "Rummage through the closest pile", next: "scene_pile_1" },
       { text: "Explore deeper into the room", next: "scene_detritus_middle" },
       { text: "Turn back the way you came", next: "scene_test" }
     ]
   },
 
-  scene_rummage_close: {
+  scene_pile_1: {
     art: [
       "DDDDDDDDDDDDDDDD",
+      "DDDDFFFFDDDDDDDD",
+      "DDDFYYYYFDDWWDDD",
+      "DDDFYYYYFDWKKWDD",
+      "DDDDFFFFDDWWWWDD",
       "DDDDDDDDDDDDDDDD",
-      "DDDDDDDFFFFDDDDD",
-      "DDDDDDFYYYYFDDDD",
-      "DDDDDFFYYYYFFDDD",
-      "DDETTYYYYTTREEDD",
-      "DETTRYYYYRTTRREE",
-      "ETTRREEERRRTREEE",
+      "DDDOOOOODDDSSSDD",
+      "DDDOWWWODDDSSSDD",
+      "DDDOOOOODDDSSSDD",
+      "DDDDDDDDDDDDDDDD",
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "You dig through the closest pile. Mostly junk... wait — there's something hard and rectangular.\n\nYou pull out a flashlight. It even turns on.",
-    set: { has_flashlight: true, searched_close: true },
+    text: "You dig through the closest pile. Four things stand out:\n\n• a flashlight\n• a social security card\n• a passport\n• a small Bluetooth speaker\n\n(You can carry one item from this pile. Take, swap, or put back.)",
     choices: [
+      ...pileChoices(PILE_1_ITEMS, "self"),
       { text: "Back to the storage room", next: "scene_detritus" }
     ]
   },
@@ -302,31 +318,34 @@ const SCENES = {
     ],
     text: "Further in, the piles get larger and more chaotic. There's a particularly suspicious pile leaning against the wall.",
     choices: [
-      { text: "Rummage through the suspicious pile", next: "scene_rummage_middle", unless: ["searched_middle"] },
-      { text: "This pile has already been picked clean", next: "scene_detritus_middle", requires: ["searched_middle"] },
+      { text: "Rummage through the suspicious pile", next: "scene_pile_2" },
       { text: "Go deeper still", next: "scene_detritus_back" },
       { text: "Back toward the entrance", next: "scene_detritus" }
     ]
   },
 
-  scene_rummage_middle: {
+  scene_pile_2: {
     art: [
       "DDDDDDDDDDDDDDDD",
+      "DDDWWWWWWDDDDDDD",
+      "DDWKKKKKKWDDDDDD",
+      "DDWKK210KKWDDDDD",
+      "DDWKKKKKKKWDDDDD",
+      "DDWWWWWWWWDDDDDD",
       "DDDDDDDDDDDDDDDD",
-      "DDDDWWWWWWWWWDDD",
-      "DDDWWKKKWWKKWWDD",
-      "DDDWKKKKKKKKKWDD",
-      "DDDWKKKK210KKWDD",
-      "DDDWKKKKKKKKKWDD",
-      "DDDWWWWWWWWWWWDD",
-      "DDDDDDDDDDDDDDDD",
-      "OTTOTTRREEEOTTRD",
-      "ssssssssssssssss",
+      "DDDDDMMMDDDMMMDD",
+      "DDDDMMMMMDDMMMDD",
+      "DDDDDMMMDDDMMMDD",
+      "DDDDSSSSDDDDDDDD",
       "ssssssssssssssss",
     ],
-    text: "You shove aside an old crate. Tucked behind it is a yellowed note, hastily scrawled.\n\nIt reads:\n\"BANANAS NEEDED: 10²¹\"\n\nYou pocket the note.",
-    set: { has_note: true, searched_middle: true },
+    text: (s) => {
+      let base = "You shove crates aside. Three things stand out:\n\n• a crumpled piece of paper — looks like trash\n• a pack of Zynns\n• a small bag of plums";
+      if (s.has_note) base += "\n\nYou unfold the paper. It just says: \"10²¹\"";
+      return base + "\n\n(Carry one. Swap or put back as needed.)";
+    },
     choices: [
+      ...pileChoices(PILE_2_ITEMS, "self"),
       { text: "Back to the middle of the room", next: "scene_detritus_middle" }
     ]
   },
@@ -346,39 +365,39 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "The deepest part of the room. One pile catches your eye — something gold glints from beneath the junk.",
+    text: "The deepest part of the room. One pile glints — two lamps poke out from beneath the junk.",
     choices: [
-      { text: "Rummage through the glinting pile", next: "scene_rummage_back", unless: ["searched_back"] },
-      { text: "Nothing left in this pile but a faintly warm spot", next: "scene_detritus_back", requires: ["searched_back"] },
+      { text: "Rummage through the glinting pile", next: "scene_pile_3" },
       { text: "Back toward the middle", next: "scene_detritus_middle" }
     ]
   },
 
-  scene_rummage_back: {
+  scene_pile_3: {
     art: [
       "DDDDDDDDDDDDDDDD",
-      "DDDDDDwwDDDDDDDD",
-      "DDDDDwwOOwwDDDDD",
-      "DDDDOOyyyyOODDDD",
-      "DDDOyOOyyOOyODDD",
-      "DDDOyyyyyyyyODDD",
-      "DDDDOOyyyyOODDDD",
-      "DDDDDOOyyOODDDDD",
-      "DDDDDDOOOODDDDDD",
-      "DDDDDDDOODDDDDDD",
+      "DDDOOOOOODDgggDD",
+      "DDOyyyyyyODggggD",
+      "DDOyOOOOyODgggDD",
+      "DDOyyyyyyODGGGGD",
+      "DDDOOOOOODDDgDDD",
+      "DDDDDOODDDDDgDDD",
+      "DDDDDDDDDDDGGGGG",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "You pull out an old brass lamp. It's heavy, and warm to the touch.\n\nYou should probably give it a rub.",
-    set: { searched_back: true },
+    text: "Two lamps catch the light:\n\n• a shiny gold lamp\n• a tiki lamp\n\n(Take one. Rub it to find out what's inside.)",
     choices: [
-      { text: "Rub the lamp", next: "scene_genie" },
-      { text: "Leave it. This seems like trouble.", next: "scene_detritus_back" }
+      ...pileChoices(PILE_3_ITEMS, "self"),
+      { text: "Rub the gold lamp", next: "scene_genie", requires: ["has_gold_lamp"] },
+      { text: "Rub the tiki lamp", next: "scene_tiki_router", requires: ["has_tiki_lamp"] },
+      { text: "Back to the back of the room", next: "scene_detritus_back" }
     ]
   },
 
   // -----------------------------------------------
-  // GENIE
+  // GENIE (gold lamp)
   // -----------------------------------------------
 
   scene_genie: {
@@ -388,7 +407,7 @@ const SCENES = {
       "DDDccccccccccDDD",
       "DDccKKccccKKccDD",
       "DDccKKccccKKccDD",
-      "DDcccccCCccccсDD",
+      "DDccccCCCCccccDD",
       "DDccCCCCCCCCccDD",
       "DDDCCCCCCCCCCDDD",
       "DDDDCCCCCCCCDDDD",
@@ -404,7 +423,7 @@ const SCENES = {
       { text: "I wish for world peace", next: "scene_wish_peace", unless: ["wish_used"] },
       { text: "I wish for infinite money", next: "scene_wish_money", unless: ["wish_used"] },
       { text: "Attack the genie", next: "ending_attack_genie" },
-      { text: "Leave the lamp", next: "scene_detritus_back" }
+      { text: "Put the lamp away", next: "scene_pile_3" }
     ]
   },
 
@@ -423,27 +442,27 @@ const SCENES = {
       "KKKKKKKKKKKKKKKK",
       "KKKKKKKKKKKKKKKK",
     ],
-    text: "\"A bottomless pit? Oddly specific. Whatever — your wish is granted.\"\n\nThe genie snaps his fingers. A small, portable bottomless pit appears in your hand. You can feel it tugging gently at the floor.",
+    text: "\"A bottomless pit? Oddly specific. Whatever — your wish is granted.\"\n\nThe genie snaps his fingers. From another room, you hear a distinct WHUMP — the sound of a very deep hole appearing in a very specific spot.",
     set: { has_pit: true, wish_used: true },
     choices: [
-      { text: "Back to the storage room", next: "scene_detritus_back" }
+      { text: "Back to the pile", next: "scene_pile_3" }
     ]
   },
 
   scene_wish_peace: {
     art: [
       "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDGGGGGGGDDDD",
-      "DDDDGGGWWWGGGDDD",
-      "DDDGGWWKKKWWGGDD",
-      "DDDGGWWKKKWWGGDD",
-      "DDDDGGGWWWGGGDDD",
-      "DDDDDGGGGGGGDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
+      "DDDDWWWWWWWWDDDD",
+      "DDWWWWWWWWWWWWDD",
+      "DWWWWWWWWWWWWWWD",
+      "DWWKKWWWWWWKKWWD",
+      "DWWKKWWWWWWKKWWD",
+      "DWWWWWWKKWWWWWWD",
+      "DWWKKKKKKKKKKWWD",
+      "DDWWWWWWWWWWWWDD",
+      "WWDDDDDDDDDDDDWW",
+      "DWWWWWWWWWWWWWWD",
+      "WWDDDDDDDDDDDDWW",
     ],
     text: "\"World peace! Aw, that's sweet.\"\n\nThe genie strokes his chin. \"You know, the most efficient way to achieve peace is to eliminate everyone except one very special and handsome man. Hold still.\"\n\nYou are not that man.",
     ending: true,
@@ -494,16 +513,116 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // DO NOT ENTER — Router
+  // TIKI GENIE (tiki lamp)
+  // -----------------------------------------------
+
+  scene_tiki_router: {
+    route: (s) => s.tiki_tried ? "ending_tiki_dead" : "scene_tiki_first"
+  },
+
+  scene_tiki_first: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDgggGGggDDDD",
+      "DDDggGGGGGGggDDD",
+      "DDgGGKKGGKKGGgDD",
+      "DDgGGGGGGGGGGgDD",
+      "DDgGGGGTTGGGGgDD",
+      "DDgGGGTTTTGGGgDD",
+      "DDDgGGGGGGGGgDDD",
+      "DDDDggGGGGggDDDD",
+      "DDDDDOOOOOODDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "A genie in a hawaiian shirt drags himself out of the lamp, squinting and clutching his head.\n\n\"Ohhh no. No no no. I am NOT doing this today. No wishes. No games. Pick a different lamp.\"\n\nHe shoves you back toward the pile.",
+    set: { tiki_tried: true },
+    choices: [
+      { text: "Back to the pile", next: "scene_pile_3" }
+    ]
+  },
+
+  ending_tiki_dead: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDxxxxxxDDDDD",
+      "DDDxxRRxxxxRRxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDDDxxxxxxxxDDDD",
+      "DDDDDDOOOODDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "The tiki genie surges out of the lamp, eyes blazing.\n\n\"I TOLD YOU. TO TAKE. THE HINT.\"\n\nHe ends you with a coconut.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // DO NOT ENTER routing
   // -----------------------------------------------
 
   scene_donotenter_router: {
     route: (s) => {
+      if (s.has_plums) return "ending_plumpy_plums";
+      if (s.has_pit && !s.has_flashlight && !s.met_plumpy) return "ending_fall_in_pit";
       if (s.reactor_powered) return "scene_plumpy_main";
-      if (s.has_flashlight) return s.met_plumpy ? "scene_plumpy_main" : "scene_plumpy_first";
+      if (s.has_flashlight && !s.met_plumpy) return "scene_plumpy_first";
+      if (s.met_plumpy) return "scene_plumpy_main";
       return "scene_chubba";
     }
   },
+
+  ending_fall_in_pit: {
+    art: [
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKxxKKKKKKK",
+      "KKKKKKKxxKKKKKKK",
+      "KKKKKKxxxxKKKKKK",
+      "KKKKKKxxxxKKKKKK",
+      "KKKKKKKxxKKKKKKK",
+      "KKKKKKKxxKKKKKKK",
+      "KKDDDDDDDDDDDDKK",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "You step into the dark room.\n\nA half-second later, the floor isn't there.\n\nYou fall forever.\n\nShould've known that was the obvious spot for the bottomless pit.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_plumpy_plums: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDPPPPPPDDDDD",
+      "DDDPPPxxxxPPPDDD",
+      "DDPPxxRRRRxxPPDD",
+      "DPPxxRRRRRRxxPPD",
+      "DPPxxxKKKKxxxPPD",
+      "DPPPPPPPPPPPPPPD",
+      "DPPPPMMMMMMPPPPD",
+      "DPPPPMMMMMMPPPPD",
+      "DDPPPMMMMMMMPPDD",
+      "DDDPPPPPPPPPPDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You step into the dark. A voice booms: \"WAIT. I SMELL... PLUMS?\"\n\nPlumpy materializes inches from your face, pupils wide.\n\n\"Oh no. Oh NO. They look JUST LIKE GRANDFATHER PLUMPA.\"\n\nHe consumes the plums whole. The grief becomes rage. The rage turns to you.\n\nYou are next.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // CHUBBA (no flashlight)
+  // -----------------------------------------------
 
   scene_chubba: {
     art: [
@@ -589,10 +708,14 @@ const SCENES = {
       "DDDPPPPPPPPPPDDD",
       "ssssssssssssssss",
     ],
-    text: "You flick on the flashlight.\n\nThe darkness recoils. Standing before you is a smiling, gumdrop-shaped figure with pink skin and a button nose. He waves.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask. My boss has been working on a pet project — keeps all his supplies in the other room. You should check it out!\"\n\nBehind him, you notice a massive industrial reactor.",
+    text: (s) => {
+      let base = "You flick on the flashlight. The darkness recoils.\n\nStanding before you is a smiling, gumdrop-shaped figure with pink skin and a button nose. He waves.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask.\"\n\nBehind him, an enormous industrial reactor labeled \"RBMK — PRIPYAT\" hums quietly in the dark. Next to it sits a small steel barrel, stenciled \"K-40\"";
+      if (s.has_pit) base += ", and a black, inky bottomless pit yawns open right beside it";
+      return base + ".";
+    },
     set: { met_plumpy: true },
     choices: [
-      { text: "Continue talking to Plumpy", next: "scene_plumpy_main" }
+      { text: "Continue", next: "scene_plumpy_main" }
     ]
   },
 
@@ -612,15 +735,15 @@ const SCENES = {
       "ssssssssssssssss",
     ],
     text: (s) => {
-      if (s.reactor_powered) return "Plumpy stands next to the now-humming reactor. \"The back door is open! Whatever's in there has been locked away forever. Probably for a reason. Have fun!\"";
-      if (s.has_bananas) return "Plumpy gives you a thumbs up. \"You've got the bananas and the pit. Reactor's right there. Knock yourself out.\"";
-      if (s.has_note && s.has_pit) return "Plumpy beams. \"Looks like you've got everything you need. Want me to set you up with some bananas?\"";
-      if (s.has_note) return "Plumpy looks at the note. \"Ah, 10 to the 21st bananas. Got it. But uh... where are you planning to put them all? Come back when you've figured that out.\"";
-      return "Plumpy hums to himself. \"My boss left some supplies in the storage room. You should poke around in there.\"";
+      if (s.reactor_powered) return "Plumpy stands next to the now-glowing RBMK. \"The back door is open! Whatever's in there has been locked away forever. Probably for a reason. Have fun!\"";
+      if (s.has_bananas) return "Plumpy gives you a thumbs up. \"You've got everything you need. The RBMK is right there. Knock yourself out.\"";
+      return "Plumpy adjusts his hat. \"I've got some spare stuff on me, if you're in the market. Uranium, bananas, funko pops. What'll it be?\"\n\nThe K-40 barrel hums faintly beside the RBMK" + (s.has_pit ? ", with the bottomless pit yawning open just beyond it." : ".");
     },
     choices: [
-      { text: "Tell Plumpy how many bananas you need", next: "scene_plumpy_bananas", requires: ["has_note", "has_pit"], unless: ["has_bananas"] },
-      { text: "Approach the reactor", next: "scene_fuel_reactor", requires: ["has_bananas"], unless: ["reactor_powered"] },
+      { text: "I'll take some uranium", next: "ending_uranium", unless: ["has_bananas", "reactor_powered"] },
+      { text: "I'll take some bananas", next: "scene_plumpy_bananas", unless: ["has_bananas", "reactor_powered"] },
+      { text: "Funko pops, please", next: "ending_funko", unless: ["has_bananas", "reactor_powered"] },
+      { text: "Approach the RBMK", next: "scene_fuel_reactor", requires: ["has_bananas"], unless: ["reactor_powered"] },
       { text: "Enter the back room", next: "scene_backroom_router", requires: ["reactor_powered"] },
       { text: "Attack Plumpy", next: "ending_attack_plumpy" },
       { text: "Leave the room", next: "scene_test" }
@@ -642,14 +765,17 @@ const SCENES = {
       "DDDPPPPPPPPPPDDD",
       "ssssssssssssssss",
     ],
-    text: "Plumpy adjusts his hat. \"Okay. How many bananas do you need?\"",
+    text: "Plumpy raises an eyebrow. \"Bananas, sure. How many do you need?\"",
     input: {
       placeholder: "Number of bananas",
       accept: ["10^21", "10**21", "1e21", "1e+21", "10e21", "1000000000000000000000"],
-      error: "Plumpy frowns. \"That doesn't sound right. Check your notes.\"",
-      success_next: "scene_plumpy_bananas_done",
-      set: { has_bananas: true }
+      error: "Plumpy frowns. \"That doesn't sound right. Are you sure?\"",
+      success_next: "scene_plumpy_bananas_check"
     }
+  },
+
+  scene_plumpy_bananas_check: {
+    route: (s) => s.has_pit ? "scene_plumpy_bananas_done" : "ending_no_pit"
   },
 
   scene_plumpy_bananas_done: {
@@ -668,9 +794,73 @@ const SCENES = {
       "ssssssssssssssss",
     ],
     text: "Plumpy claps his hands.\n\n\"1,000 years of global banana production coming right up!\"\n\nA cascade of bananas pours from the ceiling directly into your bottomless pit. The pit absorbs them without complaint.",
+    set: { has_bananas: true },
     choices: [
-      { text: "Now approach the reactor", next: "scene_fuel_reactor" }
+      { text: "Now approach the RBMK", next: "scene_fuel_reactor" }
     ]
+  },
+
+  ending_no_pit: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDPPPPPPDDDDD",
+      "DDDPPPPPPPPPPDDD",
+      "DDPPPPPPPPPPPPDD",
+      "DPPPpKKPPPPKKpPD",
+      "DPPPpKKPPPPKKpPD",
+      "DPPPPPPPPPPPPPPD",
+      "DPPPPKKKKKKKPPPD",
+      "DDPPPPPPPPPPPPDD",
+      "DDDPPPPPPPPPPDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "Plumpy looks at you. Then at your empty hands. Then back at you.\n\n\"10 to the 21 bananas. Sure. And you were planning to put them where, exactly? On the floor?\"\n\nHe shakes his head and waves you off. The bananas never come. The RBMK never fires.",
+    ending: true,
+    ending_label: "You Lose",
+    ending_class: "bad"
+  },
+
+  ending_uranium: {
+    art: [
+      "RRRRRRRRRRRRRRRR",
+      "RRxxxxxxxxxxxxRR",
+      "RxxxxnnNNNNxxxxR",
+      "RxxnNNNNNNNNNxxR",
+      "RxnNNNuuuuNNNNxR",
+      "RxNNNuuuuuuuNNxR",
+      "RxnNNNuuuuNNNNxR",
+      "RxxnNNNNNNNNNxxR",
+      "RxxxxnNNNNxxxxRR",
+      "RRxxxxxxxxxxxxRR",
+      "RRRRRRRRRRRRRRRR",
+      "RRRRRRRRRRRRRRRR",
+    ],
+    text: "Plumpy hands you a glowing rod of enriched uranium with a friendly smile.\n\nYou feed it to the RBMK.\n\nThe RBMK was, in fact, designed for uranium. The amount you fed it, however, was not. The graphite tips slip. The void coefficient does its thing.\n\nElevated.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  ending_funko: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDOOOODDDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDOOWWOOWWOODDD",
+      "DDDOOWKWWWKWOODD",
+      "DDDOOOOKKKOOOODD",
+      "DDDDOOOOOOOOODDD",
+      "DDDDDOOOOOOODDDD",
+      "DDDDOOOOOOOOODDD",
+      "DDDDOOOOOOOOODDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "Plumpy raises an eyebrow.\n\n\"Y'know... you really aren't the type of guy my boss would want around here.\"\n\nHe gestures. The door slams behind you. You're back on the street, holding a single Funko Pop, with no memory of the last hour and a vague sense of shame.",
+    ending: true,
+    ending_label: "You Lose",
+    ending_class: "bad"
   },
 
   ending_attack_plumpy: {
@@ -695,7 +885,7 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // REACTOR
+  // RBMK
   // -----------------------------------------------
 
   scene_fuel_reactor: {
@@ -713,7 +903,7 @@ const SCENES = {
       "DDDDNNNNNNNNNNDD",
       "ssssssssssssssss",
     ],
-    text: "You approach the RBMK reactor. There's a fuel chute. You connect the bottomless pit.\n\n10^21 bananas pour into the reactor over the next twelve seconds.\n\nThe reactor hums to life. Behind you, a heavy door grinds open in the back wall.",
+    text: "You approach the RBMK. The stenciled letters read \"PRIPYAT.\" A fuel chute waits, open.\n\nYou connect your bottomless pit and 10^21 bananas pour into the reactor core over twelve seconds.\n\nThe RBMK hums to life. Behind you, a heavy door grinds open in the back wall.",
     set: { reactor_powered: true },
     choices: [
       { text: "Enter the back room", next: "scene_backroom_router" },
@@ -722,7 +912,7 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // BACK ROOM — Hormuz lever + cat
+  // BACK ROOM
   // -----------------------------------------------
 
   scene_backroom_router: {
@@ -748,11 +938,18 @@ const SCENES = {
       "DDDDDDDDDDDDDDDD",
       "ssssssssssssssss",
     ],
-    text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, pawing at it lazily.\n\nFrom back toward the entrance of the do-not-enter room, you hear an unfamiliar noise. Footsteps?",
+    text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, pawing at it lazily.\n\nFrom back toward the entrance, you hear an unfamiliar noise. Footsteps?",
     choices: [
       { text: "Investigate the noise", next: "scene_investigate_noise", set: { investigated_noise: true } },
       { text: "Approach the cat", next: "ending_ww3_cat_first" },
       { text: "Attack the cat", next: "ending_attack_cat" }
+    ]
+  },
+
+  scene_backroom_postjohn: {
+    text: "You're back in the lever room. The cat eyes you. Better grab a treat from the genie first.",
+    choices: [
+      { text: "Back to the genie", next: "scene_genie_returning" }
     ]
   },
 
@@ -799,10 +996,14 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // JOHN PRIME
+  // JOHN PRIME — entry routes through ssn/passport check
   // -----------------------------------------------
 
   scene_investigate_noise: {
+    route: (s) => (s.has_ssn || s.has_passport) ? "ending_john_caught" : "scene_john_prime"
+  },
+
+  scene_john_prime: {
     art: [
       "DDDDDDDDDDDDDDDD",
       "DDDDDDDZZZDDDDDD",
@@ -821,9 +1022,31 @@ const SCENES = {
     choices: [
       { text: "Yes, I touched things", next: "ending_john_admit" },
       { text: "No, I haven't touched anything", next: "ending_john_lie" },
+      { text: "Hey, want to listen to some music? I've got a speaker.", next: "scene_john_speaker", requires: ["has_speaker"] },
       { text: "Would you like to play a game of Magic: The Gathering?", next: "scene_mtg_color" },
       { text: "Attack John Prime", next: "ending_attack_john" }
     ]
+  },
+
+  ending_john_caught: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZxxxZZDDDD",
+      "DDDDZZxRRRxZZDDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxRRRRRxZZDD",
+      "DDDZZxxRRRxxZZDD",
+      "DDDZZxxxxxxxZZDD",
+      "DDDDZZxxxxxxZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime appears in the doorway, takes one look at the documents poking out of your pocket, and his eyes go black.\n\n\"That's my passport. That's my SOCIAL SECURITY CARD.\"\n\nHe doesn't even let you speak. You cease to exist.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
   },
 
   ending_john_admit: {
@@ -889,7 +1112,36 @@ const SCENES = {
     ending_class: "bad"
   },
 
-  // MTG
+  // -----------------------------------------------
+  // Speaker path — John Prime + bluetooth + hints
+  // -----------------------------------------------
+
+  scene_john_speaker: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDZZZZZDDDDD",
+      "DDDDZZZWWWZZZDDD",
+      "DDDZZWWKKWWZZDDD",
+      "DDDZZWWWWWWZZDDD",
+      "DDDZZWWKKKKWZZDD",
+      "DDDDZZZZZZZZZDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDOOOOOOOODDDDD",
+      "DDDOWWWWWWWODDDD",
+      "DDDOOOOOOOODDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? My genie has treats. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed.\"",
+    set: { mtg_played: true },
+    choices: [
+      { text: "Head back to the genie", next: "scene_genie_returning" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // MAGIC: THE GATHERING
+  // -----------------------------------------------
+
   scene_mtg_color: {
     art: [
       "DDDDDDDDDDDDDDDD",
@@ -966,7 +1218,7 @@ const SCENES = {
   },
 
   // -----------------------------------------------
-  // SECOND GENIE VISIT — treats
+  // GENIE TREATS
   // -----------------------------------------------
 
   scene_genie_returning: {
@@ -986,31 +1238,20 @@ const SCENES = {
     ],
     text: "The genie sighs as you approach.\n\n\"You again. No, I'm still out of wishes. But — I do have these. The cat needs to be fed. Pick one.\"\n\nHe holds out three small packages.",
     choices: [
-      { text: "Take the treat tube", next: "scene_feed_cat", set: { has_tube: true } },
-      { text: "Take the hard treats", next: "scene_feed_cat", set: { has_hard_treats: true } },
-      { text: "Take the catnip", next: "scene_feed_cat", set: { has_catnip: true } },
+      { text: "Take the treat tube", next: "scene_feed_cat", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },
+      { text: "Take the hard treats", next: "scene_feed_cat", set: { has_tube: false, has_hard_treats: true, has_catnip: false } },
+      { text: "Take the catnip", next: "scene_feed_cat", set: { has_tube: false, has_hard_treats: false, has_catnip: true } },
       { text: "Attack the genie", next: "ending_attack_genie" }
     ]
   },
-
-  // -----------------------------------------------
-  // FEED THE CAT
-  // -----------------------------------------------
 
   scene_feed_cat: {
     route: (s) => {
       if (s.has_tube) return "ending_win";
       if (s.has_hard_treats) return "ending_ww3_hard";
       if (s.has_catnip) return "ending_ww3_catnip";
-      return "scene_backroom_first"; // fallback
+      return "scene_backroom_first";
     }
-  },
-
-  scene_backroom_postjohn: {
-    text: "You're back in the lever room. The cat eyes you. Better grab a treat from the genie first.",
-    choices: [
-      { text: "Back to the genie", next: "scene_genie_returning" }
-    ]
   },
 
   ending_win: {
@@ -1086,20 +1327,25 @@ let state = {};
 function resetState() {
   state = {
     has_flashlight: false,
+    has_ssn: false,
+    has_passport: false,
+    has_speaker: false,
     has_note: false,
+    has_zynns: false,
+    has_plums: false,
+    has_gold_lamp: false,
+    has_tiki_lamp: false,
     has_pit: false,
     has_bananas: false,
-    reactor_powered: false,
     has_tube: false,
     has_hard_treats: false,
     has_catnip: false,
-    searched_close: false,
-    searched_middle: false,
-    searched_back: false,
+    reactor_powered: false,
     wish_used: false,
     met_plumpy: false,
     investigated_noise: false,
     mtg_played: false,
+    tiki_tried: false,
   };
 }
 
@@ -1130,8 +1376,14 @@ function artToDataUrl(artLines) {
 function buildInventory() {
   const items = [];
   if (state.has_flashlight) items.push("flashlight");
-  if (state.has_note) items.push("note");
-  if (state.has_pit) items.push("bottomless pit");
+  if (state.has_ssn) items.push("SSN card");
+  if (state.has_passport) items.push("passport");
+  if (state.has_speaker) items.push("speaker");
+  if (state.has_note) items.push("scrap of paper");
+  if (state.has_zynns) items.push("Zynns");
+  if (state.has_plums) items.push("plums");
+  if (state.has_gold_lamp) items.push("gold lamp");
+  if (state.has_tiki_lamp) items.push("tiki lamp");
   if (state.has_bananas) items.push("10²¹ bananas");
   if (state.has_tube) items.push("treat tube");
   if (state.has_hard_treats) items.push("hard treats");
@@ -1159,7 +1411,6 @@ function escapeHtml(str) {
 function render(sceneId) {
   let scene = SCENES[sceneId];
 
-  // Handle routing scenes
   while (scene && scene.route) {
     const next = scene.route(state);
     scene = SCENES[next];
@@ -1211,14 +1462,15 @@ function render(sceneId) {
 
   app.innerHTML = html;
 
-  // Attach handlers
   if (scene.choices && !scene.input) {
     const visible = scene.choices.filter(isChoiceVisible);
     document.querySelectorAll(".choice").forEach((btn) => {
       btn.addEventListener("click", () => {
         const c = visible[parseInt(btn.dataset.idx)];
         if (c.set) Object.assign(state, c.set);
-        render(c.next);
+        // "self" means stay on same scene (used for piles where picking re-renders)
+        const target = c.next === "self" || c.next === null ? sceneId : c.next;
+        render(target);
       });
     });
   }
@@ -1239,7 +1491,8 @@ function render(sceneId) {
         if (scene.input.set) Object.assign(state, scene.input.set);
         render(scene.input.success_next);
       } else {
-        errorEl.textContent = scene.input.error || "That's not it. Try again.";
+        const errMsg = typeof scene.input.error === "function" ? scene.input.error(state) : (scene.input.error || "That's not it. Try again.");
+        errorEl.textContent = errMsg;
       }
     };
 
