@@ -20,14 +20,47 @@
   }
   .container { width: 100%; max-width: 600px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
   .inventory {
-    font-size: 0.78rem;
-    color: #6a6a72;
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     margin-bottom: 16px;
-    letter-spacing: 0.02em;
     animation: fadeIn 0.4s ease;
   }
-  .inventory-label { color: #4a4a52; }
+  .inventory-label {
+    font-size: 0.7rem;
+    color: #5a5a62;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-right: 4px;
+  }
+  .inv-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #1e1e26;
+    border: 1px solid #2e2e38;
+    font-size: 0.78rem;
+    color: #c8c8d0;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .inv-chip .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #888;
+  }
+  .inv-chip.tool   { border-color: #4a6a8a; }   .inv-chip.tool .dot   { background: #6a9adb; }
+  .inv-chip.doc    { border-color: #8a7a3a; }   .inv-chip.doc .dot    { background: #e0c870; }
+  .inv-chip.food   { border-color: #6a8a3a; }   .inv-chip.food .dot   { background: #a8d870; }
+  .inv-chip.gift   { border-color: #8a3a6a; }   .inv-chip.gift .dot   { background: #d870aa; }
+  .inv-chip.weapon { border-color: #8a4a3a; }   .inv-chip.weapon .dot { background: #d8704a; }
+  .inv-chip.misc   { border-color: #555;    }   .inv-chip.misc .dot   { background: #aaa; }
   .pixel-art {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
@@ -268,12 +301,18 @@ const SCENES = {
   },
 
   scene_john_basement: {
+    sprite: (s) => s.charger_path_used && !s.john_handled ? "john_idle" : "john_cast",
     text: (s) => {
-      if (s.samara_resolved) return "John Prime nods at you. \"Samara handled, then. Good. Hey, listen — about that pit. Got a minute?\"";
-      if (s.john_handled) return "John Prime glances up from his phone. \"Still working on the cat thing? Go on.\"";
-      return "John Prime tilts his head. \"What.\"";
+      if (s.charger_path_used && !s.john_handled && state.has_speaker) {
+        return "John Prime perks up. \"You got it! Hand it over.\"";
+      }
+      if (s.charger_path_used && !s.john_handled) {
+        return "John Prime taps his foot impatiently.\n\n\"Did you find that speaker yet?\"";
+      }
+      return "He seems to be occupied rummaging through his Magic cards.\n\n\"Did you feed the cat?\"";
     },
     choices: [
+      { text: "Give him the speaker", next: "scene_john_speaker", requires: ["has_speaker", "charger_path_used"], unless: ["john_handled"] },
       { text: "Back to the basement", next: "scene_test" }
     ]
   },
@@ -344,7 +383,7 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "You dig through the closest pile. Four things stand out:\n\n• a flashlight\n• a social security card\n• a passport\n• a small Bluetooth speaker\n\n(You can carry one item from this pile. Take, swap, or put back.)",
+    text: "You dig through the closest pile. Four things stand out:\n\n• a flashlight\n• a social security card\n• a passport\n• a small Bluetooth speaker (it's out of batteries)\n\n(You can carry one item from this pile. Take, swap, or put back.)",
     choices: [
       ...pileChoices(PILE_1_ITEMS, "self"),
       { text: "Back to the storage room", next: "scene_detritus" }
@@ -864,28 +903,28 @@ const SCENES = {
     text: "Plumpy claps his hands.\n\n\"1,000 years of global banana production coming right up!\"\n\nA cascade of bananas pours from the ceiling directly into your bottomless pit. The pit absorbs them without complaint.",
     set: { has_bananas: true },
     choices: [
-      { text: "Now approach the RBMK", next: "scene_fuel_reactor" }
+      { text: "Continue", next: "scene_plumpy_main" }
     ]
   },
 
   ending_no_pit: {
     art: [
-      "DDDDDDpPPpDDDDDD",
-      "DDDDpPPPPPPpDDDD",
-      "DDDpPPPPPPPPpDDD",
-      "DDpPPKKPPPPKKPpD",
-      "DDpPPKKPPPPKKPpD",
-      "DDpPPPPPKKPPPPpD",
-      "DpPPPPPPPPPPPPpD",
-      "DDPPPPPPPPPPPPDD",
-      "DDDPPPPPPPPPPDDD",
-      "DDDDttUuUuUttDDD",
-      "DDDDDttUuUttDDDD",
-      "ssssssssssssssss",
+      "DDDDDDDDDDDDDDDD",
+      "Dyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyKKyyyyyKKyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyKKKyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
+      "yyyyyyyyyyyyyyyy",
     ],
-    text: "Plumpy looks at you. Then at your empty hands. Then back at you.\n\n\"10 to the 21 bananas. Sure. And you were planning to put them where, exactly? On the floor?\"\n\nHe shakes his head and waves you off. The bananas never come. The RBMK never fires.",
+    text: "Plumpy snaps his fingers.\n\n10²¹ bananas materialize directly above you.\n\nThat's roughly 2,000 times the mass of all life on Earth, condensed into a single inexplicable cloud of fruit.\n\nThe last thing you hear is a faint, polite \"oh.\"",
     ending: true,
-    ending_label: "You Lose",
+    ending_label: "You Died",
     ending_class: "bad"
   },
 
@@ -1059,8 +1098,8 @@ const SCENES = {
     ],
     text: "Samara stands three feet from you. The room is silent except for her breathing.",
     choices: [
-      { text: "Flee", next: "ending_samara_flee" },
-      { text: "Fight", next: "ending_samara_fight_early" },
+      { text: "Run — while you still can", next: "ending_samara_flee" },
+      { text: "Rally yourself, and start swinging", next: "ending_samara_fight_early" },
       { text: "Yell sexist remarks at her", next: "scene_samara_round_2" },
       { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
       { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
@@ -1082,11 +1121,11 @@ const SCENES = {
       "DDDDDKKDDKKDDDDD",
       "KKKKKKKKKKKKKKKK",
     ],
-    text: "Samara recoils, moaning. She seems weakened — visibly diminished by your remarks.\n\nShe re-gathers herself and advances again, but slower.",
+    text: "She recoils at your words. She seems to have been caught off guard and weakened.\n\nShe re-gathers herself, hair still dripping, and advances again — slower this time.",
     set: { samara_round: 2 },
     choices: [
-      { text: "Flee", next: "ending_samara_flee" },
-      { text: "Fight", next: "ending_samara_fight_early" },
+      { text: "Run — while you still can", next: "ending_samara_flee" },
+      { text: "Rally yourself, and start swinging", next: "ending_samara_fight_early" },
       { text: "Tell her you think the 19th Amendment was a mistake", next: "scene_samara_round_3" },
       { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
       { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
@@ -1108,11 +1147,11 @@ const SCENES = {
       "DDDDDDDDDDDDDDDD",
       "KKKKKKKKKKKKKKKK",
     ],
-    text: "Samara is on her knees now. Her hair hangs limp. The Ring iconography is fading — she's barely a threat anymore.\n\nThis is your moment.",
+    text: "Her body withers as it crumples under the weight of such unbridled and historically specific misogyny.\n\nShe reverts back to human form. A small, dark-haired girl. She looks up at you with wide, tearful eyes.\n\n\"Please. All I've ever wanted was a friend. Please, stop.\"",
     set: { samara_round: 3 },
     choices: [
       { text: "Apologize for what you said earlier", next: "ending_samara_apology" },
-      { text: "Seize the moment, finish her", next: "ending_samara_win" },
+      { text: "Nice try, bitch — finish her", next: "ending_samara_win" },
       { text: "Run for help", next: "ending_samara_flee" },
       { text: "Open fire with the Kalashnikov", next: "ending_samara_kalash", requires: ["has_kalashnikov"] },
       { text: "Call for John Prime", next: "scene_samara_john_save", requires: ["samara_eligible_john_call"] }
@@ -1226,11 +1265,34 @@ const SCENES = {
   },
 
   scene_samara_john_save: {
+    route: (s) => {
+      if (s.speaker_path_used) return "scene_samara_save_speaker";
+      if (s.mtg_thirteen_done) return "scene_samara_save_fatality";
+      return "scene_samara_save_charger";
+    }
+  },
+
+  scene_samara_save_speaker: {
     sprite: "john_friendly",
-    text: (s) => {
-      if (s.charger_path_used) return "You shout for John Prime.\n\nHe phases in immediately, speaker blasting.\n\n\"Samara! Yeah. Hey, come play some Magic the Gathering with me. Bring snacks.\"\n\nSamara perks up, glances at you, shrugs, and follows John out of the room.\n\nThe pit returns to its quiet, void-y self.";
-      return "You shout for John Prime.\n\nHe phases in, mid-yawn, and squints at Samara.\n\n\"Oh, hey. Look, you can't keep crawling out of MY pit. C'mon. I'll set you up at the table.\"\n\nSamara turns and follows him out of the room without acknowledging you.\n\nThe pit returns to its quiet, void-y self.";
-    },
+    text: "You shout for John Prime.\n\nHe phases in mid-stride, Bluetooth speaker on his shoulder, Monster Mash blasting. Samara turns toward the sound.\n\n\"Samara! Hey. I'm setting up at the table. Come hang. We're listening to Monster Mash. You'll like it.\"\n\nHe holds out his hand. After a moment of consideration, Samara takes it. They walk back toward the entrance together, the speaker bouncing along behind them.\n\nThe pit returns to its quiet, void-y self.",
+    set: { samara_resolved: true },
+    choices: [
+      { text: "Continue to the Plumpy room", next: "scene_plumpy_main" }
+    ]
+  },
+
+  scene_samara_save_charger: {
+    sprite: "john_friendly",
+    text: "You shout for John Prime.\n\nHe phases in, mid-yawn, and squints at Samara.\n\n\"Oh, hey. Samara. C'mon, you can't keep crawling out of MY pit. Come play some Magic with me, I'll set you up at the table.\"\n\nSamara turns and follows him out of the room without acknowledging you.\n\nThe pit returns to its quiet, void-y self.",
+    set: { samara_resolved: true },
+    choices: [
+      { text: "Continue to the Plumpy room", next: "scene_plumpy_main" }
+    ]
+  },
+
+  scene_samara_save_fatality: {
+    sprite: "john_attack",
+    text: "You shout for John Prime.\n\nHe phases in instantly, eyes already rolling.\n\n\"Oh, are you KIDDING me. The ol' ghost-girl-in-the-pit routine? Classic genie.\"\n\nHe crosses to Samara in three strides and backhands her across the face. She staggers.\n\n\"Get a load of this. Knockoff Sadako energy, dripping wet, can't even commit to a haunting. You're a discount J-horror cosplay with bad posture and a Hot Topic shroud. The Ring came out in 2002, sweetheart. You're more dated than Tamagotchis. Your whole brand is 'wet hair' — that's it, that's the whole gimmick — and somehow you've leaned into it for two decades. Even your video tape format is obsolete. You're a thrift-store haunting in a streaming world. The only thing scarier than you is your commitment to a dying medium.\"\n\nSamara opens her mouth to respond.\n\nJohn Prime grabs her by the hair, plants a boot on her sternum, and rips her head and spine out in a single fluid motion.\n\nSomewhere distant, a deep voice booms: \"FATALITY.\"\n\nHe lets the remains drop into the pit. The pit accepts them.",
     set: { samara_resolved: true },
     choices: [
       { text: "Continue to the Plumpy room", next: "scene_plumpy_main" }
@@ -1313,8 +1375,8 @@ const SCENES = {
 
   scene_john_speaker: {
     sprite: "john_friendly",
-    text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? My genie has treats. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed.\"\n\nHe heads off toward the basement.",
-    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true },
+    text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? My genie has treats. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed. By the way — the genie's been putting Samara in that bottomless pit. If she crawls out, just send her my way. She loves Monster Mash.\"\n\nHe heads off toward the basement, speaker in hand.",
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, has_speaker: false, speaker_path_used: true },
     choices: [
       { text: "Head back through the basement", next: "scene_test" }
     ]
@@ -1326,10 +1388,10 @@ const SCENES = {
 
   scene_john_charger: {
     sprite: "john_friendly",
-    text: "John Prime's eyes brighten.\n\n\"YOU HAVE A CHARGER? My speaker died this morning. I've been STEWING.\"\n\nHe takes the charger, plugs in, and within seconds is blasting his jams. The aura of menace dissolves into pure vibes.\n\n\"You're alright, kid. Listen — by the way, I heard there's a bottomless pit in the other room. The genie has been putting the Ring girl, Samara, in there recently. If she gives you any trouble, just send her in to play some Magic the Gathering with me.\"\n\n\"Now, feed my cat. My genie has treats. The tube is the good one.\"\n\nHe heads off toward the basement.",
-    set: { john_handled: true, has_charger: false, samara_eligible_john_call: true, charger_path_used: true },
+    text: "John Prime's eyes brighten.\n\n\"YOU HAVE A CHARGER? Oh, thank the void. My speaker died this morning and I've been STEWING.\"\n\nHe takes the charger and pockets it.\n\n\"Hey — actually. I think there's a Bluetooth speaker in that storage room. Same kind I had. Go grab it, bring it back to me, and we'll be in business. Then we'll talk about the cat.\"\n\nHe leans against the wall to wait.",
+    set: { has_charger: false, charger_path_used: true },
     choices: [
-      { text: "Head back through the basement", next: "scene_test" }
+      { text: "Head back to storage", next: "scene_test" }
     ]
   },
 
@@ -1479,20 +1541,7 @@ const SCENES = {
   },
 
   scene_approach_cat: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDDDDDDDSSDDDDDD",
-      "DDETTDDDDSSDDDDD",
-      "DDTTTTTTDSSDDDDD",
-      "DDTKKTTTDSSDDDDD",
-      "DDTTTTTTTSSDDDDD",
-      "DDDTTTTTTSSDDDDD",
-      "DDDDTTTTTSSDDDDD",
-      "DDDDDDDDDSSDDDDD",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "cat_idle",
     text: "You head back to the lever room, treat in hand.\n\nThe cat is still there, batting the lever from side to side with rhythmic patience. It pauses when you step in, ears swiveling toward you. Its eyes lock on the treat.\n\nThe lever continues its slow oscillation between worlds.",
     choices: [
       { text: "Offer the treat to the cat", next: "scene_feed_cat" }
@@ -1509,20 +1558,7 @@ const SCENES = {
   },
 
   scene_cat_satisfied: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDDDDDDDDDD",
-      "DDETTDDDDDDETTDD",
-      "DDTTTTTTTTTTTTDD",
-      "DDTggTTTTTTggTDD",
-      "DDTTTTKKKKTTTTDD",
-      "DDTTTTTTTTTTTTDD",
-      "DDDTTTTTTTTTTDDD",
-      "DDDDTTTTTTTTDDDD",
-      "yyyyyyyyyyyyyyyy",
-      "ssssssssssssssss",
-      "ssssssssssssssss",
-    ],
+    sprite: "cat_idle",
     text: "You squeeze the treat tube. The cat's eyes go wide. It licks furiously.\n\nThe cat purrs. It nuzzles you. It is no longer interested in the lever.\n\nThe lever sits motionless, suspended between states. Whatever you do with it now, the Strait will resolve.",
     choices: [
       { text: "Open the Strait of Hormuz", next: "scene_john_open" },
@@ -1531,20 +1567,7 @@ const SCENES = {
   },
 
   scene_john_open: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWKKKKWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_idle",
     text: "You pull the lever. The Strait of Hormuz: OPEN.\n\nThe door bangs open behind you. John Prime stands in the threshold, eyes narrowed.\n\n\"So. You wouldn't happen to have opened the Strait of Hormuz using my bottomless pit, my RBMK reactor, and humanity's entire historical banana yield... right?\"",
     choices: [
       { text: "Lie — \"No, it was already open\"", next: "ending_john_dust" },
@@ -1554,20 +1577,7 @@ const SCENES = {
   },
 
   scene_john_closed: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWKKWWKKWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWKKKKWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_friendly",
     text: "You press the lever down. The Strait of Hormuz: CLOSED.\n\nThe door bangs open behind you. John Prime walks in, hands in his robe pockets, looking pleased.\n\n\"Ah, right on. Keeping it closed for now. Did Plumpy tip you off?\"",
     choices: [
       { text: "Lie — \"No, no one tipped me off\"", next: "ending_john_dust" },
@@ -2183,6 +2193,9 @@ function resetState() {
     samara_round: 0,
     samara_spawned: false,
     samara_resolved: false,
+    speaker_path_used: false,
+    charger_path_used: false,
+    mtg_thirteen_done: false,
     plumpy_lit_room: false,
     fracking_initiated: false,
     frack_q1_wrong: false,
@@ -2222,22 +2235,25 @@ function artToDataUrl(artLines) {
 
 function buildInventory() {
   const items = [];
-  if (state.has_flashlight) items.push("flashlight");
-  if (state.has_ssn) items.push("SSN card");
-  if (state.has_passport) items.push("passport");
-  if (state.has_speaker) items.push("speaker");
-  if (state.has_note) items.push("scrap of paper");
-  if (state.has_zynns) items.push("Zynns");
-  if (state.has_plums) items.push("plums");
-  if (state.has_mtg_deck) items.push("MtG deck");
-  if (state.has_charger) items.push("micro USB charger");
-  if (state.has_kalashnikov) items.push("Kalashnikov");
-  if (state.has_bananas) items.push("10²¹ bananas");
-  if (state.has_tube) items.push("treat tube");
-  if (state.has_hard_treats) items.push("hard treats");
-  if (state.has_catnip) items.push("catnip");
+  if (state.has_flashlight)  items.push({ label: "flashlight",     cat: "tool" });
+  if (state.has_ssn)         items.push({ label: "SSN card",       cat: "doc" });
+  if (state.has_passport)    items.push({ label: "passport",       cat: "doc" });
+  if (state.has_speaker)     items.push({ label: "speaker",        cat: "tool" });
+  if (state.has_note)        items.push({ label: "scrap of paper", cat: "doc" });
+  if (state.has_zynns)       items.push({ label: "Zynns",          cat: "misc" });
+  if (state.has_plums)       items.push({ label: "plums",          cat: "food" });
+  if (state.has_mtg_deck)    items.push({ label: "MtG deck",       cat: "misc" });
+  if (state.has_charger)     items.push({ label: "USB charger",    cat: "tool" });
+  if (state.has_kalashnikov) items.push({ label: "Kalashnikov",    cat: "weapon" });
+  if (state.has_bananas)     items.push({ label: "10²¹ bananas",   cat: "food" });
+  if (state.has_tube)        items.push({ label: "treat tube",     cat: "gift" });
+  if (state.has_hard_treats) items.push({ label: "hard treats",    cat: "gift" });
+  if (state.has_catnip)      items.push({ label: "catnip",         cat: "gift" });
   if (!items.length) return "";
-  return `<div class="inventory"><span class="inventory-label">Carrying:</span> ${items.join(" · ")}</div>`;
+  const chips = items.map(i =>
+    `<span class="inv-chip ${i.cat}"><span class="dot"></span>${i.label}</span>`
+  ).join("");
+  return `<div class="inventory"><span class="inventory-label">Carrying</span>${chips}</div>`;
 }
 
 function isChoiceVisible(c) {
@@ -2275,8 +2291,11 @@ function render(sceneId) {
   let html = "";
   html += buildInventory();
 
-  if (scene.sprite && SPRITES[scene.sprite]) {
-    html += `<img class="pixel-art" src="${SPRITES[scene.sprite]}" alt="">`;
+  if (scene.sprite) {
+    const spriteName = typeof scene.sprite === "function" ? scene.sprite(state) : scene.sprite;
+    if (spriteName && SPRITES[spriteName]) {
+      html += `<img class="pixel-art" src="${SPRITES[spriteName]}" alt="">`;
+    }
   } else if (scene.art) {
     const url = artToDataUrl(scene.art);
     if (url) html += `<img class="pixel-art" src="${url}" alt="">`;
