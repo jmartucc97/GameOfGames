@@ -130,6 +130,30 @@
     cursor: pointer;
   }
   .restart-link:hover { color: #777; }
+  .stats-block {
+    background: #16161c;
+    border: 1px solid #2a2a32;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    animation: fadeIn 0.4s ease 0.2s both;
+  }
+  .stats-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6a6a72;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .stats-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.92rem;
+    color: #c8c8ca;
+    padding: 4px 0;
+  }
+  .stats-row span:first-child { color: #888; }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -149,10 +173,10 @@ const PALETTE = {
   "T": "#5a3a1a", "t": "#8a5a2a", "S": "#7a7a8a", "B": "#3a5a9a",
   "L": "#a0c0e0", "Y": "#f0c050", "R": "#c03a3a", "M": "#9a6ac0",
   "m": "#cd8eea", "D": "#1a1a2a", "O": "#d09040", "E": "#5a4a2a",
-  "s": "#3a3a44", "k": "#1a1a1a", "P": "#ff7799", "p": "#ffaacc",
+  "s": "#3a3a44", "k": "#1a1a1a", "P": "#4aa838", "p": "#7acc55",
   "c": "#88bbff", "C": "#5588dd", "F": "#ffe9a0", "N": "#22aa44",
   "n": "#66ff88", "x": "#aa2222", "Z": "#552255", "w": "#ddeeff",
-  "y": "#ffd770", "u": "#aaffaa", "U": "#44dd44",
+  "y": "#ffd770", "u": "#aa3aaa", "U": "#dd66dd", "h": "#2a6a1a",
 };
 
 const START_SCENE = "scene_test";
@@ -600,17 +624,17 @@ const SCENES = {
 
   ending_plumpy_plums: {
     art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDPPPPPPDDDDD",
-      "DDDPPPxxxxPPPDDD",
-      "DDPPxxRRRRxxPPDD",
-      "DPPxxRRRRRRxxPPD",
-      "DPPxxxKKKKxxxPPD",
-      "DPPPPPPPPPPPPPPD",
-      "DPPPPMMMMMMPPPPD",
-      "DPPPPMMMMMMPPPPD",
-      "DDPPPMMMMMMMPPDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPRRPPPPRRPpD",
+      "DDpPPRRPPPPRRPpD",
+      "DDpPPRRRRRRRRPpD",
+      "DpPPPPRRRRRRPPpD",
+      "PpPPPPPPPPPPPPpP",
+      "DDPPPPPPPPPPPPDD",
+      "DDDDttuuuuuttDDD",
+      "DDDDDttuuuttDDDD",
       "ssssssssssssssss",
     ],
     text: "You step into the dark. A voice booms: \"WAIT. I SMELL... PLUMS?\"\n\nPlumpy materializes inches from your face, pupils wide.\n\n\"Oh no. Oh NO. They look JUST LIKE GRANDFATHER PLUMPA.\"\n\nHe consumes the plums whole. The grief becomes rage. The rage turns to you.\n\nYou are next.",
@@ -694,21 +718,21 @@ const SCENES = {
 
   scene_plumpy_first: {
     art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDPPPPPPDDDDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPPPKKPPPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
       "DDPPPPPPPPPPPPDD",
-      "DPPPpWWPPPPWWpPD",
-      "DPPPpWWPPPPWWpPD",
-      "DPPPPPPPPPPPPPPD",
-      "DPPPPKKPPPPKKPPD",
-      "DPPPPPKKKKKKPPPD",
-      "DDPPPPPPPPPPPPDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
       "ssssssssssssssss",
     ],
     text: (s) => {
-      let base = "You flick on the flashlight. The darkness recoils.\n\nStanding before you is a smiling, gumdrop-shaped figure with pink skin and a button nose. He waves.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask.\"\n\nBehind him, an enormous industrial reactor labeled \"RBMK — PRIPYAT\" hums quietly in the dark. Next to it sits a small steel barrel, stenciled \"K-40\"";
+      let base = "You flick on the flashlight. The darkness recoils.\n\nStanding before you is a large, shaggy green creature with a fistful of small purple buttons stuck to his belly and a wicker basket of plums tucked under one arm. He waves the other paw.\n\n\"Oh hi! I'm Plumpy. From Candy Land. Don't ask.\"\n\nBehind him, an enormous industrial reactor labeled \"RBMK — PRIPYAT\" hums quietly in the dark. Next to it sits a small steel barrel, stenciled \"K-40\"";
       if (s.has_pit) base += ", and a black, inky bottomless pit yawns open right beside it";
       return base + ".";
     },
@@ -720,48 +744,50 @@ const SCENES = {
 
   scene_plumpy_main: {
     art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDPPPPPPDDNND",
-      "DDDPPPPPPPPPPNND",
-      "DDPPPPPPPPPPPPND",
-      "DPPPpWWPPPPWWpPN",
-      "DPPPpWWPPPPWWpPN",
-      "DPPPPPPPPPPPPPPN",
-      "DPPPPKKKKKKPPPPN",
-      "DPPPPPPPPPPPPPPN",
+      "DDDDDDpPPpDDDNNN",
+      "DDDDpPPPPPPpDNNN",
+      "DDDpPPPPPPPPpNNN",
+      "DDpPPWKPPPPKWPpN",
+      "DDpPPWWPPPPWWPpN",
+      "DDpPPPPPKKPPPPpN",
+      "DpPPPPPPPPPPPPpN",
+      "PpPPPPPPPPPPPPpN",
       "DDPPPPPPPPPPPPNN",
-      "DDDPPPPPPPPPPNND",
+      "DDDDttUuUuUttNNN",
+      "DDDDDttUuUttDNNN",
       "ssssssssssssssss",
     ],
     text: (s) => {
+      if (s.fracking_initiated) return "Plumpy is waiting for you, surrounded by jugs, bottles, and barrels.\n\n\"Ah! John said you were on the way. Pit-fracking is a delicate art. We need three things, and only one option per category is correct. Pay attention.\"";
       if (s.reactor_powered) return "Plumpy stands next to the now-glowing RBMK. \"The back door is open! Whatever's in there has been locked away forever. Probably for a reason. Have fun!\"";
       if (s.has_bananas) return "Plumpy gives you a thumbs up. \"You've got everything you need. The RBMK is right there. Knock yourself out.\"";
       return "Plumpy adjusts his hat. \"I've got some spare stuff on me, if you're in the market. Uranium, bananas, funko pops. What'll it be?\"\n\nThe K-40 barrel hums faintly beside the RBMK" + (s.has_pit ? ", with the bottomless pit yawning open just beyond it." : ".");
     },
     choices: [
-      { text: "I'll take some uranium", next: "ending_uranium", unless: ["has_bananas", "reactor_powered"] },
-      { text: "I'll take some bananas", next: "scene_plumpy_bananas", unless: ["has_bananas", "reactor_powered"] },
-      { text: "Funko pops, please", next: "ending_funko", unless: ["has_bananas", "reactor_powered"] },
-      { text: "Approach the RBMK", next: "scene_fuel_reactor", requires: ["has_bananas"], unless: ["reactor_powered"] },
-      { text: "Enter the back room", next: "scene_backroom_router", requires: ["reactor_powered"] },
+      { text: "Help me frack the pit", next: "scene_frack_q1", requires: ["fracking_initiated"] },
+      { text: "I'll take some uranium", next: "ending_uranium", unless: ["has_bananas", "reactor_powered", "fracking_initiated"] },
+      { text: "I'll take some bananas", next: "scene_plumpy_bananas", unless: ["has_bananas", "reactor_powered", "fracking_initiated"] },
+      { text: "Funko pops, please", next: "ending_funko", unless: ["has_bananas", "reactor_powered", "fracking_initiated"] },
+      { text: "Approach the RBMK", next: "scene_fuel_reactor", requires: ["has_bananas"], unless: ["reactor_powered", "fracking_initiated"] },
+      { text: "Enter the back room", next: "scene_backroom_router", requires: ["reactor_powered"], unless: ["fracking_initiated"] },
       { text: "Attack Plumpy", next: "ending_attack_plumpy" },
-      { text: "Leave the room", next: "scene_test" }
+      { text: "Leave the room", next: "scene_test", unless: ["fracking_initiated"] }
     ]
   },
 
   scene_plumpy_bananas: {
     art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDPPPPPPDDDDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPKKKKKKPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
       "DDPPPPPPPPPPPPDD",
-      "DPPPpWWPPPPWWpPD",
-      "DPPPpWWPPPPWWpPD",
-      "DPPPPPPPPPPPPPPD",
-      "DPPPPPKKKKKPPPPD",
-      "DPPPPPPPPPPPPPPD",
-      "DDPPPPPPPPPPPPDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
       "ssssssssssssssss",
     ],
     text: "Plumpy raises an eyebrow. \"Bananas, sure. How many do you need?\"",
@@ -801,17 +827,17 @@ const SCENES = {
 
   ending_no_pit: {
     art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDPPPPPPDDDDD",
-      "DDDPPPPPPPPPPDDD",
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPKKPPPPKKPpD",
+      "DDpPPKKPPPPKKPpD",
+      "DDpPPPPPKKPPPPpD",
+      "DpPPPPPPPPPPPPpD",
       "DDPPPPPPPPPPPPDD",
-      "DPPPpKKPPPPKKpPD",
-      "DPPPpKKPPPPKKpPD",
-      "DPPPPPPPPPPPPPPD",
-      "DPPPPKKKKKKKPPPD",
-      "DDPPPPPPPPPPPPDD",
       "DDDPPPPPPPPPPDDD",
-      "ssssssssssssssss",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
       "ssssssssssssssss",
     ],
     text: "Plumpy looks at you. Then at your empty hands. Then back at you.\n\n\"10 to the 21 bananas. Sure. And you were planning to put them where, exactly? On the floor?\"\n\nHe shakes his head and waves you off. The bananas never come. The RBMK never fires.",
@@ -826,9 +852,9 @@ const SCENES = {
       "RRxxxxxxxxxxxxRR",
       "RxxxxnnNNNNxxxxR",
       "RxxnNNNNNNNNNxxR",
-      "RxnNNNuuuuNNNNxR",
-      "RxNNNuuuuuuuNNxR",
-      "RxnNNNuuuuNNNNxR",
+      "RxnNNNnnnnNNNNxR",
+      "RxNNNnnnnnnnNNxR",
+      "RxnNNNnnnnNNNNxR",
       "RxxnNNNNNNNNNxxR",
       "RxxxxnNNNNxxxxRR",
       "RRxxxxxxxxxxxxRR",
@@ -877,7 +903,7 @@ const SCENES = {
       "DDDxxxxxxxxxxDDD",
       "ssssssssssssssss",
     ],
-    text: "You swing at Plumpy.\n\nIt turns out Plumpy is made of nearly-indestructible candy. Your fist shatters on impact. Plumpy looks concerned but cannot help.\n\nYou bleed out among the lollipops.",
+    text: "You swing at Plumpy.\n\nIt turns out Plumpy is made of dense, shaggy, surprisingly bulletproof fur over a body of pure attitude. Your fist shatters on impact. Plumpy looks concerned but cannot help.\n\nYou bleed out at his feet. The plums roll out of his basket and judge you.",
     ending: true,
     ending_label: "You Died",
     ending_class: "bad"
@@ -937,7 +963,7 @@ const SCENES = {
       "DDDDDDDDDDDDDDDD",
       "ssssssssssssssss",
     ],
-    text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, pawing at it lazily.\n\nFrom back toward the entrance, you hear an unfamiliar noise. Footsteps?",
+    text: "You step through into a small room.\n\nIn the center: a magic lever, glowing faintly. A small placard reads \"Schrödinger's Strait of Hormuz — Open / Closed.\"\n\nA very large brown cat sits beside the lever, batting it back and forth with rhythmic patience. Open, closed, open, closed.\n\nFrom back toward the entrance, you hear an unfamiliar noise. Footsteps?",
     choices: [
       { text: "Investigate the noise", next: "scene_investigate_noise", set: { investigated_noise: true } },
       { text: "Approach the cat", next: "ending_ww3_cat_first" },
@@ -967,7 +993,7 @@ const SCENES = {
       "xxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxx",
     ],
-    text: "You step toward the cat. Startled, it swats wildly at the lever.\n\nThe lever flips.\n\nThe Strait of Hormuz is now closed.\n\nGlobal markets implode. World War Three begins within the hour.",
+    text: "You step toward the cat. Startled, it swats wildly at the lever.\n\nThere's a CRACK.\n\nThe lever snaps clean off. The Strait of Hormuz is now permanently locked in a state of both open AND closed. Global markets cannot resolve the paradox. World War Three begins within the hour.",
     ending: true,
     ending_label: "World War Three",
     ending_class: "bad"
@@ -1237,20 +1263,654 @@ const SCENES = {
     ],
     text: "The genie sighs as you approach.\n\n\"You again. No, I'm still out of wishes. But — I do have these. The cat needs to be fed. Pick one.\"\n\nHe holds out three small packages.",
     choices: [
-      { text: "Take the treat tube", next: "scene_feed_cat", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },
-      { text: "Take the hard treats", next: "scene_feed_cat", set: { has_tube: false, has_hard_treats: true, has_catnip: false } },
-      { text: "Take the catnip", next: "scene_feed_cat", set: { has_tube: false, has_hard_treats: false, has_catnip: true } },
+      { text: "Take the treat tube", next: "scene_approach_cat", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },
+      { text: "Take the hard treats", next: "scene_approach_cat", set: { has_tube: false, has_hard_treats: true, has_catnip: false } },
+      { text: "Take the catnip", next: "scene_approach_cat", set: { has_tube: false, has_hard_treats: false, has_catnip: true } },
       { text: "Attack the genie", next: "ending_attack_genie" }
+    ]
+  },
+
+  scene_approach_cat: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDDDDDDDSSDDDDDD",
+      "DDETTDDDDSSDDDDD",
+      "DDTTTTTTDSSDDDDD",
+      "DDTKKTTTDSSDDDDD",
+      "DDTTTTTTTSSDDDDD",
+      "DDDTTTTTTSSDDDDD",
+      "DDDDTTTTTSSDDDDD",
+      "DDDDDDDDDSSDDDDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You head back to the lever room, treat in hand.\n\nThe cat is still there, batting the lever from side to side with rhythmic patience. It pauses when you step in, ears swiveling toward you. Its eyes lock on the treat.\n\nThe lever continues its slow oscillation between worlds.",
+    choices: [
+      { text: "Offer the treat to the cat", next: "scene_feed_cat" }
     ]
   },
 
   scene_feed_cat: {
     route: (s) => {
-      if (s.has_tube) return "ending_win";
+      if (s.has_tube) return "scene_cat_satisfied";
       if (s.has_hard_treats) return "ending_ww3_hard";
       if (s.has_catnip) return "ending_ww3_catnip";
       return "scene_backroom_first";
     }
+  },
+
+  scene_cat_satisfied: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDETTDDDDDDETTDD",
+      "DDTTTTTTTTTTTTDD",
+      "DDTggTTTTTTggTDD",
+      "DDTTTTKKKKTTTTDD",
+      "DDTTTTTTTTTTTTDD",
+      "DDDTTTTTTTTTTDDD",
+      "DDDDTTTTTTTTDDDD",
+      "yyyyyyyyyyyyyyyy",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "You squeeze the treat tube. The cat's eyes go wide. It licks furiously.\n\nThe cat purrs. It nuzzles you. It is no longer interested in the lever.\n\nThe lever sits motionless, suspended between states. Whatever you do with it now, the Strait will resolve.",
+    choices: [
+      { text: "Open the Strait of Hormuz", next: "scene_john_open" },
+      { text: "Close the Strait of Hormuz", next: "scene_john_closed" }
+    ]
+  },
+
+  scene_john_open: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWKKKKWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You pull the lever. The Strait of Hormuz: OPEN.\n\nThe door bangs open behind you. John Prime stands in the threshold, eyes narrowed.\n\n\"So. You wouldn't happen to have opened the Strait of Hormuz using my bottomless pit, my RBMK reactor, and humanity's entire historical banana yield... right?\"",
+    choices: [
+      { text: "Lie — \"No, it was already open\"", next: "ending_john_dust" },
+      { text: "Tell the truth — \"Yes, that's exactly what I did\"", next: "scene_john_truth_open" },
+      { text: "\"It was like that when I got here\"", next: "scene_john_kitties" }
+    ]
+  },
+
+  scene_john_closed: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWKKKKWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "You press the lever down. The Strait of Hormuz: CLOSED.\n\nThe door bangs open behind you. John Prime walks in, hands in his robe pockets, looking pleased.\n\n\"Ah, right on. Keeping it closed for now. Did Plumpy tip you off?\"",
+    choices: [
+      { text: "Lie — \"No, no one tipped me off\"", next: "ending_john_dust" },
+      { text: "Tell the truth — \"Yes, Plumpy hinted at it\"", next: "scene_john_truth_close" },
+      { text: "\"It was like that when I got here\"", next: "scene_john_kitties" }
+    ]
+  },
+
+  ending_john_dust: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDDZZZZZZZZZDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDSSSSSSSSSSSSDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime tilts his head.\n\n\"You know I can see the lever, right? I put it there.\"\n\nHe gestures. You become a small, sad pile of dust on the floor. The cat sniffs you once, unimpressed.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  scene_john_truth_open: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWKKWWKKWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDWWWWWWWWDDDD",
+      "DDDDWKKKKKKKWDDD",
+      "DDDDWKWKKKKKWDDD",
+    ],
+    text: "John Prime sighs the sigh of a man who has watched too many people make exactly this mistake.\n\n\"You know what? You've shown initiative. I'm gonna give you a job.\"\n\nHe hands you a clipboard and a pen.\n\n\"Bottomless Pit Supervisor. The pay is bad. The work is steady. Get to it.\"",
+    choices: [
+      { text: "Accept the position", next: "scene_pit_cycle_1" }
+    ]
+  },
+
+  scene_pit_cycle_1: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Day 1. You stand at the edge of the pit. You peer in. It is bottomless.\n\nYou log it.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_2" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_2: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Day 12. You peer in. Still bottomless. The clipboard has 47 entries.\n\nYou are getting the hang of this.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_3" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_3: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDWWWWWWWDDDDD",
+      "DDDWWWWWWWWWDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 1. The seasons stopped meaning anything months ago. The pit remains bottomless.\n\nYou have moved through four full notebooks.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_4" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_4: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDWWWWWWWWDDDD",
+      "DDDWWWWWWWWWWDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 9. You start to wonder if you are, in fact, the bottom of something.\n\nThe pit does not wonder. The pit remains bottomless.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_5" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_5: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDKDDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDWWWWWWWWDDDD",
+      "DDDWWWWWWWWWWDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 47. You can see yourself peering into the pit from previous eras, an infinite stack of past selves all confirming the same thing.\n\nVolume seven of the clipboard is full.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_6" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_6: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWggWWggWZDD",
+      "DDDZZWggWWggWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWKKKKWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "The air shimmers.\n\nJohn Prime is there, drink in hand, looking impressed despite himself.\n\n\"How's the pit?\"",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_7" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_7: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "John snaps his fingers. A fresh candle ignites. He vanishes mid-sip.\n\nYear 48. The new flame is bright. You feel a glimmer of something — purpose, maybe? Hope? It dies quickly.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_8" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_8: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 87. Civilizations rise and fall above you. The pit, somehow, is exactly the same.\n\nYou verify.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_9" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_9: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDYYYDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDWWWWWWWDDDDD",
+      "DDDWWWWWWWWWDDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 312. You no longer remember your name.\n\nYou are a function of the pit now. The pit is bottomless. You are the verification of this.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_cycle_10" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_cycle_10: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDYDDDDDDD",
+      "DDDDDDDDKDDDDDDD",
+      "DDDDDDWWWWDDDDDD",
+      "DDDDDWWWWWWDDDDD",
+      "DDDDWWWWWWWWDDDD",
+      "DDDWWWWWWWWWWDDD",
+      "DDDDOOOOOOOODDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "Year 999. The second candle is nearly gone. You suspect the candle is metaphorical.\n\nThe pit is bottomless. You are very, very tired.",
+    choices: [
+      { text: "Still bottomless", next: "scene_pit_promoted" },
+      { text: "Found the bottom", next: "ending_pit_fired" }
+    ]
+  },
+
+  scene_pit_promoted: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDxxxDDDDDDDD",
+      "DDDDxxxxxDDDDDDD",
+      "DDDDDxxxDDDDDDDD",
+      "DDDDDxxxDDDDDDDD",
+      "DDDDDxxxDDDDDDDD",
+      "ssssssssDDDDDDDD",
+      "ssssssssDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "In a way, you've won.\n\nYou didn't die. The world is fine. The Strait remains open.\n\nBut you are, and will forever be, the Bottomless Pit Supervisor.\n\nActions and consequences. Or something like that.",
+    ending: true,
+    ending_label: "You Win",
+    ending_class: "win"
+  },
+
+  ending_pit_fired: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "RRRRDRRDDRRRDRRD",
+      "RDDRDRDRDRDDDRDR",
+      "RRDRDRRDDRRDDRDR",
+      "RDDRDRDRDRDDDRDR",
+      "RDDRDRDRDRRRDRRD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+    ],
+    text: "\"IT'S IN THE NAME. Who in their right mind would need a NORMAL pit supervisor?\"\n\nJohn Prime gestures dismissively. The clipboard combusts.\n\nYou are unemployed. The pit, suspiciously, remains bottomless.",
+    ending: true,
+    ending_label: "You're Fired",
+    ending_class: "bad"
+  },
+
+  scene_john_truth_close: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWggWWggWZDD",
+      "DDDZZWggWWggWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDZZWWggggWWZDD",
+      "DDDDZZWWWWWWZDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime nods slowly. He looks at you with new interest.\n\n\"You know what? You seem like an out-of-the-box thinker. I think you could help me out with something.\"\n\nHe rocks on his heels, pleased.\n\n\"So. With the Strait of Hormuz closed, oil prices are about to do something extremely funny. The plan is we frack the sides of the bottomless pit and make an absolutely indecent amount of money.\"\n\n\"Go talk to Plumpy. He's got the ingredients. You'll need to pick the right ones — I'm not telling you which.\"",
+    set: { fracking_initiated: true },
+    choices: [
+      { text: "Find Plumpy", next: "scene_plumpy_main" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // FRACKING — 3 silent questions, then resolution
+  // -----------------------------------------------
+
+  scene_frack_q1: {
+    art: [
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPPPKKPPPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
+      "DDPPPPPPPPPPPPDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
+      "ssssssssssssssss",
+    ],
+    text: "Plumpy lays three jugs at your feet.\n\n\"First, the base. We need a carrier liquid. Pick one.\"",
+    choices: [
+      { text: "Holy water", next: "scene_frack_q2", set: { frack_q1_wrong: false } },
+      { text: "Mountain Dew", next: "scene_frack_q2", set: { frack_q1_wrong: true, frack_q1_pick: "dew" } },
+      { text: "Communion wine", next: "scene_frack_q2", set: { frack_q1_wrong: true, frack_q1_pick: "wine" } }
+    ]
+  },
+
+  scene_frack_q2: {
+    art: [
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPPPKKPPPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
+      "DDPPPPPPPPPPPPDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
+      "ssssssssssssssss",
+    ],
+    text: (s) => {
+      let reaction;
+      if (s.frack_q1_wrong) {
+        if (s.frack_q1_pick === "dew") reaction = "Plumpy squints at the Mountain Dew. \"Hmm. ...Sure. Bold choice.\"";
+        else reaction = "Plumpy holds the wine up to the light and frowns. \"You're the boss. Allegedly.\"";
+      } else {
+        reaction = "Plumpy nods slowly. \"Mm-hmm. We'll see.\"";
+      }
+      return reaction + "\n\nHe presents three new options.\n\n\"Next, a gelling agent. We need to thicken it so it can carry the proppant.\"";
+    },
+    choices: [
+      { text: "Jello", next: "scene_frack_q3", set: { frack_q2_wrong: false } },
+      { text: "Laundry detergent", next: "scene_frack_q3", set: { frack_q2_wrong: true, frack_q2_pick: "detergent" } },
+      { text: "ZzzQuil", next: "scene_frack_q3", set: { frack_q2_wrong: true, frack_q2_pick: "zzzquil" } }
+    ]
+  },
+
+  scene_frack_q3: {
+    art: [
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPPPKKPPPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
+      "DDPPPPPPPPPPPPDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
+      "ssssssssssssssss",
+    ],
+    text: (s) => {
+      let reaction;
+      if (s.frack_q2_wrong) {
+        if (s.frack_q2_pick === "detergent") reaction = "Plumpy stares at the detergent bottle. \"You sure about that, chief? ...Okay.\"";
+        else reaction = "Plumpy hefts the ZzzQuil. \"Interesting strategy. Putting the pit to sleep. Hm.\"";
+      } else {
+        reaction = "Plumpy gives a small approving grunt. Or maybe a skeptical one. Hard to tell.";
+      }
+      return reaction + "\n\nHe sets down three bags.\n\n\"Last one. The proppant. Holds the fracture open after the pressure drops.\"";
+    },
+    choices: [
+      { text: "Walnut shells", next: "scene_frack_mix", set: { frack_q3_wrong: false } },
+      { text: "Kitty litter", next: "scene_frack_mix", set: { frack_q3_wrong: true, frack_q3_pick: "litter" } },
+      { text: "Crushed Funko Pops", next: "scene_frack_mix", set: { frack_q3_wrong: true, frack_q3_pick: "funko" } }
+    ]
+  },
+
+  scene_frack_mix: {
+    art: [
+      "DDDDDDpPPpDDDDDD",
+      "DDDDpPPPPPPpDDDD",
+      "DDDpPPPPPPPPpDDD",
+      "DDpPPWKPPPPKWPpD",
+      "DDpPPWWPPPPWWPpD",
+      "DDpPPPPKKKKPPPpD",
+      "DpPPPPPPPPPPPPpD",
+      "PpPPPPPPPPPPPPpP",
+      "DDPPPPPPPPPPPPDD",
+      "DDDDttUuUuUttDDD",
+      "DDDDDttUuUttDDDD",
+      "ssssssssssssssss",
+    ],
+    text: (s) => {
+      let reaction;
+      if (s.frack_q3_wrong) {
+        if (s.frack_q3_pick === "litter") reaction = "Plumpy looks at the bag of kitty litter. He looks at you. He says nothing.";
+        else reaction = "Plumpy holds up the crushed Funko Pops and shakes his head once. He doesn't comment.";
+      } else {
+        reaction = "Plumpy gathers up the walnut shells. He almost looks impressed. Almost.";
+      }
+      return reaction + "\n\nHe pours everything you picked into a single barrel and stirs it. The mixture inside is... a mixture.\n\n\"Alright. Take it to the pit. Pour it in. See what happens.\"";
+    },
+    choices: [
+      { text: "Pour the slurry into the bottomless pit", next: "scene_frack_resolve" }
+    ]
+  },
+
+  scene_frack_resolve: {
+    route: (s) => (!s.frack_q1_wrong && !s.frack_q2_wrong && !s.frack_q3_wrong) ? "ending_true_win" : "ending_frack_fail"
+  },
+
+  ending_true_win: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDYYYYYYYYDDDD",
+      "DDDYYYYYYYYYYDDD",
+      "DDYYYYYYYYYYYYDD",
+      "DYYYYggggggYYYYD",
+      "DYYYYgggggYYYYYD",
+      "DYYYYYggggYYYYYD",
+      "DYYYYYYYYYYYYYYD",
+      "DDYYYYYYYYYYYYDD",
+      "DDDYYYYYYYYYYDDD",
+      "yyyyyyyyyyyyyyyy",
+      "ssssssssssssssss",
+    ],
+    text: "You pour the slurry. Holy water carries jello-thickened walnut shells deep into the bottomless pit. The shells wedge into the new fractures and hold them open. Pressure stabilizes. Somewhere in the pit, a well screams to life.\n\nJohn Prime materializes beside you, drink in hand.\n\n\"Well, we have irreparably harmed the global economy, plunged millions into famine, and kinda ruined my bespoke bottomless pit, but hey — we fracked the bottomless pit. I guess you win. Crazy. Anyway, let's drink.\"",
+    ending: true,
+    ending_label: "You Win",
+    ending_class: "win"
+  },
+
+  ending_frack_fail: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDDDxxxxxxxxDDDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDxxKKxxxxKKxxDD",
+      "DDxxxxxxxxxxxxDD",
+      "DDxxxKKKKKKxxxDD",
+      "DDDxxxxxxxxxxDDD",
+      "DDDDxxxxxxxxDDDD",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+      "KKKKKKKKKKKKKKKK",
+    ],
+    text: (s) => {
+      let lines = ["You pour the slurry into the bottomless pit. The pit accepts these offerings. It does not frack."];
+      lines.push("");
+      lines.push("John Prime materializes, looks into the pit, and sighs.");
+      lines.push("");
+      if (s.frack_q1_wrong) {
+        if (s.frack_q1_pick === "dew") {
+          lines.push("Mountain Dew? It's mostly water with high-fructose corn syrup, citric acid, and caffeine. The syrup ferments downhole and the citric acid eats the equipment. You've fracked nothing and brewed a 21,000-foot-deep meth-adjacent moonshine.");
+        } else {
+          lines.push("Wine is 12% alcohol and 88% water, fine in theory — except the residual sugars and tannins drop out under pressure and gum up the perforations. You've made the world's most expensive grape juice.");
+        }
+        lines.push("");
+      }
+      if (s.frack_q2_wrong) {
+        if (s.frack_q2_pick === "detergent") {
+          lines.push("Detergent has surfactants, sure. It also has sodium carbonate, which precipitates out the second it hits the calcium-rich shale, and now you've cemented your own fracture closed. Congratulations, you've un-fracked it.");
+        } else {
+          lines.push("ZzzQuil is mostly water, polyethylene glycol, and a sedative antihistamine. It does have the right viscosity. It also breaks down at 80°C and you've just sedated the entire bottomless pit. The pit is now asleep. You cannot frack a sleeping pit.");
+        }
+        lines.push("");
+      }
+      if (s.frack_q3_wrong) {
+        if (s.frack_q3_pick === "litter") {
+          lines.push("Kitty litter is bentonite clay, which swells when it gets wet and collapses under load. Your proppant absorbed the slurry, ballooned to three times its size, then crumpled like a wet sponge the moment pressure hit. The fracture sealed itself.");
+        } else {
+          lines.push("Funko Pops are ABS plastic. ABS softens at 220°F. Your proppant melted into a single congealed mass of vinyl despair somewhere around 8,000 feet down. The blob is still down there. It will be down there forever.");
+        }
+        lines.push("");
+      }
+      lines.push("John gestures. You become a small, sad pile of dust on the floor.");
+      return lines.join("\n");
+    },
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
+  },
+
+  scene_john_kitties: {
+    art: [
+      "DDDDDDDDDDDDDDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDZZZZZZZDDDD",
+      "DDDDZZWWWWWZZDDD",
+      "DDDZZWxxWWxxWZDD",
+      "DDDZZWWWWWWWWZDD",
+      "DDDDZZZZZZZZZDDD",
+      "DDDDDDDZZZDDDDDD",
+      "DDDDDDDDDDDDDDDD",
+      "DDSSSSSSSSSSSSDD",
+      "ssssssssssssssss",
+      "ssssssssssssssss",
+    ],
+    text: "John Prime looks at the cat. Then at the lever. Then back at you.\n\n\"Yeah. The kitties always go crazy when I'm gone.\"\n\nHe pauses. His eyes narrow.\n\n\"But what I ALSO know is that the kitties don't touch my things. And I was just bumpin' around my detritus room... and some of my things seem to be moved.\"\n\nHe gestures. You become a small, sad pile of dust on the floor.",
+    ending: true,
+    ending_label: "You Died",
+    ending_class: "bad"
   },
 
   ending_win: {
@@ -1268,7 +1928,7 @@ const SCENES = {
       "ssssssssssssssss",
       "ssssssssssssssss",
     ],
-    text: "You squeeze the treat tube. The cat's eyes go wide. It licks furiously.\n\nThe cat purrs. It nuzzles you. It is no longer interested in the lever.\n\nThe Strait of Hormuz remains in superposition. Civilization endures.\n\nYou win.",
+    text: "(legacy win — no longer reachable)",
     ending: true,
     ending_label: "You Win!",
     ending_class: "win"
@@ -1289,7 +1949,7 @@ const SCENES = {
       "xxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxx",
     ],
-    text: "You offer the cat the hard treats. The cat sniffs them. The cat does not approve.\n\nThe cat returns to playing with the lever.\n\nThe lever flips. Strait of Hormuz: closed.\n\nWorld War Three begins on schedule.",
+    text: "You offer the cat the hard treats. The cat sniffs them. The cat does not approve.\n\nThe cat returns to the lever and swats with renewed vigor. The lever snaps.\n\nThe Strait of Hormuz is locked in superposition — both open and closed, forever. Markets cannot price reality. World War Three begins on schedule.",
     ending: true,
     ending_label: "World War Three",
     ending_class: "bad"
@@ -1310,7 +1970,7 @@ const SCENES = {
       "xxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxx",
     ],
-    text: "You sprinkle the catnip on the floor.\n\nThe cat goes berserk. Limbs everywhere. The lever takes a direct hit and flips.\n\nStrait of Hormuz: closed.\n\nWorld War Three begins, but at least the cat had a great time.",
+    text: "You sprinkle the catnip on the floor.\n\nThe cat goes berserk. Limbs everywhere. The lever takes a direct hit and shatters.\n\nThe Strait of Hormuz is now permanently both open and closed, a quantum knife held to the throat of the global economy. The cat had a great time. World War Three begins anyway.",
     ending: true,
     ending_label: "World War Three",
     ending_class: "bad"
@@ -1343,6 +2003,15 @@ function resetState() {
     investigated_noise: false,
     mtg_played: false,
     tiki_tried: false,
+    fracking_initiated: false,
+    frack_q1_wrong: false,
+    frack_q2_wrong: false,
+    frack_q3_wrong: false,
+    frack_q1_pick: null,
+    frack_q2_pick: null,
+    frack_q3_pick: null,
+    _turns: 0,
+    _near_misses: 0,
   };
 }
 
@@ -1441,6 +2110,15 @@ function render(sceneId) {
       <div class="input-error" id="inputError"></div>
     `;
   } else if (scene.ending) {
+    const turns = state._turns || 0;
+    const nearMisses = state._near_misses || 0;
+    const turnsLabel = turns === 1 ? "1 turn" : `${turns} turns`;
+    const missLabel = nearMisses === 1 ? "1 near-death experience" : `${nearMisses} near-death experiences`;
+    html += `<div class="stats-block">
+      <div class="stats-title">Final Report</div>
+      <div class="stats-row"><span>Turns survived:</span><span>${turnsLabel}</span></div>
+      <div class="stats-row"><span>Bullets dodged:</span><span>${missLabel}</span></div>
+    </div>`;
     html += `<button class="restart" id="restartBtn">Play again</button>`;
   } else if (scene.choices) {
     const visible = scene.choices.filter(isChoiceVisible);
@@ -1457,14 +2135,36 @@ function render(sceneId) {
 
   app.innerHTML = html;
 
+  // Resolve a scene ID through any routing chain to its terminal scene
+  function resolveTerminal(sceneId, depth) {
+    depth = depth || 0;
+    if (depth > 10) return null;
+    const s = SCENES[sceneId];
+    if (!s) return null;
+    if (s.route) return resolveTerminal(s.route(state), depth + 1);
+    return s;
+  }
+
   if (scene.choices && !scene.input) {
     const visible = scene.choices.filter(isChoiceVisible);
+    // Check if any visible choice leads to a terminal ending
+    const anyDeadly = visible.some(c => {
+      if (!c.next || c.next === "self") return false;
+      const t = resolveTerminal(c.next);
+      return t && t.ending;
+    });
     document.querySelectorAll(".choice").forEach((btn) => {
       btn.addEventListener("click", () => {
         const c = visible[parseInt(btn.dataset.idx)];
         if (c.set) Object.assign(state, c.set);
-        // "self" means stay on same scene (used for piles where picking re-renders)
+        // Count turns
+        state._turns = (state._turns || 0) + 1;
+        // Count near-miss: there was a deadly option, but THIS choice doesn't end the game
         const target = (c.next === "self" || c.next == null) ? sceneId : c.next;
+        const targetScene = resolveTerminal(target);
+        if (anyDeadly && targetScene && !targetScene.ending) {
+          state._near_misses = (state._near_misses || 0) + 1;
+        }
         render(target);
       });
     });
