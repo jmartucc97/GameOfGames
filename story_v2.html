@@ -731,8 +731,22 @@ const SCENES = {
     sprite: "old_grym",
     text: "The scenic route is gorgeous. Late sun on the autumn trees. A charming red barn. The radio plays Fleetwood Mac.\n\nAn elderly man with a walker is halfway across the road. He sees your car. He waves cheerfully. He continues at approximately the speed of continental drift.",
     choices: [
-      { text: "Run him over",          next: "scene_drive_scenic_2" },
-      { text: "Wait for him to cross", next: "scene_drive_scenic_2", set: { kitty_late: true } }
+      { text: "Run him over",          next: "scene_drive_scenic_1_run",  sfx: "explode" },
+      { text: "Wait for him to cross", next: "scene_drive_scenic_1_wait", set: { kitty_late: true } }
+    ]
+  },
+
+  scene_drive_scenic_1_run: {
+    text: "There is a soft, definitive *thump*. Then a second, less polite one. The walker bounces off the windshield and into the field.\n\nYou grind over the helpless old man. Do you feel good about yourself? Fleetwood Mac is still playing. They do not appear to feel one way or the other about it.\n\nYou press on.",
+    choices: [
+      { text: "Continue driving", next: "scene_drive_scenic_2" }
+    ]
+  },
+
+  scene_drive_scenic_1_wait: {
+    text: "You sit, engine idling, and watch the old man execute one step approximately every fifteen seconds.\n\nThe dash clock blinks forward. The store is closing soon, and you find yourself worrying — if you come home without that treat, John Prime is not going to take it well at all.\n\nThe old man finally clears the lane. You press on.",
+    choices: [
+      { text: "Continue driving", next: "scene_drive_scenic_2" }
     ]
   },
 
@@ -740,8 +754,22 @@ const SCENES = {
     sprite: "old_hana",
     text: "You drive on. The next farmhouse comes into view.\n\nAn elderly woman is shepherding a folding wire cart full of groceries across the lane. She's making decent progress, by which you mean roughly half a mile per hour. She nods politely at your windshield.",
     choices: [
-      { text: "Run her over",          next: "scene_drive_scenic_3" },
-      { text: "Wait for her to cross", next: "scene_drive_scenic_3", set: { kitty_late: true } }
+      { text: "Run her over",          next: "scene_drive_scenic_2_run",  sfx: "explode" },
+      { text: "Wait for her to cross", next: "scene_drive_scenic_2_wait", set: { kitty_late: true } }
+    ]
+  },
+
+  scene_drive_scenic_2_run: {
+    text: "Groceries explode across the windshield in a brief, colorful supernova of canned peaches and what was probably a casserole.\n\nYou grind over the helpless old lady. Do you feel good about yourself? Her wire cart is now part of your front grille. The casserole is, in a strange way, an improvement.\n\nYou press on.",
+    choices: [
+      { text: "Continue driving", next: "scene_drive_scenic_3" }
+    ]
+  },
+
+  scene_drive_scenic_2_wait: {
+    text: "You stop. She nods at you again, mistaking your courtesy for kindness. She is roughly the third of the way across.\n\nThe clock is moving. The store is closing soon, and you cannot stop picturing John Prime's face when you come home empty-handed.\n\nShe clears the lane eventually. You press on.",
+    choices: [
+      { text: "Continue driving", next: "scene_drive_scenic_3" }
     ]
   },
 
@@ -749,8 +777,22 @@ const SCENES = {
     sprite: "old_janik",
     text: "You can see the store sign now, just through the trees ahead.\n\nA final elderly gentleman steps off the curb directly in front of you. He raises one hand in the universal gesture of 'I am crossing now, dear, mind yourself.' He has a cane. He is not in a hurry. He never will be.",
     choices: [
-      { text: "Run him over",          next: "scene_drive_scenic_resolve" },
-      { text: "Wait for him to cross", next: "scene_drive_scenic_resolve", set: { kitty_late: true } }
+      { text: "Run him over",          next: "scene_drive_scenic_3_run",  sfx: "explode" },
+      { text: "Wait for him to cross", next: "scene_drive_scenic_3_wait", set: { kitty_late: true } }
+    ]
+  },
+
+  scene_drive_scenic_3_run: {
+    text: "The cane snaps cleanly in half against your bumper. The old gentleman, briefly airborne, is given a final view of the autumn trees he loved so much.\n\nYou grind over the helpless old man. Do you feel good about yourself? The store sign is visible through your bug-spattered windshield. You are going to make it.\n\nYou press on.",
+    choices: [
+      { text: "Pull into the parking lot", next: "scene_drive_scenic_resolve" }
+    ]
+  },
+
+  scene_drive_scenic_3_wait: {
+    text: "You wait. The old gentleman is, if anything, slower than the previous two. The store sign is right there.\n\nYou stare at the dash clock and try not to think about John Prime, but the longer you sit here, the more vivid the mental image becomes.\n\nHe clears the lane. You press on.",
+    choices: [
+      { text: "Pull into the parking lot", next: "scene_drive_scenic_resolve" }
     ]
   },
 
