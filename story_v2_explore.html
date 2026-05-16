@@ -4328,52 +4328,52 @@ function render(sceneId) {
   }
 
   // ---- Music control: scene-aware track selection ----
-  let trackForScene = "oogie.mp3";  // default ambient
+  let trackForScene = "audio/oogie.mp3";  // default ambient
   // Rasputin scenes (hint character)
   if (sceneId === "scene_rasputin" || sceneId === "scene_rasputin_doom" || sceneId === "scene_rasputin_darkness" || sceneId === "scene_rasputin_fortune") {
-    trackForScene = "rasputin.mp3";
+    trackForScene = "audio/rasputin.mp3";
   }
   // Driving sequence + kitty food store
   else if (sceneId === "scene_drive_route_select" || sceneId === "scene_drive_hellscape" || sceneId.startsWith("scene_drive_scenic") || sceneId === "scene_drive_back" || sceneId.startsWith("scene_kitty_") || sceneId === "ending_kitty_store_closed") {
-    trackForScene = "rocklobster.mp3";
+    trackForScene = "audio/rocklobster.mp3";
   }
   // First MTG loop with John (Jungle Book)
   else if (sceneId === "scene_mtg_loop" || sceneId === "scene_mtg_check") {
-    trackForScene = "jungle.mp3";
+    trackForScene = "audio/jungle.mp3";
   }
   // Second MTG loop (Alan Wake 2)
   else if (sceneId === "scene_mtg_round2_loop" || sceneId === "scene_mtg_round2_check" || sceneId === "scene_mtg_round2_burnout") {
-    trackForScene = "alanwake.mp3";
+    trackForScene = "audio/alanwake.mp3";
   }
   // EPA gauntlet (Killing in the Name)
   else if (sceneId === "scene_epa_arrives" || sceneId === "scene_epa_1" || sceneId === "scene_epa_2" || sceneId === "scene_epa_3" || sceneId === "ending_epa_bribe" || sceneId === "ending_epa_compliment") {
-    trackForScene = "epa.mp3";
+    trackForScene = "audio/epa.mp3";
   } else if (sceneId === "ending_epa_truth") {
-    trackForScene = "gameover.mp3";
+    trackForScene = "audio/gameover.mp3";
   } else if (sceneId === "ending_epa_win") {
-    trackForScene = "victory.mp3";
+    trackForScene = "audio/victory.mp3";
   }
   // Pit gauntlet (Doom Slayer branch)
   else if (sceneId.startsWith("scene_pit_") && !sceneId.startsWith("scene_pit_cycle") && sceneId !== "scene_pit_promoted" && sceneId !== "scene_pit_promotion_10") {
-    trackForScene = "doom.mp3";
+    trackForScene = "audio/doom.mp3";
   } else if (sceneId === "ending_pit_doom_death") {
-    trackForScene = "gameover.mp3";
+    trackForScene = "audio/gameover.mp3";
   } else if (sceneId === "ending_pit_win_sowell" || sceneId === "ending_pit_win_election" || sceneId === "ending_pit_win_norbit" || sceneId === "scene_pit_norbit_fakeout") {
-    trackForScene = "victory.mp3";
+    trackForScene = "audio/victory.mp3";
   }
   // Pit supervisor (cycles + final reward + senior promotion)
   else if (sceneId.startsWith("scene_pit_cycle") || sceneId === "scene_pit_promoted" || sceneId === "scene_pit_promotion_10") {
-    trackForScene = "hero.mp3";
+    trackForScene = "audio/hero.mp3";
   } else if (sceneId === "ending_pit_fired") {
-    trackForScene = "gameover.mp3";
+    trackForScene = "audio/gameover.mp3";
   }
   // Win endings (true_win for fracking, etc.) — victory music
   else if (scene.ending && scene.ending_class === "win") {
-    trackForScene = "victory.mp3";
+    trackForScene = "audio/victory.mp3";
   }
   // Bad endings outside the pit — game over
   else if (scene.ending && scene.ending_class === "bad") {
-    trackForScene = "gameover.mp3";
+    trackForScene = "audio/gameover.mp3";
   }
   // Neutral / regret endings — silence
   else if (scene.ending) {
