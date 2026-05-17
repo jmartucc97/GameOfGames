@@ -115,6 +115,41 @@
     touch-action: manipulation;
     cursor: pointer;
   }
+  /* Per-room mood overlays — radial tint to suggest a light source */
+  .explore-room.mood-storage::before {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none; z-index: 7;
+    background: radial-gradient(ellipse 60% 50% at 70% 35%, rgba(255, 170, 60, 0.18), transparent 70%);
+    mix-blend-mode: screen;
+  }
+  .explore-room.mood-plumpy::before {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none; z-index: 7;
+    background:
+      radial-gradient(ellipse 50% 45% at 70% 35%, rgba(120, 240, 140, 0.16), transparent 70%),
+      radial-gradient(ellipse 40% 40% at 25% 50%, rgba(180, 240, 100, 0.08), transparent 70%);
+    mix-blend-mode: screen;
+  }
+  .explore-room.mood-basement::before {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none; z-index: 7;
+    background:
+      radial-gradient(ellipse 50% 30% at 50% 35%, rgba(220, 230, 255, 0.12), transparent 70%),
+      radial-gradient(ellipse 80% 60% at 50% 85%, rgba(20, 25, 40, 0.45), transparent 80%);
+    mix-blend-mode: normal;
+  }
+  /* Flickering overhead bulb for basement */
+  .explore-room.mood-basement::after {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none; z-index: 7;
+    background: radial-gradient(ellipse 40% 25% at 50% 30%, rgba(255, 240, 200, 0.05), transparent 70%);
+    animation: bulb-flicker 4.3s infinite;
+  }
+  @keyframes bulb-flicker {
+    0%, 92%, 94%, 100% { opacity: 1; }
+    93%                { opacity: 0.4; }
+    50%, 51%           { opacity: 0.85; }
+  }
   .explore-wall {
     position: absolute;
     background: #3a2a18;
@@ -125,9 +160,53 @@
     background-position: 0 0, 6px 6px;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
   }
+  /* Wall variants — distributed deterministically across the room */
+  .explore-wall.wall-cracked {
+    background-image:
+      linear-gradient(45deg, rgba(0,0,0,0.35) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.35) 75%),
+      linear-gradient(45deg, rgba(0,0,0,0.35) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.35) 75%),
+      linear-gradient(120deg, transparent 45%, rgba(0,0,0,0.6) 47%, transparent 49%, transparent 80%, rgba(0,0,0,0.5) 82%, transparent 84%);
+  }
+  .explore-wall.wall-stained {
+    background: #2e2014;
+    background-image:
+      linear-gradient(45deg, rgba(0,0,0,0.25) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.25) 75%),
+      linear-gradient(45deg, rgba(0,0,0,0.25) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.25) 75%),
+      radial-gradient(circle at 30% 40%, rgba(40, 30, 20, 0.7) 0%, transparent 50%);
+    background-size: 12px 12px, 12px 12px, 100% 100%;
+    background-position: 0 0, 6px 6px, 0 0;
+  }
   .explore-floor-tile {
     position: absolute;
-    background: rgba(80, 60, 40, 0.18);
+    background: rgba(80, 60, 40, 0.10);
+    pointer-events: none;
+  }
+  .explore-floor-tile.floor-stain {
+    background:
+      rgba(80, 60, 40, 0.10),
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(50, 30, 18, 0.45), transparent 70%);
+    background-blend-mode: multiply;
+  }
+  .explore-floor-tile.floor-scratch {
+    background: rgba(80, 60, 40, 0.10);
+    background-image: linear-gradient(110deg, transparent 48%, rgba(0,0,0,0.25) 50%, transparent 52%);
+  }
+  /* Ambient (non-interactive) decoration sprites */
+  .explore-ambient {
+    position: absolute;
+    image-rendering: pixelated;
+    object-fit: contain;
+    pointer-events: none;
+    opacity: 0.85;
+    z-index: 2;
+  }
+  .explore-ambient.amb-flicker {
+    animation: amb-flicker 3.7s infinite;
+  }
+  @keyframes amb-flicker {
+    0%, 88%, 100% { opacity: 0.85; }
+    50%           { opacity: 0.95; }
+    90%, 91%      { opacity: 0.5; }
   }
   .explore-entity {
     position: absolute;

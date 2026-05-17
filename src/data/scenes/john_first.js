@@ -9,7 +9,7 @@ Object.assign(SCENES, {
   },
 
   scene_john_prime: {
-    sprite: "john_idle",
+    sprite: "john_appear",
     text: "You head back toward the entrance.\n\nStanding in the doorway is a tall, robed figure. Mystical aura. Annoyed expression.\n\n\"I am John Prime. You've been poking around in my space. Did you... touch anything?\"",
     set: { john_appeared: true },
     choices: [

@@ -261,7 +261,7 @@ Object.assign(SCENES, {
   },
 
   scene_john_furious: {
-    sprite: "john_attack",
+    sprite: "john_appear",
     text: "John Prime phases into the Plumpy room. He looks at the sputtering reactor. He looks at the bananas. He looks at you.\n\n\"That was the WRONG NUMBER.\"\n\nHe gestures. You feel yourself lifted off the floor.\n\nThe bottomless pit yawns open. John, with great care and great anger, deposits you into it.",
     choices: [
       { text: "Fall", next: "ending_reagan_trapped" }

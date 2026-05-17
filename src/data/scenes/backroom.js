@@ -26,7 +26,7 @@ Object.assign(SCENES, {
 
   // Player chose to skip the noise — John intercepts them in the basement
   scene_missed_noise_john: {
-    sprite: "john_scowl",
+    sprite: "john_appear",
     text: "You retreat from the back room without investigating.\n\nThe moment you step back into the basement, a tall, robed figure is standing right in front of you, arms crossed.\n\n\"Hi. John Prime. I heard you sneaking around back there. You weren't gonna come say hello?\"\n\nHe taps his foot. The polite version of a threat.\n\n\"Anyway. Did you... touch anything?\"",
     set: { john_appeared: true, investigated_noise: true },
     choices: [

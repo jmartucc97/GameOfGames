@@ -6,6 +6,8 @@ const EXPLORE_ROOMS = {
   storage: {
     label: "Storage Room",
     hint: "Tap a pile to rummage. Tap the door to leave.",
+    mood: "storage",
+    seed: 11,
     layout: [
       "###########",
       "#.........#",
@@ -21,6 +23,17 @@ const EXPLORE_ROOMS = {
       "#.........#",
       "#.........#",
       "####D######",
+    ],
+    // Ambient (non-interactive) decorations. x,y in tile coordinates, size in tiles.
+    ambient: [
+      { sprite: "amb_cobweb",   x: 1.05, y: 1.4,  size: 1.1 },     // top-left corner cobweb
+      { sprite: "amb_cobweb",   x: 9.5,  y: 1.4,  size: 1.1 },     // top-right corner cobweb (mirrored visually OK)
+      { sprite: "amb_dust",     x: 6.5,  y: 11.7, size: 0.9 },     // dust pile near bookcase
+      { sprite: "amb_dust",     x: 2.5,  y: 7.5,  size: 0.85 },    // dust near pile 1
+      { sprite: "amb_crate",    x: 9.0,  y: 2.5,  size: 1.0 },     // stacked crate top-right
+      { sprite: "amb_crate",    x: 9.0,  y: 11.5, size: 1.0 },     // crate bottom-right
+      { sprite: "amb_tarp",     x: 7.5,  y: 6.5,  size: 1.3 },     // tarp covering something
+      { sprite: "amb_calendar", x: 2.0,  y: 3.0,  size: 0.9 },     // calendar on left wall
     ],
     // Where the player appears when entering this room.
     spawn: { x: 5, y: 12 },
@@ -63,9 +76,7 @@ const EXPLORE_ROOMS = {
       "B": {
         sprite: "bookcase",
         scene: "scene_bookcase",
-        size: 1.8,
-        label: "Bookcase",
-        label_position: "left"
+        size: 1.8
       },
       "D": {
         // Door is rendered separately (not an entity), but we include it for symmetry.
@@ -79,6 +90,8 @@ const EXPLORE_ROOMS = {
   plumpy: {
     label: "Plumpy's Room",
     hint: "Tap to walk. Tap an object to interact. Mind the pit.",
+    mood: "plumpy",
+    seed: 23,
     layout: [
       "###########",
       "###L#######",   // locked back door (north wall)
@@ -94,6 +107,16 @@ const EXPLORE_ROOMS = {
       "#.........#",
       "#.........#",
       "####D######",   // entrance/exit south
+    ],
+    ambient: [
+      { sprite: "amb_pipe_v",   x: 1.0,  y: 2.5,  size: 1.2 },     // pipe down left wall
+      { sprite: "amb_pipe_v",   x: 9.5,  y: 2.5,  size: 1.2 },     // pipe down right wall
+      { sprite: "amb_sticker",  x: 4.0,  y: 1.2,  size: 0.7 },     // biohazard near locked door
+      { sprite: "amb_barrel",   x: 8.5,  y: 5.5,  size: 0.95 },    // small barrel near reactor
+      { sprite: "amb_barrel",   x: 8.5,  y: 6.5,  size: 0.95 },    // stacked
+      { sprite: "amb_clipboard",x: 6.5,  y: 4.0,  size: 0.9 },     // clipboard between reactor + barrel
+      { sprite: "amb_workbench",x: 7.5,  y: 11.5, size: 1.4 },     // workbench bottom area
+      { sprite: "amb_dust",     x: 2.5,  y: 11.5, size: 0.8 },     // dust near south entry
     ],
     spawn: { x: 5, y: 12 },
     entities: {
@@ -133,6 +156,8 @@ const EXPLORE_ROOMS = {
   basement: {
     label: "Basement",
     hint: "Three doors. Tap one to choose.",
+    mood: "basement",
+    seed: 37,
     layout: [
       "#####1#####",   // Do Not Enter — north wall, center
       "#.........#",
@@ -140,16 +165,26 @@ const EXPLORE_ROOMS = {
       "#.........#",
       "2.........3",   // Storage west, Exit east
       "#.........#",
+      "#....J....#",   // John spawns here (visible after john_appeared)
       "#.........#",
       "#.........#",
       "#.........#",
+      "#..K....S.#",   // Seeker K (left), Lighter S (right)
       "#.........#",
-      "#..K....S.#",   // Seeker K (left), Lighter S (right of John area)
-      "#......J..#",   // John spawns here (visible after john_appeared)
       "#.........#",
       "###########",   // solid south wall (no entrance — player wakes up here)
     ],
     spawn: { x: 5, y: 7 },  // middle of the room
+    ambient: [
+      { sprite: "amb_lamp",     x: 5.0,  y: 1.6,  size: 1.0, flicker: true },  // hanging bulb near top
+      { sprite: "amb_cobweb",   x: 1.05, y: 1.4,  size: 1.0 },                  // top-left cobweb
+      { sprite: "amb_cobweb",   x: 9.5,  y: 1.4,  size: 1.0 },                  // top-right cobweb
+      { sprite: "amb_pipe_v",   x: 1.0,  y: 8.5,  size: 1.2 },                  // pipe west wall
+      { sprite: "amb_sticker",  x: 5.0,  y: 0.9,  size: 0.65 },                 // small biohazard on DNE door
+      { sprite: "amb_dust",     x: 2.0,  y: 12.5, size: 0.85 },                 // dust corners
+      { sprite: "amb_dust",     x: 9.0,  y: 12.5, size: 0.85 },
+      { sprite: "amb_crate",    x: 9.0,  y: 5.5,  size: 0.95 },                 // single crate east side
+    ],
     entities: {
       "1": {
         // Do Not Enter — north wall

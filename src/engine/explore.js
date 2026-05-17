@@ -47,8 +47,22 @@ function renderExplore(sceneId) {
 
   let html = `<div class="explore-wrap">`;
   html += `<div class="explore-label">${escapeHtml(room.label)}</div>`;
-  html += `<div class="explore-room" id="exploreRoom">`;
+  const moodClass = room.mood ? ` mood-${room.mood}` : "";
+  html += `<div class="explore-room${moodClass}" id="exploreRoom">`;
 
+  // Render floor tiles (under everything else)
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      if (grid[y][x] === '.' ) {
+        // Hash-based variant: most tiles plain, some scratched or stained
+        const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
+        let cls = "explore-floor-tile";
+        if (h === 3 || h === 11) cls += " floor-stain";
+        else if (h === 7) cls += " floor-scratch";
+        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+      }
+    }
+  }
   // Render door tiles (the southern exit)
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
@@ -57,12 +71,27 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render walls
+  // Render walls with hash-distributed variants for visual variety
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
-        html += `<div class="explore-wall" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
+        let cls = "explore-wall";
+        if (h === 4 || h === 13) cls += " wall-cracked";
+        else if (h === 8 || h === 16) cls += " wall-stained";
+        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
       }
+    }
+  }
+  // Render ambient (non-interactive) decoration sprites — defined per room in room.ambient
+  if (room.ambient && room.ambient.length) {
+    for (const a of room.ambient) {
+      const url = SPRITES[a.sprite] || "";
+      const sz = a.size || 1.0;
+      const xOff = (sz - 1) / 2;
+      const yOff = sz - 1;
+      const extraCls = a.flicker ? " amb-flicker" : "";
+      html += `<img class="explore-ambient${extraCls}" src="${url}" style="left:${px(a.x - xOff)};top:${py(a.y - yOff)};width:${sz * tilePctX}%;height:${sz * tilePctY}%;" alt="">`;
     }
   }
   // Render entities + their hit zones

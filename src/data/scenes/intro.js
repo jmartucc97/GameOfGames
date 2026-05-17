@@ -41,7 +41,7 @@ Object.assign(SCENES, {
 
   scene_skeleton_seeker: {
     sprite: "skeleton_seeker_dialogue",
-    text: "The thing turns several of its heads toward you at once. The other heads continue looking elsewhere. Its many yellow eyes do not quite track in unison.\n\n\"He is really previous about his things,\" one of the mouths says, in a tone that suggests this is meant to be reassuring.\n\nAnother mouth adds, quieter: \"I think he'll be back soon.\"",
+    text: "The thing turns several of its heads toward you at once. The other heads continue looking elsewhere. Its many yellow eyes do not quite track in unison.\n\n\"He is really precious about his things,\" one of the mouths says, in a tone that suggests this is meant to be reassuring.\n\nAnother mouth adds, quieter: \"I think he'll be back soon.\"",
     choices: [
       { text: "Step back", next: "scene_test" }
     ]
