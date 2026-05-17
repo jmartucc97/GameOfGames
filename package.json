@@ -1,0 +1,10 @@
+{
+  "name": "game-of-games",
+  "version": "1.0.0",
+  "description": "Game of Games — comedic text-adventure with walk-around exploration",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch"
+  }
+}
