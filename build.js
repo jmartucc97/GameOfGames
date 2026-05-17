@@ -19,11 +19,14 @@ const JS_FILES = [
 
   // 2. Data containers — these declare top-level globals (SPRITES, SCENES, etc.)
   'data/sprites.js',
+  'data/sprites_chars.js',   // character sprites + CHARACTER_ROSTER
+  'data/sprites_dungeon.js', // dungeon walls/floors/door/pit/vine/candle tiles
   'data/items.js',
   'data/rooms.js',
 
   // 3. Scene modules — each Object.assigns into SCENES
   'data/scenes/intro.js',
+  'data/scenes/character_select.js',
   'data/scenes/driveway.js',
   'data/scenes/john_basement.js',
   'data/scenes/storage.js',

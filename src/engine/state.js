@@ -42,6 +42,9 @@ function resetState() {
     _drinks_with_john: 0,
     _mtg_round2_games: 0,
     plumpy_lit_room: false,
+    // -- Player avatar (set by character-select scene) --
+    _character: null,        // sprite-name prefix, e.g. "char_brown"
+    _facing: "south",        // last direction the player moved; drives sprite swap
     // -- Pit gauntlet state --
     pit_initiated: false,
     pit_hp: 3,

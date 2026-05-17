@@ -11,7 +11,7 @@ Object.assign(SCENES, {
     tagline: "You'll figure it out.",
     sprite: "john_idle",
     choices: [
-      { text: "Start", next: "scene_test" }
+      { text: "Start", next: "scene_character_select" }
     ]
   },
 

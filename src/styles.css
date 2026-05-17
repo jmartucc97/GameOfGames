@@ -150,6 +150,11 @@
     93%                { opacity: 0.4; }
     50%, 51%           { opacity: 0.85; }
   }
+  /* === Walls and floors: original CSS-gradient haunted-basement look ===
+     Reverted from the dungeon tileset because the 16x16 pixel art felt too
+     chunky at our render scale. The wooden door, dirt pit, vines, and candles
+     from the dungeon tileset are KEPT — they're real upgrades regardless of
+     wall style. */
   .explore-wall {
     position: absolute;
     background: #3a2a18;
@@ -160,7 +165,6 @@
     background-position: 0 0, 6px 6px;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
   }
-  /* Wall variants — distributed deterministically across the room */
   .explore-wall.wall-cracked {
     background-image:
       linear-gradient(45deg, rgba(0,0,0,0.35) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.35) 75%),
@@ -191,6 +195,20 @@
     background: rgba(80, 60, 40, 0.10);
     background-image: linear-gradient(110deg, transparent 48%, rgba(0,0,0,0.25) 50%, transparent 52%);
   }
+  /* Wooden dungeon door — KEPT from the rework. 2 tiles tall, overhangs upward. */
+  .explore-door-img {
+    position: absolute;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: fill;
+    z-index: 3;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  /* (Legacy tile-image classes — no longer rendered, kept defined just in case
+     anything references them.) */
+  .explore-wall-tile, .explore-floor { position: absolute; pointer-events: none; }
   /* Ambient (non-interactive) decoration sprites */
   .explore-ambient {
     position: absolute;
@@ -231,20 +249,22 @@
     position: absolute;
     text-align: center;
     color: #ffd98a;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
     text-transform: uppercase;
-    background: rgba(20, 14, 8, 0.85);
-    border: 1px solid rgba(180, 140, 70, 0.45);
-    border-radius: 3px;
-    padding: 2px 5px;
+    background: rgba(20, 14, 8, 0.92);
+    border: 1px solid rgba(200, 160, 90, 0.6);
+    border-radius: 4px;
+    padding: 3px 7px;
     text-shadow: 0 1px 2px rgba(0,0,0,1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.55);
     pointer-events: none;
     z-index: 6;
     white-space: nowrap;
   }
   .explore-entity-label-below {
+    /* Below the door, anchored at the door's column center */
     transform: translateX(-50%);
   }
   .explore-entity-label-right {
@@ -262,14 +282,7 @@
     z-index: 10;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6));
   }
-  .explore-door {
-    position: absolute;
-    background: linear-gradient(180deg, #4a3220 0%, #2a1810 100%);
-    border: 2px solid #5a3a22;
-    border-radius: 2px;
-    box-shadow: 0 0 12px rgba(120, 80, 40, 0.6);
-    z-index: 1;
-  }
+  /* .explore-door (old CSS-gradient door) — replaced by .explore-door-img above */
   .explore-hint {
     text-align: center;
     color: #8a7a6a;
@@ -537,6 +550,49 @@
   }
   .choice:hover { background: #25252e; }
   .choice:active { transform: scale(0.98); background: #2e2e38; }
+  /* Character-select grid. Flex (not grid) so an odd 5th card centers nicely
+     when it wraps to its own row on narrow viewports. */
+  .char-select-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+    animation: fadeIn 0.4s ease 0.1s both;
+  }
+  .choice.char-card {
+    flex: 0 1 calc(50% - 12px);  /* 2 per row on mobile */
+    min-width: 130px;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 14px 10px 12px;
+    gap: 8px;
+  }
+  @media (min-width: 520px) {
+    .choice.char-card { flex-basis: calc(20% - 12px); }  /* 5 per row on wider */
+  }
+  .char-card-sprite {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+  }
+  .char-card-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e8e8ea;
+    line-height: 1.2;
+  }
+  .char-card-hint {
+    font-size: 0.72rem;
+    color: #8a8a92;
+    line-height: 1.3;
+  }
   .ending-label {
     font-size: 0.85rem;
     text-transform: uppercase;

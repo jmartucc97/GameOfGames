@@ -165,6 +165,26 @@ function render(sceneId) {
       <div class="stats-row"><span>Bullets dodged:</span><span>${missLabel}</span></div>
     </div>`;
     html += `<button class="restart" id="restartBtn">Play again</button>`;
+  } else if (scene.character_select) {
+    // Custom layout: render each choice as a tappable character card with a
+    // sprite preview and an optional hint. Names are intentionally NOT shown
+    // in the UI (they live on the choice as `text` for organization only) —
+    // we surface them via aria-label so screen readers still identify each card.
+    // Click handling still goes through the standard .choice flow.
+    const visible = scene.choices.filter(isChoiceVisible);
+    html += `<div class="char-select-grid">`;
+    visible.forEach((c, i) => {
+      const label = typeof c.text === "function" ? c.text(state) : c.text;
+      const spriteUrl = (c.sprite && SPRITES[c.sprite]) ? SPRITES[c.sprite] : "";
+      const hint = c.hint ? `<div class="char-card-hint">${escapeHtml(c.hint)}</div>` : "";
+      const aria = label ? ` aria-label="${escapeHtml(label)}"` : "";
+      html += `<button class="choice char-card" data-idx="${i}"${aria}>
+        <img class="char-card-sprite" src="${spriteUrl}" alt="">
+        ${hint}
+      </button>`;
+    });
+    html += `</div>`;
+    scene._visibleCache = visible;
   } else if (scene.choices) {
     let displayChoices;
     if (scene.fight) {

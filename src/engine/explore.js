@@ -50,11 +50,13 @@ function renderExplore(sceneId) {
   const moodClass = room.mood ? ` mood-${room.mood}` : "";
   html += `<div class="explore-room${moodClass}" id="exploreRoom">`;
 
-  // Render floor tiles (under everything else)
+  // Render floor tiles (under everything else). Back to CSS-gradient subtle
+  // floor (the original haunted-basement vibe). We do still render a floor
+  // tile under the D exit so the door sprite has a base.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
-      if (grid[y][x] === '.' ) {
-        // Hash-based variant: most tiles plain, some scratched or stained
+      const ch = grid[y][x];
+      if (ch === '.' || ch === 'D') {
         const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
         let cls = "explore-floor-tile";
         if (h === 3 || h === 11) cls += " floor-stain";
@@ -63,15 +65,8 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render door tiles (the southern exit)
-  for (let y = 0; y < grid.length; y++) {
-    for (let x = 0; x < grid[y].length; x++) {
-      if (grid[y][x] === 'D') {
-        html += `<div class="explore-door" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" data-exit="1"></div>`;
-      }
-    }
-  }
-  // Render walls with hash-distributed variants for visual variety
+  // Render walls with hash-distributed CSS-gradient variants (the original
+  // brown crosshatch look).
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
@@ -80,6 +75,19 @@ function renderExplore(sceneId) {
         if (h === 4 || h === 13) cls += " wall-cracked";
         else if (h === 8 || h === 16) cls += " wall-stained";
         html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+      }
+    }
+  }
+  // Render door tiles (the southern exit) — KEEP the dungeon door image. The
+  // 32x32 wooden-door sprite renders at size 2 so it stands 2 tiles tall,
+  // overhanging upward from the D wall position.
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[y].length; x++) {
+      if (grid[y][x] === 'D') {
+        const url = SPRITES.ddoor_closed || "";
+        const doorSize = 2;
+        const dOffX = (doorSize - 1) / 2;
+        html += `<img class="explore-door-img" src="${url}" style="left:${px(x - dOffX)};top:${py(y - (doorSize - 1))};width:${doorSize * tilePctX}%;height:${doorSize * tilePctY}%;" alt="" data-exit="1">`;
       }
     }
   }
@@ -126,8 +134,11 @@ function renderExplore(sceneId) {
     const hitOffset = (hitSize - 1) / 2;
     html += `<div class="explore-entity-hit" data-entity-x="${e.x}" data-entity-y="${e.y}" style="left:${px(e.x - hitOffset)};top:${py(e.y - hitOffset)};width:${hitSize * tilePctX}%;height:${hitSize * tilePctY}%;"></div>`;
   }
-  // Render player
-  const playerUrl = SPRITES.player_avatar;
+  // Render player. The current avatar comes from state._character (the prefix)
+  // plus state._facing (current direction); we use frame 0 (idle) on initial draw.
+  // Falls back to the legacy player_avatar gif if no character is selected
+  // (e.g. dev hot-loading directly into a room).
+  const playerUrl = getPlayerSpriteUrl(state._facing || "south", 0);
   const playerSize = 1.4;
   const pOffsetX = (playerSize - 1) / 2;
   html += `<img class="explore-player" id="explorePlayer" src="${playerUrl}" style="left:${px(playerPos.x - pOffsetX)};top:${py(playerPos.y - (playerSize - 1))};width:${playerSize * tilePctX}%;height:${playerSize * tilePctY}%;" alt="">`;
@@ -224,15 +235,29 @@ function walkPath(path, onComplete) {
   }
   const playerEl = document.getElementById("explorePlayer");
   let i = 0;
+  let walkFrame = 0;        // toggles 0 / 1 each tile step
   const stepDur = 180;
   _exploreWalkTimer = setInterval(() => {
     if (i >= path.length) {
       clearInterval(_exploreWalkTimer);
       _exploreWalkTimer = null;
+      // Settle to idle frame in the last-walked direction
+      if (playerEl) playerEl.src = getPlayerSpriteUrl(state._facing || "south", 0);
       if (onComplete) onComplete();
       return;
     }
     const next = path[i];
+    // Direction from delta: prefer the larger axis (we only move 4-way here so
+    // exactly one of dx/dy is nonzero, but be defensive in case that changes).
+    const dx = next.x - _exploreState.playerPos.x;
+    const dy = next.y - _exploreState.playerPos.y;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      if (dx > 0) state._facing = "east";
+      else if (dx < 0) state._facing = "west";
+    } else {
+      if (dy > 0) state._facing = "south";
+      else if (dy < 0) state._facing = "north";
+    }
     _exploreState.playerPos = next;
     const tilePctX = 100 / ROOM_W;
     const tilePctY = 100 / ROOM_H;
@@ -240,6 +265,9 @@ function walkPath(path, onComplete) {
     const pOffsetX = (playerSize - 1) / 2;
     playerEl.style.left = `${(next.x - pOffsetX) * tilePctX}%`;
     playerEl.style.top = `${(next.y - (playerSize - 1)) * tilePctY}%`;
+    // Swap sprite to match the new direction + the alternating walk frame
+    walkFrame ^= 1;
+    playerEl.src = getPlayerSpriteUrl(state._facing, walkFrame);
     i++;
     // Proximity check: trigger spawn animations on nearby pile-state entities
     checkExploreProximity(next);
@@ -249,10 +277,24 @@ function walkPath(path, onComplete) {
     if (stepOnHere) {
       clearInterval(_exploreWalkTimer);
       _exploreWalkTimer = null;
+      if (playerEl) playerEl.src = getPlayerSpriteUrl(state._facing || "south", 0);
       setTimeout(() => triggerInteraction(stepOnHere), 100);
       return;
     }
   }, stepDur);
+}
+
+// Resolves the current player sprite URL given facing + walk frame.
+// Falls back to the legacy player_avatar gif if the selected character key
+// isn't registered (shouldn't happen in normal play, but keeps the renderer
+// robust against half-initialized state).
+function getPlayerSpriteUrl(facing, frame) {
+  const id = state._character;
+  if (id) {
+    const key = `${id}_${facing}_${frame}`;
+    if (SPRITES[key]) return SPRITES[key];
+  }
+  return SPRITES.player_avatar || "";
 }
 
 // Per-entity proximity / spawn-cycle handler.
