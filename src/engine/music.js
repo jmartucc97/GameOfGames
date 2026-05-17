@@ -24,7 +24,7 @@ function bgForScene(sceneId) {
   if (sceneId === "scene_pit_promoted" || sceneId === "scene_pit_promotion_10" || sceneId === "ending_pit_fired") return "bg_pit_stone";
   if (sceneId === "scene_loadout_backup" || sceneId === "scene_loadout_support" || sceneId === "scene_loadout_special" || sceneId === "scene_loadout_wildcard" || sceneId === "scene_john_recognize" || sceneId === "ending_pit_refusal") return "bg_basement";
   // Plumpy room and related
-  if (sceneId.startsWith("scene_plumpy") || sceneId.startsWith("scene_frack") || sceneId === "scene_fuel_reactor" || sceneId === "scene_reactor_powered" || sceneId === "ending_uranium" || sceneId === "ending_funko" || sceneId === "ending_plumpy_attack" || sceneId === "ending_frack_fail" || sceneId === "ending_true_win" || sceneId === "ending_no_pit") return "bg_plumpy";
+  if (sceneId.startsWith("scene_plumpy") || sceneId.startsWith("scene_frack") || sceneId === "scene_fuel_reactor" || sceneId === "scene_reactor_powered" || sceneId === "ending_uranium" || sceneId === "ending_funko" || sceneId === "ending_plumpy_attack" || sceneId === "ending_frack_fail" || sceneId === "ending_true_win") return "bg_plumpy";
   // Back room (cat lever)
   if (sceneId.startsWith("scene_cat") || sceneId === "scene_backroom_router" || sceneId.startsWith("ending_ww3_cat") || sceneId === "scene_lever_warning" || sceneId === "scene_lever_close" || sceneId === "scene_lever_open" || sceneId === "scene_john_truth_close" || sceneId === "ending_close_strait") return "bg_backroom";
   // Storage piles

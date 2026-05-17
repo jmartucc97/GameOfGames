@@ -201,67 +201,6 @@ Object.assign(SCENES, {
     ]
   },
 
-  scene_plumpy_bananas: {
-    art: [
-      "DDDDDDpPPpDDDDDD",
-      "DDDDpPPPPPPpDDDD",
-      "DDDpPPPPPPPPpDDD",
-      "DDpPPWKPPPPKWPpD",
-      "DDpPPWWPPPPWWPpD",
-      "DDpPPPKKKKKKPPpD",
-      "DpPPPPPPPPPPPPpD",
-      "PpPPPPPPPPPPPPpP",
-      "DDPPPPPPPPPPPPDD",
-      "DDDDttUuUuUttDDD",
-      "DDDDDttUuUttDDDD",
-      "ssssssssssssssss",
-    ],
-    text: "Plumpy raises an eyebrow. \"Bananas, sure. How many do you need?\"",
-    input: {
-      placeholder: "Number of bananas",
-      accept: ["10^21", "10**21", "1e21", "1e+21", "10e21", "1000000000000000000000"],
-      error: "Plumpy frowns. \"That doesn't sound right. Are you sure?\"",
-      success_next: "scene_plumpy_bananas_check"
-    },
-    choices: [
-      { text: "Let me get back to you on that...", next: "scene_plumpy_main" }
-    ]
-  },
-
-  scene_plumpy_bananas_check: {
-    route: (s) => s.has_pit ? "scene_plumpy_bananas_done" : "ending_no_pit"
-  },
-
-  scene_plumpy_bananas_done: {
-    sprite: "banana_cluster",
-    text: "Plumpy claps his hands.\n\n\"1,000 years of global banana production coming right up!\"\n\nA cascade of bananas pours from the ceiling directly into your bottomless pit. The pit absorbs them without complaint.",
-    set: { has_bananas: true },
-    choices: [
-      { text: "Continue", next: "scene_plumpy_main" }
-    ]
-  },
-
-  ending_no_pit: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "Dyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyKKyyyyyKKyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyKKKyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-      "yyyyyyyyyyyyyyyy",
-    ],
-    text: "Plumpy snaps his fingers.\n\n10²¹ bananas materialize directly above you.\n\nThat's roughly 2,000 times the mass of all life on Earth, condensed into a single inexplicable cloud of fruit.\n\nThe last thing you hear is a faint, polite \"oh.\"",
-    ending: true,
-    ending_label: "You Died",
-    ending_class: "bad"
-  },
-
   ending_uranium: {
     art: [
       "RRRRRRRRRRRRRRRR",

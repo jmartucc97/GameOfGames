@@ -79,7 +79,7 @@ Object.assign(SCENES, {
   scene_book_potassium: {
     sprite: "book_potassium_open",
     text: (s) => {
-      const opening = "You pull down \"The Nuclear Physics of Potassium.\" It is heavier than it has any right to be. Inside: pages and pages of John's handwriting, diagrams of decay chains, a sketch of a banana with arrows pointing at the inside of it.\n\nIn the margin of one page, circled twice and underlined three times:\n\n\"10²¹\"\n\nBeneath, in smaller writing: \"yes really. don't ask plumpy he'll just say 'a lot.' — JP\"";
+      const opening = "You pull down \"The Nuclear Physics of Potassium.\" It is heavier than it has any right to be. Inside: pages and pages of John's handwriting, diagrams of decay chains, a sketch of a banana with arrows pointing at the inside of it.\n\nIn the margin of one page, circled twice and underlined three times, is a derivation. Most of it has been scribbled over. What's left, in order, reads:\n\n  m(U-235, RBMK core)  ≈  1.9 × 10⁵ kg\n  E(fission, U-235)     ≈  200 MeV\n  K-40 in banana        ≈  4.2 × 10⁻⁵ g\n  E(β-decay, K-40)      ≈  1.3 MeV\n              ⋮\n           ≈   10²¹  bananas\n\nThe word EQUIVALENT is underlined three more times.";
       if (s.has_note) {
         return opening + "\n\nYou already knew the number, but it's nice to see it confirmed in print.";
       }
@@ -115,7 +115,7 @@ Object.assign(SCENES, {
 
   ending_universe_book: {
     sprite: "book_universe_open",
-    text: "Your body remains, kneeling, in front of the bookcase. The book is closed. The book closed itself.\n\nPlumpy, later, sighs and adds another tally to a list on the inside of his hat. The list is long.",
+    text: "Your body remains, kneeling, in front of the bookcase. The book is closed. The book closed itself.\n\nThere is a draft in the storage room that wasn't there before. Several other books, sensing opportunity, lean very slightly forward on the shelf.",
     ending: true,
     ending_label: "Read the Wrong Book",
     ending_class: "bad"
