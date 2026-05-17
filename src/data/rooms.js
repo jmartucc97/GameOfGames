@@ -171,7 +171,7 @@ const EXPLORE_ROOMS = {
       "#.........#",
       "#..K....S.#",   // Seeker K (left), Lighter S (right)
       "#.........#",
-      "#.........#",
+      "#..T....t.#",   // Tiki T (red, left), Tiki t (green, right)
       "###########",   // solid south wall (no entrance — player wakes up here)
     ],
     spawn: { x: 5, y: 7 },  // middle of the room
@@ -239,6 +239,16 @@ const EXPLORE_ROOMS = {
         scene: (s) => s.knows_skeleton_spell ? "scene_skeleton_seeker" : "scene_skeleton_silent",
         size: 1.4,
         proximity: { trigger: 2, key: "seeker", gate: (s) => !!s.knows_skeleton_spell }
+      },
+      "T": {
+        sprite: "tiki_red",
+        scene: "scene_tiki_red",
+        size: 1.6
+      },
+      "t": {
+        sprite: "tiki_green",
+        scene: "scene_tiki_green",
+        size: 1.6
       }
     },
     exit_to: null   // no auto-exit — basement IS the hub
