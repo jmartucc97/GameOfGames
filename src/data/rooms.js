@@ -330,24 +330,24 @@ const EXPLORE_ROOMS = {
     ambient: [],
     entities: {
       "1": {
-        // Do Not Enter — north wall
-        sprite: "ddoor_closed",
+        // Do Not Enter — north wall (RED for warning)
+        sprite: "ddoor_red",
         scene: "scene_donotenter_router",
         size: 1.5,
         label: "Do Not Enter",
         label_position: "below"
       },
       "2": {
-        // Storage — west wall, label appears to the right (inside the room)
-        sprite: "ddoor_closed",
+        // Storage — west wall (GREY for neutral utility)
+        sprite: "ddoor_grey",
         scene: "scene_detritus",
         size: 1.5,
         label: "Storage",
         label_position: "right"
       },
       "3": {
-        // Exit — east wall, label appears to the left (inside the room)
-        sprite: "ddoor_closed",
+        // Exit — east wall (GREEN for go/exit)
+        sprite: "ddoor_green",
         scene: "scene_exit_router",
         size: 1.5,
         label: "Exit",

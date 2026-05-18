@@ -142,9 +142,19 @@ function renderExplore(sceneId) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === 'D') {
-        const url = SPRITES.ddoor_closed || "";
-        const doorSize = 3;            // up from 2 — more obvious as an exit
+        // Each room can declare door_sprite (defaults: forest=brown, others=grey)
+        const isForestRoom = !!(room.theme === "forest" || room.id === "forest_traps");
+        const defaultDoorSprite = isForestRoom ? "ddoor_brown" : "ddoor_grey";
+        const doorSpriteKey = room.door_sprite || defaultDoorSprite;
+        const url = SPRITES[doorSpriteKey] || SPRITES.ddoor_closed || "";
+        const doorSize = 3;
         const dOffX = (doorSize - 1) / 2;
+        // Wall-blended frame BEHIND the door to make it look recessed/embedded.
+        // Color picks up the room theme so it visually fuses with the wall mass.
+        const frameClass = isForestRoom ? "explore-door-frame explore-door-frame--forest" : "explore-door-frame explore-door-frame--dungeon";
+        const frameSize = doorSize + 0.4;    // slightly larger than the door
+        const frameOffX = (frameSize - 1) / 2;
+        html += `<div class="${frameClass}" style="left:${px(x - frameOffX)};top:${py(y - (frameSize - 1))};width:${frameSize * tilePctX}%;height:${frameSize * tilePctY}%;"></div>`;
         // Visible door image
         html += `<img class="explore-door-img" src="${url}" style="left:${px(x - dOffX)};top:${py(y - (doorSize - 1))};width:${doorSize * tilePctX}%;height:${doorSize * tilePctY}%;" alt="" data-exit="1">`;
         // Expanded transparent hit overlay — covers a 5x4 area around the
@@ -177,6 +187,14 @@ function renderExplore(sceneId) {
     const offsetX = (size - 1) / 2;
     const isSearched = e.def.searched_flag && state[e.def.searched_flag];
     const cls = isSearched ? "explore-entity searched" : "explore-entity";
+    // If the entity is a door (sprite name starts with "ddoor"), render a
+    // wall-blended frame BEHIND it so it looks recessed/embedded in the wall.
+    const isDoor = typeof spriteName === "string" && spriteName.indexOf("ddoor") === 0;
+    if (isDoor) {
+      const frameSize = size + 0.25;
+      const frameOffX = (frameSize - 1) / 2;
+      html += `<div class="explore-door-frame explore-door-frame--dungeon" style="left:${px(e.x - frameOffX)};top:${py(e.y - (frameSize - 1))};width:${frameSize * tilePctX}%;height:${frameSize * tilePctY}%;"></div>`;
+    }
     html += `<img class="${cls}" src="${spriteUrl}" style="left:${px(e.x - offsetX)};top:${py(e.y - (size - 1))};width:${size * tilePctX}%;height:${size * tilePctY}%;" alt="">`;
     // Optional label rendered near the entity (used for doors so players know which is which)
     if (e.def.label) {

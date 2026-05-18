@@ -228,6 +228,28 @@
     background: rgba(80, 60, 40, 0.10);
     background-image: linear-gradient(110deg, transparent 48%, rgba(0,0,0,0.25) 50%, transparent 52%);
   }
+  /* Door frame — sits BEHIND the door image, slightly larger, and picks up
+     a wall-tinted backing so the door looks recessed/embedded in the wall
+     rather than floating on top. The radial gradient darkens toward the edges
+     to mimic a stone or wood jamb. */
+  .explore-door-frame {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: 6%;
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,0.35),
+      inset 0 -6px 10px rgba(0,0,0,0.45),
+      0 2px 4px rgba(0,0,0,0.4);
+  }
+  .explore-door-frame--dungeon {
+    background:
+      radial-gradient(ellipse at center, rgba(72,68,62,0.85) 0%, rgba(40,36,30,0.95) 100%);
+  }
+  .explore-door-frame--forest {
+    background:
+      radial-gradient(ellipse at center, rgba(54,42,28,0.92) 0%, rgba(28,20,12,0.98) 100%);
+  }
   /* Wooden dungeon door — KEPT from the rework. 2 tiles tall, overhangs upward. */
   .explore-door-img {
     position: absolute;
