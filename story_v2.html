@@ -6204,14 +6204,27 @@ function render(sceneId) {
         }
         // Pit fight resolution
         if (scene.fight) {
+          // Plumpy panic — special case, must be checked BEFORE wrong/right
+          // resolution. Plumpy steps in, demon dies, player gains a HP and
+          // max HP. Falls through to the normal "advance to next scene" logic
+          // at the bottom of this handler.
+          if (c.action === "plumpy_panic") {
+            state.pit_plumpy_available = false;
+            state.pit_demon_hp = 0;
+            state.pit_hp_max = (state.pit_hp_max || 0) + 1;
+            state.pit_hp = (state.pit_hp || 0) + 1;
+            state._plumpy_just_saved = true;
+            state._currentFightScene = null;
+            state.pit_fight_wrong = [];
+          }
           // Check if user clicked a SPENT option (special case: still visible but at 0 uses)
-          if (c.spent) {
+          else if (c.spent) {
             // Show "out of ammo" toast AND damage the player
             showAmmoToast(c);
             applyFightWound(sceneId, null);
             return;
           }
-          if (c.correct) {
+          else if (c.correct) {
             // Determine damage to demon
             let dmg = c.instant_kill ? state.pit_demon_hp : 1;
             if (c.consumes) state[c.consumes] = Math.max(0, (state[c.consumes] || 0) - 1);
@@ -6233,16 +6246,6 @@ function render(sceneId) {
             applyFightWound(sceneId, c);
             return;
           }
-        }
-        // Plumpy panic button — auto-kill the demon + grant one extra life (+1 max HP, +1 current HP)
-        if (c.action === "plumpy_panic") {
-          state.pit_plumpy_available = false;
-          state.pit_demon_hp = 0;
-          state.pit_hp_max = (state.pit_hp_max || 0) + 1;
-          state.pit_hp = (state.pit_hp || 0) + 1;
-          state._plumpy_just_saved = true;
-          state._currentFightScene = null;
-          state.pit_fight_wrong = [];
         }
         // Heal action
         if (c.action === "heal_one") {
@@ -6279,7 +6282,21 @@ function render(sceneId) {
     const errorEl = document.getElementById("inputError");
 
     const submit = () => {
-      const raw = inputEl.value.trim().toLowerCase().replace(/[\s,]+/g, "");
+      const rawTrimmed = inputEl.value.trim();
+      const raw = rawTrimmed.toLowerCase().replace(/[\s,]+/g, "");
+      // accept_any mode: any non-empty input is accepted; the original
+      // (cased, trimmed) value is stored under input.store_as.
+      if (scene.input.accept_any) {
+        if (!rawTrimmed) {
+          const errMsg = typeof scene.input.error === "function" ? scene.input.error(state) : (scene.input.error || "Please enter something.");
+          errorEl.textContent = errMsg;
+          return;
+        }
+        if (scene.input.store_as) state[scene.input.store_as] = rawTrimmed;
+        if (scene.input.set) Object.assign(state, scene.input.set);
+        render(scene.input.success_next);
+        return;
+      }
       const accepted = (scene.input.accept || []).map(s => s.toLowerCase().replace(/[\s,]+/g, ""));
       if (accepted.includes(raw)) {
         if (scene.input.set) Object.assign(state, scene.input.set);
