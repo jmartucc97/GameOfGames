@@ -110,8 +110,49 @@ Object.assign(SCENES, {
   // -----------------------------------------------
   // KITTY STORE — landmark in the western clearing
   // -----------------------------------------------
+  //
+  // Three-stage entry:
+  //   1. scene_kitty_store        — router; checks kitty_password_known
+  //   2. scene_kitty_store_gate   — locked door + password input (if no flag)
+  //   3. scene_kitty_store_main   — actual store interior (treat aisle)
+  //
+  // The password "Freshy" is given to the player by John Prime in the basement
+  // (scene_john_speaker in john_first.js). Players who haven't met John yet
+  // can still try to guess; "Freshy" works regardless of how they learned it.
 
   scene_kitty_store: {
+    route: (s) => s.kitty_password_known ? "scene_kitty_store_main" : "scene_kitty_store_gate"
+  },
+
+  scene_kitty_store_gate: {
+    text: "The little shop in the western clearing is shut up tight. A hand-lettered sign hangs from the door:\n\n   FRESH KITTY FOODS & CO.\n   ── BY PASSWORD ONLY ──\n   (We know our customers.)\n\nBelow the sign, a small brass speaking-tube juts from the doorframe. You hear breathing on the other end.",
+    input: {
+      placeholder: "Speak the password",
+      accept: ["freshy", "fresh", "freshie"],
+      success_next: "scene_kitty_store_unlock",
+      error: (s) => {
+        const tries = (s._kitty_gate_tries || 0) + 1;
+        s._kitty_gate_tries = tries;
+        if (tries === 1) return "The tube exhales. \"That's not it.\"";
+        if (tries === 2) return "\"Still not it. Try again or scram.\"";
+        if (tries < 5)   return "The tube sighs, audibly.";
+        return "\"Buddy. Come on.\"";
+      }
+    },
+    choices: [
+      { text: "Walk away", next: "scene_forest" }
+    ]
+  },
+
+  scene_kitty_store_unlock: {
+    text: "The bolt slides back. The door creaks inward.\n\n\"Right answer,\" the tube says, faintly disappointed. \"Come on in.\"",
+    set: { kitty_password_known: true },
+    choices: [
+      { text: "Step inside", next: "scene_kitty_store_main" }
+    ]
+  },
+
+  scene_kitty_store_main: {
     text: "You step into the little shop tucked into the western clearing. The clerk looks up from a half-finished crossword. He sets down his pen.\n\n\"Cat treats? Aisle one. Only aisle, really.\"\n\nHe waves you toward a single shelf with three options.",
     choices: [
       { text: "The treat tube",  next: "scene_forest", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },

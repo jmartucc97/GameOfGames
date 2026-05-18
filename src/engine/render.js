@@ -40,9 +40,29 @@ function render(sceneId) {
   if (sceneId === "scene_rasputin" || sceneId === "scene_rasputin_doom" || sceneId === "scene_rasputin_darkness" || sceneId === "scene_rasputin_fortune") {
     trackForScene = "audio/rasputin.mp3";
   }
-  // Driving sequence + kitty food store
-  else if (sceneId === "scene_drive_route_select" || sceneId === "scene_drive_hellscape" || sceneId.startsWith("scene_drive_scenic") || sceneId === "scene_drive_back" || sceneId.startsWith("scene_kitty_") || sceneId === "ending_kitty_store_closed") {
-    trackForScene = "audio/rocklobster.mp3";
+  // Forest, kitty store, trader, yoga guy, wishing well, demon doors, mimics
+  // — anywhere the player is in or interacting with the forest, plus any
+  // legacy drive scenes that may still route here. The forest endings (pit,
+  // well drown, sandwich, demon doors, mimics) fall through to the generic
+  // "bad ending → gameover" rule below; this branch covers the alive scenes.
+  else if (
+    sceneId === "scene_forest" ||
+    sceneId === "scene_drive_route_select" ||
+    sceneId === "scene_drive_hellscape" ||
+    sceneId.startsWith("scene_drive_scenic") ||
+    sceneId === "scene_drive_back" ||
+    sceneId.startsWith("scene_kitty_") ||
+    sceneId === "ending_kitty_store_closed" ||
+    sceneId.startsWith("scene_trader") ||
+    sceneId.startsWith("scene_yoga") ||
+    sceneId === "scene_wishing_well" ||
+    sceneId === "scene_well_random" ||
+    sceneId === "scene_well_good" ||
+    sceneId === "scene_demon_doors_sign" ||
+    sceneId === "scene_flower_mimic" ||
+    sceneId === "scene_mimic_chest"
+  ) {
+    trackForScene = "audio/funkytown.mp3";
   }
   // First MTG loop with John (Jungle Book)
   else if (sceneId === "scene_mtg_loop" || sceneId === "scene_mtg_check") {

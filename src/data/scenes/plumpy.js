@@ -299,8 +299,8 @@ Object.assign(SCENES, {
     sprite: "reactor_off",
     text: (s) => {
       if (s.has_bananas) return "You walk up to the RBMK. The fuel chute is open. The reactor is waiting.\n\n10^21 bananas, the bottomless pit, and this chute are about to have a complicated relationship.";
-      if (s.has_pit) return "The RBMK looms. The stenciled label reads \"PRIPYAT.\"\n\nA fuel chute hangs open and inviting. You have a bottomless pit. You do not yet have anything to put in it. The trader mentioned bananas.";
-      return "An enormous industrial reactor, label \"RBMK — PRIPYAT.\" It hums faintly. The fuel chute is open, expectant.\n\nYou have neither fuel nor a way to deliver it. Plumpy did mention something about a trader.";
+      if (s.has_pit) return "The RBMK looms. The stenciled label reads \"PRIPYAT.\"\n\nA fuel chute hangs open and inviting. You have a bottomless pit. You do not yet have anything to put in it. Plumpy mentioned a trader outside somewhere — maybe he's got something useful.";
+      return "An enormous industrial reactor, label \"RBMK — PRIPYAT.\" It hums faintly. The fuel chute is open, expectant.\n\nYou have neither fuel nor a way to deliver it. Plumpy did mention something about a trader outside.";
     },
     choices: [
       { text: "Hook up the bottomless pit", next: "scene_fuel_reactor", requires: ["has_bananas"] },

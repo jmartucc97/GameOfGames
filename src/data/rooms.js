@@ -159,7 +159,7 @@ const EXPLORE_ROOMS = {
       "###########.p.##########",  //  3  north clearing entrance
       "##########..p..#########",  //  4
       "########.....p......####",  //  5  north clearing (grass)
-      "########..X..p.........#",  //  6  X = chest mimic at col 10
+      "########..X..p....Y....#",  //  6  X = chest mimic at col 10; Y = yoga guy at col 18
       "########.....p......####",  //  7
       "##########..p..#########",  //  8
       "###########.p.##########",  //  9
@@ -299,6 +299,16 @@ const EXPLORE_ROOMS = {
         sprite: "mimic_idle",
         scene: "scene_mimic_chest",
         size: 1.2
+      },
+      "Y": {
+        // Yoga guy — bearded man sitting cross-legged in the north clearing.
+        // Reuses epa_man sprite (bearded guy in robe). Pure comedy / dialogue
+        // trap — no death state, just an escape route back to the forest.
+        sprite: "epa_man",
+        scene: "scene_yoga_guy",
+        size: 1.4,
+        label: "Bearded Man",
+        label_position: "below"
       },
       "D": {}
     },
