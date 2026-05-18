@@ -179,7 +179,22 @@ const EXPLORE_ROOMS = {
       "########################",  // 23
     ],
     ambient: [
-      { sprite: "ftree_pine", x: 1, y: 4, size: 2.5 },
+      // North dead-end band — extra dense trees in rows 2-3 to signal that
+      // the path tops out at the yoga-man/mimic-chest clearing (rows 5-7).
+      // All sit on wall tiles (cols 0-10 and 14-23 in rows 2-3), so player
+      // movement is unaffected; visually they crowd the top of the screen.
+      { sprite: "ftree_oak",  x: 0,  y: 3, size: 2.5 },
+      { sprite: "ftree_pine", x: 2,  y: 2, size: 2.5 },
+      { sprite: "ftree_pine", x: 4,  y: 3, size: 2.5 },
+      { sprite: "ftree_oak",  x: 6,  y: 2, size: 2.5 },
+      { sprite: "ftree_oak",  x: 8,  y: 3, size: 2.5 },
+      { sprite: "ftree_pine", x: 10, y: 2, size: 2.5 },
+      { sprite: "ftree_oak",  x: 14, y: 2, size: 2.5 },
+      { sprite: "ftree_oak",  x: 16, y: 3, size: 2.5 },
+      { sprite: "ftree_pine", x: 18, y: 2, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 3, size: 2.5 },
+      { sprite: "ftree_oak",  x: 22, y: 2, size: 2.5 },
+      { sprite: "ftree_pine", x: 1,  y: 4, size: 2.5 },
       { sprite: "ftree_pine", x: 3, y: 4, size: 2.5 },
       { sprite: "ftree_oak", x: 5, y: 4, size: 2.5 },
       { sprite: "ftree_oak", x: 7, y: 4, size: 2.5 },
@@ -326,12 +341,12 @@ const EXPLORE_ROOMS = {
       "#.........#",
       "#.........#",
       "2.........3",   // Storage west, Exit east
-      "#.........#",
+      "#.K.....S.#",   // Seeker K (left, near Storage), Lighter S (right, near Exit)
       "#....J....#",   // John spawns here (visible after john_appeared)
       "#.........#",
       "#.........#",
       "#.........#",
-      "#..K....S.#",   // Seeker K (left), Lighter S (right)
+      "#.........#",
       "#.........#",
       "#..T....t.#",   // Tiki T (red, left), Tiki t (green, right)
       "###########",   // solid south wall (no entrance — player wakes up here)

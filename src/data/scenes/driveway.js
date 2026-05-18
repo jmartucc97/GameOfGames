@@ -73,7 +73,7 @@ Object.assign(SCENES, {
     text: "The trader snaps his fingers. A cascade of 10²¹ bananas pours from somewhere above — directly into your bottomless pit. The pit absorbs them without comment.\n\nThe trader nods. \"Good doing business. Tell Plumpy I'm even with him.\"\n\nHe turns and walks off into the dark.",
     set: { has_bananas: true },
     choices: [
-      { text: "Head back inside to the Plumpy room", next: "scene_plumpy_main" }
+      { text: "Head back to the forest path", next: "scene_forest" }
     ]
   },
 

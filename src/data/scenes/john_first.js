@@ -62,7 +62,7 @@ Object.assign(SCENES, {
   scene_john_speaker: {
     sprite: "john_friendly",
     text: "John Prime's eyes light up.\n\n\"A SPEAKER. Hand it over.\"\n\nHe connects with practiced ease and starts blasting his jams. The aura of menace dissolves into vibes.\n\n\"You know what, you're alright. Listen — my pet project? That RBMK in the next room keeps THIS room contained. Magic lever for the Strait of Hormuz. Whatever you do, don't let the cat near it.\"\n\n\"I gotta go set up for my tiki party. Feed my cat for me? The kitty food store down the road closes in like seven minutes — you should book it. Pro tip: the tube is the good one. Hard treats and catnip will get everyone killed.\"\n\nHe leans in.\n\n\"Oh — and the place is password-only. Tell the tube at the door: 'Freshy.' That'll get you in. Don't ask why. The guy is particular.\"\n\n\"By the way — the genie's been putting Samara in that bottomless pit. If she crawls out, just send her my way. She loves Monster Mash.\"\n\nHe heads off toward the basement, speaker in hand.",
-    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, has_speaker: false, speaker_path_used: true, kitty_password_known: true },
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, has_speaker: false, speaker_path_used: true },
     choices: [
       { text: "Head back through the basement", next: "scene_test" }
     ]
@@ -132,7 +132,7 @@ Object.assign(SCENES, {
   scene_mtg_done_early: {
     sprite: "john_friendly",
     text: "John Prime shrugs. \"Suit yourself. Hey — feed my cat while I'm gone, would you? Kitty food store down the road closes in a few minutes. Step on it.\"\n\nHe pauses at the door.\n\n\"Oh — the place is password-only. Say 'Freshy' to the tube at the door. Don't argue with it. The guy is particular.\"\n\nHe heads off toward the basement, humming.",
-    set: { mtg_played: true, john_handled: true, kitty_password_known: true },
+    set: { mtg_played: true, john_handled: true },
     choices: [
       { text: "Head back through the basement", next: "scene_test" }
     ]
@@ -141,7 +141,7 @@ Object.assign(SCENES, {
   scene_mtg_done_13: {
     sprite: "john_impressed",
     text: "After the thirteenth game, John Prime sets down his cards. He looks at you with something approaching respect.\n\n\"You've got stamina, I'll give you that. Listen — by the way, I heard the bottomless pit in the other room. I too am a fan. Just be warned, the genie has been putting the Ring girl, Samara, in them recently. If she gives you any trouble, just call for me.\"\n\n\"Now go feed my cat. Kitty food store down the road, closes any minute now. The tube is the good one. Password's 'Freshy' — say it to the tube at the door or you're not getting in.\"\n\nHe heads off toward the basement.",
-    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, mtg_thirteen_done: true, kitty_password_known: true },
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, mtg_thirteen_done: true },
     choices: [
       { text: "Head back through the basement", next: "scene_test" }
     ]
@@ -220,7 +220,7 @@ Object.assign(SCENES, {
       "ssssssssssssssss",
     ],
     text: "\"BLACK? Oh, finally. A person of taste.\"\n\nJohn Prime conjures a deck of his own. You play a vicious game. He destroys you, but graciously.\n\nAs you concede, he stretches and yawns.\n\n\"Good game! Listen, I've got to go set up for my tiki party. Can you feed my cat while I'm gone? Kitty food store down the road. Closes any minute now. The tube is the good one — and the password is 'Freshy.' Say it to the tube at the door. Don't ask.\"",
-    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true, kitty_password_known: true },
+    set: { mtg_played: true, john_handled: true, samara_eligible_john_call: true },
     choices: [
       { text: "Head back through the basement", next: "scene_test" }
     ]

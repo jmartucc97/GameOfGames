@@ -29,7 +29,7 @@ Object.assign(SCENES, {
     sprite: "epa_man",
     text: "B. Prynne flinches and scribbles something. A second agent emerges from the stairwell, taller, balding, glasses on a lanyard. Name tag: D. CALLOWAY.\n\n\"Mister Prynne. Step back, I'll handle this.\" He clears his throat. \"Sir, we have soil samples within a two-mile radius indicating Subsection 4(b) violations of the Safe Drinking Water Act. That wouldn't be related to anything happening at this address, would it?\"",
     choices: [
-      { text: "\"Where is the warrant, bean counter?\"",          next: "scene_epa_3" },
+      { text: "\"Where is the warrant, paper pusher?\"",          next: "scene_epa_3" },
       { text: "\"Fracking? Never heard of it.\"",                  next: "scene_epa_3" },
       { text: "\"Yeah, the basement has a fracked bottomless pit.\"", next: "ending_epa_truth" },
       { text: "Compliment the lanyard",                            next: "ending_epa_compliment" }
@@ -40,7 +40,7 @@ Object.assign(SCENES, {
     sprite: "epa_boss",
     text: "Calloway turns, deflated. Behind him, a third figure descends the stairs at a measured pace. Black suit. Mirrored sunglasses indoors. No name tag.\n\nHe stops at the bottom of the steps. The basement gets noticeably colder.\n\n\"I'm Regional Director Hollings. The boys upstairs tell me you've been uncooperative. Let me make this simple. Our equipment is sensitive enough to detect the isotopic signature of Communion wine in the water table within the last forty-eight hours. We can sit here for the rest of the afternoon, or you can tell me what we both already know.\"",
     choices: [
-      { text: "\"Where is the warrant, bean counter?\"",                   next: "ending_epa_win" },
+      { text: "\"Where is the warrant, deep state?\"",                     next: "ending_epa_win" },
       { text: "\"Fracking? Never heard of it.\"",                           next: "ending_epa_win" },
       { text: "\"The Holy Water, the Jello, and the walnut shells. It was a great mix.\"", next: "ending_epa_truth" },
       { text: "Confess everything calmly and ask for legal counsel",        next: "ending_epa_truth" }
@@ -73,7 +73,7 @@ Object.assign(SCENES, {
 
   ending_epa_win: {
     sprite: "john_friendly",
-    text: "Director Hollings stares at you through his sunglasses for a long, long time.\n\nThen, slowly, he removes them. His eyes are the eyes of a man who has spent thirty years failing to convict people exactly like you.\n\n\"...we'll be in touch.\"\n\nThe three agents pack up. They leave. The headlights swing back down the driveway.\n\nJohn Prime materializes next to you, applauding slowly.\n\n\"That was BEAUTIFUL. Hollings has a 94% conviction rate. Ninety-four. You just made him a 93%-er.\"\n\nHe claps you on the shoulder. The pit, fully fracked, finally rumbles. From its depths comes a low, satisfied groan, like the earth itself sighing. Crude begins to bubble up through the floor.\n\n\"We're rich. We're CRIMINALLY rich. Like — at scale. The kind of money you have to launder through three shell companies and a non-profit for a Bahamian dolphin sanctuary.\"\n\nPlumpy waddles in with a bottle of champagne. The cat from upstairs, batting the lever, has been replaced by a slightly different cat, batting the same lever. The pit is no longer bottomless. It is, in fact, deeply lucrative.",
+    text: "Director Hollings stares at you through his sunglasses for a long, long time.\n\nThen, slowly, he removes them. His eyes are the eyes of a man who has spent thirty years failing to convict people exactly like you.\n\n\"...we'll be in touch.\"\n\nJohn Prime materializes next to you, applauding slowly.\n\n\"With the Strait of Hormuz closed and the world's supply of oil forever disrupted, we can now be the number one supplier of all fossil-fuel-related needs. All it took was ten times the entire biomass of all life that ever existed on earth converted into bananas, a Soviet-era nuclear reactor, a bottomless pit from a genie, and of course... the friends we made along the way.\"\n\nJohn becomes sullen for a second and says under his breath, \"I guess the pit really isn't bottomless, but is actually deeply lucrative....\"",
     ending: true,
     ending_label: "Fracking Success — EPA Repelled",
     ending_class: "win"

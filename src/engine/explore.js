@@ -11,6 +11,15 @@ function renderExplore(sceneId) {
   if (state._skel_state) {
     for (const k of Object.keys(state._skel_state)) state._skel_state[k] = "pile";
   }
+  // Forest spawn-reset rule: any time the player enters a non-forest explore
+  // room (basement / storage / plumpy), wipe their cached forest position so
+  // the next return to the forest puts them back at the entry door instead of
+  // wherever they last stood. Forest-internal hops (kitty store, trader, yoga
+  // guy, well, etc.) don't trigger this because those are text scenes, not
+  // explore rooms — the cache survives them.
+  if (roomId !== "forest" && state._explore_pos) {
+    delete state._explore_pos.forest;
+  }
   // Build entity tile map from the layout
   const grid = room.layout;
   // World dimensions are derived from the room's actual layout. The basement,

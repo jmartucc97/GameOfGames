@@ -620,20 +620,7 @@ Object.assign(SCENES, {
   },
 
   scene_john_truth_close: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWggggWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_appear",
     text: "John Prime nods slowly. He looks at you with new interest.\n\n\"You know what? You seem like an out-of-the-box thinker. I think you could help me out with something.\"\n\nHe rocks on his heels, pleased.\n\n\"So. With the Strait of Hormuz closed, oil prices are about to do something extremely funny. The plan is we frack the sides of the bottomless pit and make an absolutely indecent amount of money.\"\n\n\"Go talk to Plumpy. He's got the ingredients. You'll need to pick the right ones — I'm not telling you which.\"",
     set: { fracking_initiated: true },
     choices: [
