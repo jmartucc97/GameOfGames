@@ -148,40 +148,135 @@ const EXPLORE_ROOMS = {
     // either side at the crossroad (row 12). North clearing has the yoga
     // guy and wishing well; main path has a hidden pit trap; west/east
     // edges have the demon-doors sign and the flower mimic.
+    // SIMPLE LAYOUT: a tan path with grass on each side runs south-to-north
+    // from the basement door. Two clearings open off the crossroad: kitty
+    // store to the west, trader to the east. Two traps remain — the chest
+    // mimic in the north clearing, and the flower mimic by the trader.
     layout: [
       "########################",  //  0
       "########################",  //  1
-      "##########......########",  //  2  north clearing
-      "##########X....W########",  //  3  X = chest mimic, W = wishing well
-      "##########..Y...########",  //  4  Y = yoga guy
-      "###########....#########",  //  5
-      "############..##########",  //  6
-      "############..##########",  //  7
-      "############..##########",  //  8
-      "############..##########",  //  9
-      "#####S..####..####..F###",  // 10  S = demon-doors sign, F = flower mimic
-      "####..K..###..###..M..##",  // 11  K = kitty stump, M = trader
-      "####.................###",  // 12  crossroad
-      "############..##########",  // 13
-      "############..##########",  // 14
-      "############..##########",  // 15
-      "############..##########",  // 16
-      "############P.##########",  // 17  P = pit trap (step-on)
-      "############..##########",  // 18
-      "############..##########",  // 19
-      "############..##########",  // 20
-      "############..##########",  // 21
-      "############.D##########",  // 22  D = entry from basement
+      "########################",  //  2
+      "###########.p.##########",  //  3  north clearing entrance
+      "##########..p..#########",  //  4
+      "########.....p......####",  //  5  north clearing (grass)
+      "########..X..p.........#",  //  6  X = chest mimic at col 10
+      "########.....p......####",  //  7
+      "##########..p..#########",  //  8
+      "###########.p.##########",  //  9
+      "###########.p.##########",  // 10
+      "###########.p.##########",  // 11
+      "####.Kpppppppp.........#",  // 12  K = kitty store + WEST path branch
+      "####........pppppppp..F#",  // 13  F = flower mimic + EAST path branch
+      "####........p......M..##",  // 14  M = trader
+      "###########.p.##########",  // 15
+      "###########.p.##########",  // 16
+      "###########.p.##########",  // 17
+      "###########.p.##########",  // 18
+      "###########.p.##########",  // 19
+      "###########.p.##########",  // 20
+      "###########.p.##########",  // 21
+      "###########.D.##########",  // 22  D = entry door
       "########################",  // 23
     ],
-    ambient: [],
-    spawn: { x: 13, y: 21 },  // just north of the entry door (D at 13,22), facing into the forest
+    ambient: [
+      { sprite: "ftree_pine", x: 1, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 5, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 7, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 9, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 15, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 17, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 19, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 21, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 2, y: 6, size: 2.5 },
+      { sprite: "ftree_oak", x: 4, y: 6, size: 2.5 },
+      { sprite: "ftree_pine", x: 6, y: 6, size: 2.5 },
+      { sprite: "ftree_oak", x: 1, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 7, y: 8, size: 2.5 },
+      { sprite: "ftree_oak", x: 21, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 4, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 6, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 8, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 10, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 14, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 16, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 18, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 1, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 3, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 23, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 2, y: 14, size: 2.5 },
+      { sprite: "ftree_pine", x: 1, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 7, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 9, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 15, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 17, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 19, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 21, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 4, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 6, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 8, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 10, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 14, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 16, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 18, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 1, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 3, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 7, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 9, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 15, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 17, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 19, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 21, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 23, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 4, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 6, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 8, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 10, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 14, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 16, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 18, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 20, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 22, size: 2.5 },
+      { sprite: "flogs", x: 20, y: 5, size: 1.0 },
+      { sprite: "frock", x: 7, y: 6, size: 1.4 },
+      { sprite: "frock", x: 22, y: 7, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 9, y: 8, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 3, y: 10, size: 1.2 },
+      { sprite: "frock", x: 7, y: 10, size: 1.4 },
+      { sprite: "frock", x: 19, y: 10, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 3, y: 14, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 6, y: 15, size: 1.2 },
+      { sprite: "frock", x: 10, y: 15, size: 1.4 },
+      { sprite: "flogs", x: 14, y: 15, size: 1.0 },
+      { sprite: "frock", x: 22, y: 15, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 3, y: 18, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 15, y: 18, size: 1.2 },
+      { sprite: "frock", x: 19, y: 18, size: 1.4 },
+      { sprite: "frock", x: 7, y: 22, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 15, y: 22, size: 1.2 },
+    ],
+    spawn: { x: 12, y: 21 },  // on the path, just north of the entry door at (12, 22)
     entities: {
       "K": {
-        // Kitty store landmark — a stump/rock cluster marking the building.
-        sprite: "fbigrock",
+        // Kitty store landmark — the actual cabin building. 3x2.5 tile footprint.
+        sprite: "fkitty_store",
         scene: "scene_kitty_store",
-        size: 1.6,
+        size: 3.0,
         label: "Kitty Store",
         label_position: "below"
       },
@@ -193,36 +288,11 @@ const EXPLORE_ROOMS = {
         label: "Trader",
         label_position: "below"
       },
-      "Y": {
-        // Yoga guy in the north clearing — dialogue trap (no death, just hard to leave).
-        sprite: "epa_man",
-        scene: "scene_yoga_guy",
-        size: 1.4
-      },
-      "W": {
-        // Wishing well — a rock formation. Random outcome on use.
-        sprite: "fbigrock",
-        scene: "scene_wishing_well",
-        size: 1.6
-      },
-      "S": {
-        // The infamous demon-doors sign.
-        sprite: "three_doors",
-        scene: "scene_demon_doors_sign",
-        size: 1.4
-      },
       "F": {
         // A pretty flower in a circle of bare earth. Bait.
         sprite: "flower_mimic_idle",
         scene: "scene_flower_mimic",
         size: 1.3
-      },
-      "P": {
-        // Pit trap covered by leaves. Step-on, no warning.
-        sprite: "bottomless_pit",
-        scene: "ending_forest_pit",
-        size: 1.0,
-        step_on: true
       },
       "X": {
         // Chest mimic — looks like loot, eats you when opened.

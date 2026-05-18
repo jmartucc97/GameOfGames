@@ -26,7 +26,7 @@ function renderExplore(sceneId) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      if (ch !== '#' && ch !== '.' && ch !== 'D') {
+      if (ch !== '#' && ch !== '.' && ch !== 'p' && ch !== 'D') {
         const def = room.entities[ch];
         if (!def) continue;
         if (def.visible && !def.visible(state)) continue;
@@ -78,13 +78,28 @@ function renderExplore(sceneId) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      const walkable = (ch === '.' || ch === 'D' || (ch !== '#' && room.entities[ch]));
+      const isPath = (ch === 'p' || ch === 'D' || ch === 'P');
+      const isGrass = (ch === '.' || (ch !== '#' && ch !== 'p' && ch !== 'P' && ch !== 'D' && room.entities[ch]));
+      const walkable = isPath || isGrass;
       if (walkable) {
         if (isForest) {
-          // Hash-pick one of three grass variants
+          // Hash-pick from grass or path variants depending on tile type.
+          // `p` (tan path) renders fpath; `.` (clearing) renders fgrass.
+          // Entity tiles default to grass (most landmarks are in clearings) —
+          // override by checking immediate horizontal neighbors for path.
+          let useType = isPath ? 'path' : 'grass';
+          if (room.entities[ch] && !isPath) {
+            // Entity (letter) — inherit from a path neighbor if one is adjacent
+            // (the pit P already maps to path above, but other entities use this).
+            const left  = x > 0 ? grid[y][x-1] : '';
+            const right = x < grid[y].length-1 ? grid[y][x+1] : '';
+            const above = y > 0 ? grid[y-1][x] : '';
+            const below = y < grid.length-1 ? grid[y+1][x] : '';
+            if (left === 'p' || right === 'p' || above === 'p' || below === 'p') useType = 'path';
+          }
           const h = (x * 7 + y * 13 + (room.seed || 0)) % 11;
           const variant = (h % 3);
-          const sprite = `fpath_${variant}`;
+          const sprite = (useType === 'path') ? `fpath_${variant}` : `fgrass_${variant}`;
           const url = SPRITES[sprite] || "";
           html += `<img class="explore-floor-tile forest-floor" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
         } else {
@@ -97,17 +112,19 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render walls. Forest theme uses tree sprites (image), others use CSS-gradient.
+  // Render walls. Forest theme renders walls as the SAME grass texture
+  // as the floor — visually identical, so the wall mass blends seamlessly
+  // with clearings. Trees and other props (in room.ambient) are what make
+  // forest cells visually different from open clearings. The walls still
+  // BLOCK movement; only their appearance is unified with the grass.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
         if (isForest) {
-          // Hash-pick one of four tree variants for natural variation
-          const h = (x * 11 + y * 7 + (room.seed || 0)) % 13;
-          const variant = h % 4;
-          const sprite = `ftree_${variant}`;
-          const url = SPRITES[sprite] || "";
-          html += `<img class="explore-wall forest-tree" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 11;
+          const variant = h % 3;
+          const url = SPRITES[`fgrass_${variant}`] || "";
+          html += `<img class="explore-wall forest-wall-tile" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
         } else {
           const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
           let cls = "explore-wall";
@@ -118,16 +135,25 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render door tiles (the southern exit) — KEEP the dungeon door image. The
-  // 32x32 wooden-door sprite renders at size 2 so it stands 2 tiles tall,
-  // overhanging upward from the D wall position.
+  // Render door tiles (the southern exit). Door is rendered LARGE so it's
+  // unmistakable as a tappable exit, and gets an expanded transparent hit
+  // overlay so even imprecise taps near the door land successfully. The
+  // door also pulses subtly to draw the eye.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === 'D') {
         const url = SPRITES.ddoor_closed || "";
-        const doorSize = 2;
+        const doorSize = 3;            // up from 2 — more obvious as an exit
         const dOffX = (doorSize - 1) / 2;
+        // Visible door image
         html += `<img class="explore-door-img" src="${url}" style="left:${px(x - dOffX)};top:${py(y - (doorSize - 1))};width:${doorSize * tilePctX}%;height:${doorSize * tilePctY}%;" alt="" data-exit="1">`;
+        // Expanded transparent hit overlay — covers a 5x4 area around the
+        // door for forgiving taps. Pointer events on this overlay route to
+        // the door's exit handler via data-exit.
+        const hitW = 5;
+        const hitH = 4;
+        const hitOffX = (hitW - 1) / 2;
+        html += `<div class="explore-door-hit" style="left:${px(x - hitOffX)};top:${py(y - (hitH - 1))};width:${hitW * tilePctX}%;height:${hitH * tilePctY}%;" data-exit="1"></div>`;
       }
     }
   }
@@ -229,6 +255,29 @@ function updateCamera() {
 function handleExploreTap(ev, viewportEl) {
   if (!_exploreState) return;
   if (_exploreWalkTimer) return;  // mid-walk, ignore taps
+
+  // If the click target has data-exit="1" (door image or hit overlay),
+  // route directly to the door cell. This catches taps on the expanded
+  // transparent hit zone around the door, so imprecise taps still work.
+  if (ev.target && ev.target.dataset && ev.target.dataset.exit === "1") {
+    const { grid, blockedSet, playerPos } = _exploreState;
+    // Locate the D cell — there's only one per room
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+        if (grid[y][x] === 'D') {
+          const approach = findApproachTile(grid, playerPos, {x, y}, blockedSet);
+          if (approach) {
+            const path = findPath(grid, playerPos, approach, blockedSet);
+            if (path !== null) {
+              walkPath(path, () => walkPath([{x, y}], () => exitRoom()));
+            }
+          }
+          return;
+        }
+      }
+    }
+    return;
+  }
 
   const { grid, entityTiles, blockedSet, playerPos,
           world_w, world_h, view_w, view_h, scrolling } = _exploreState;
@@ -355,9 +404,10 @@ function walkPath(path, onComplete) {
     i++;
     // Proximity check: trigger spawn animations on nearby pile-state entities
     checkExploreProximity(next);
-    // Step-on check: if we landed on a step-on entity, abort the walk and trigger it
+    // Step-on check: if we landed on a step-on entity, abort the walk and trigger it.
+    // Decorative entities (e.g. bushes) are walked over but never trigger anything.
     const stepOnHere = _exploreState.entityTiles.find(e =>
-      e.x === next.x && e.y === next.y && e.def.step_on);
+      e.x === next.x && e.y === next.y && e.def.step_on && !e.def.decorative);
     if (stepOnHere) {
       clearInterval(_exploreWalkTimer);
       _exploreWalkTimer = null;
@@ -500,6 +550,8 @@ function redrawEntity(entity) {
 }
 
 function triggerInteraction(entity) {
+  // Decorative entities (no scene attached) never trigger anything.
+  if (!entity.def.scene) return;
   // Save player position, then route to the entity's dialogue scene
   saveExploreState(_exploreState.roomId, _exploreState.playerPos);
   cancelSkelTimers();

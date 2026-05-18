@@ -177,20 +177,7 @@ Object.assign(SCENES, {
   },
 
   scene_pit_cycle_6: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWKKKKWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_impressed",
     text: "The air shimmers.\n\nJohn Prime is there, drink in hand, looking impressed despite himself.\n\n\"How's the pit?\"",
     choices: [
       { text: "Still bottomless", next: "scene_pit_cycle_7" },

@@ -17,7 +17,7 @@ Object.assign(SCENES, {
     },
     choices: [
       { text: "Give him the speaker", next: "scene_john_speaker", requires: ["has_speaker", "charger_path_used"], unless: ["john_handled"] },
-      { text: "Ask to play another game of Magic", next: "scene_mtg_round2_loop", requires: ["_john_phase2_unlocked"] },
+      { text: "Ask to play another game of Magic", next: "scene_mtg_round2_loop", requires: ["_john_phase2_unlocked", "has_mtg_deck"] },
       { text: "Have a drink with John", next: "scene_drinks", requires: ["_john_phase2_unlocked"] },
       { text: "Back to the basement", next: "scene_test" }
     ]

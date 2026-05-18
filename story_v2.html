@@ -144,7 +144,8 @@
     background: none;
   }
   /* Forest floor/wall tiles */
-  .explore-floor-tile.forest-floor, .explore-wall.forest-tree {
+  .explore-floor-tile.forest-floor,
+  .explore-wall.forest-wall-tile {
     position: absolute;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
@@ -154,7 +155,7 @@
     -webkit-user-drag: none;
   }
   .explore-floor-tile.forest-floor { z-index: 0; }
-  .explore-wall.forest-tree { z-index: 2; }
+  .explore-wall.forest-wall-tile { z-index: 1; }
   /* Per-room mood overlays — radial tint to suggest a light source */
   .explore-room.mood-storage::before {
     content: "";
@@ -241,10 +242,34 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     object-fit: fill;
-    z-index: 3;
-    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6));
+    z-index: 4;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8))
+            drop-shadow(0 0 6px rgba(255,200,80,0.4));
     pointer-events: auto;
     cursor: pointer;
+    animation: door-beacon 2.4s ease-in-out infinite;
+  }
+  @keyframes door-beacon {
+    0%, 100% { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8))
+                       drop-shadow(0 0 6px rgba(255,200,80,0.4)); }
+    50%      { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8))
+                       drop-shadow(0 0 14px rgba(255,220,120,0.85)); }
+  }
+  /* Transparent expanded hit area around each door — catches imprecise taps
+     and routes them to the door's exit handler. Higher z-index than entities
+     so it always wins over neighbouring tap targets. */
+  .explore-door-hit {
+    position: absolute;
+    z-index: 6;
+    pointer-events: auto;
+    cursor: pointer;
+    background: transparent;
+  }
+  /* Tree ambient sprites — placed inside the wall mass as visible landmarks.
+     Use higher z-index than the wall texture so trees appear ON TOP. */
+  .explore-ambient[src*="ftree"] {
+    z-index: 2;
+    opacity: 1;
   }
   /* (Legacy tile-image classes — no longer rendered, kept defined just in case
      anything references them.) */
@@ -271,6 +296,7 @@
     image-rendering: pixelated;
     object-fit: contain;
     pointer-events: none;
+    z-index: 3;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
   }
   .explore-entity.searched {
@@ -280,7 +306,7 @@
     position: absolute;
     background: transparent;
     cursor: pointer;
-    z-index: 5;
+    z-index: 6;
   }
   .explore-entity-hit:active {
     background: rgba(255, 220, 120, 0.18);
@@ -971,21 +997,25 @@ Object.assign(SPRITES, {
 });
 
 // ===== data/sprites_forest.js =====
-// Forest tileset sprites v7: TAN PATHS + DENSE TREE WALLS.
-// All from Forest_Tileset_v2.png. Tan tiles for walkable areas,
-// dense pine canopy composited on dark forest-floor for walls.
+// Forest tileset sprites v12 — walls render as GRASS (same as floor),
+// distinguished from clearings by dense ambient TREES + props on top.
 
 Object.assign(SPRITES, {
-  fpath_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJ0lEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gpgGMaBn6HxEa/0ExAHKfBz7Ii2H1AAAAAElFTkSuQmCC",
-  fpath_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAKUlEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gkgEsjNDM/J8RQv8j0RYAp2gGRhc94EYAAAAASUVORK5CYII=",
-  fpath_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJElEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gkgEsyJx/ZBgAADQoBERvCFbkAAAAAElFTkSuQmCC",
-  ftree_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACtElEQVR42i2S227bRhQAZy/cJSlZknMx7DpJ00vaAk2f/BC0adGi39Ff6Z/agOEYli3LulEUl+QuTx/cD5h5GIz6/d/PUtcVs+MJr09OCG3DarMhxohRCkRxc3ODczknJ6csHpZ0Xcf5+TkMCqs9TP0Rk+kYY6FvegaJoCJRBOdyzr/+iq5N6Axen7xksVhwd3eHxqB3ux19SkQZqA41+/2Ovm8REUSEpmkAsEpjUBRFwWw2Y1SWkAZsCAGtNdoAQNs+wwDGGIoip65rMpthjKGuK5xzjMsRX+ov2PHkCKWE0LYopVBGo7VCBkEphRbI/renlBARlBJgwBiFzjKDySwiQozxWaIUACLCZrPBe09KidA2lGVOCIH5fA6AbvsO5xwu94iCFAWFATTDAN4XOJdjrUVrTd/37HYbdvstUSJWa810OkVEWC6XSBowxoAIQ4LMWtbrNUo9B6x2e5Q1nL97S57l6LOzM7LMk+clfZ+w1iEJUpcoXE5oWo5nL8h8znq7Y7uv+PDjD7z/9huUNegsywghcHl5ibMZfdsxDMLkaMrV1RXeF6xWK/q+Z/5wz8+/fGQ0HqO0Zvpiil4t1zw+PJKZDGcdfR8pfcl2vcNZjzEZ1jpubm7568+/GURQ1tDEDusderPZopRiXI6IccBbT103PD2tefPmHW3oub2757fPf9CnyHg6Y7VZE2UgKkFbnVH4kmpTQYLcFdzdzvG+IISO+/sFnz79Stv2iDLsqgpXjnBFDkqhD9WB6+trrHU45wihYxgGUhQWD0suLi4YBphOjum6SBQoRiWH0IFW6O16x6E64LOccGjZPm2ZlBNC3ZDSgPfP41T1nslsii9yHh8fKccj6tCgfvrno5y+PeV+MadPkRg7jLOIej6x6Rq++/A9L1+9IpFAC7bwhHDAOcd/6elsdvPidYMAAAAASUVORK5CYII=",
-  ftree_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACR0lEQVR42j2Sy3JkRQxEj1Sq6tsvN2GCiWENfMt8F78JwQrMCs/Ybvd91L2SWLRj9spMxcmUL79/yZfnrzy/fMPdqW3AzNg8cXe0GvM8UijUViASSTCFiMD+/OMvCgU1w4YdmcmydgLQorSdEmnggUgS6XgEiYAKZmYUEVIEd2fbNlDhcDpxOp3o64y7s8RChKMCaoVd23E4HDDRJAMik6KK1IpnsEwTy7Lw+edPqCqZSe8dgFIKwzDw8PCAQZIZBImKoSJEJO4bsQatNcyMzDsTd6f7xjhP2FgxgBAQhIggMgG+C9/e3jifz7TWKKV8NxrHkQiwZZ1RCmaGmqLAuq7M83wHuq0MwwCAu0MqRZUtNlZ37JfffuXt5ZXX1yvLsqCqqCo7q4gI3TdUFfmAnCHUWu+Bqti4jOyPA23Y8fT0hGcQIQy1Mo4jtTb+/fsfVk/2+z2ZyTRNlFLZYsXQJFWo1Xj86ZH5NjOOI+t6fz0TMpOhVS6XC3AfkHtStGChwuwLsibH8wGA7p11XlDdk55EBKUazQxS0VQiggT0x8+fOByPrBnYrnE8n3h8fMTM6Ot8P/zYwPvblffrlXVdkQRN0MNpz/7hQKnKvCz0baMNO0qr9N7JTGqtKMJ0G5luIypCqxUyset4Q4syHA9M7zdiS5odOZ/P4EGf7i2kftRIoiKICLEllkBrlYcfLvTeaaaUWrlcGhLJf9NXMgIiKKqQQjgEGxKJWVGcu3PvnaoFnzZweP72Sq2VjLuoakMRel8xU1ru+R+oGm8fgog7TQAAAABJRU5ErkJggg==",
-  ftree_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACy0lEQVR42m2RS08bVwBGz32Nx+MxBgOOAWMcTCiJ2lXaKlXUVVbdVWp/UP8gzaKLtlQk1MTGYDB+jD32zNx7u2BR9XF+wNGn84mvvv/Wr3SGLAtyuSYVKwgcu3vbXF5d8vbtN7i8QGuNABaLhCRJ6HTaTGZT5MPwmiDVJMOE9SRDWUEtrjIcDum+OCYrMqJazDSZUalWKFci0nTBYrFAKYE4ftPx/AvfFey2d2m2m8iSIUmXKKVQWpPnOVJL+v0+R+0Wkv/BoHne6qClwVuQQjNPlqTrDGECdBgSb9e5Gz/+V/DsdJuvX3+Jcw5rPd4JJpMZpVL5aYVSWDymFJAslv8UmA3NZ1+8IqiU8FKglMBby8PdiHq1RhSEUFiKRcp09ECozd+CqFXn3Q/fkRrHp4dbZKixvuD+/o5GfYthr4fOHTLNeegNqMoAvbZPEYOjbXYOd8j9itbJAV4XFD5jMOjjrcUoA7lFSgneE0Yh0+mUKI6RebvM63dvWKmcPHDcTG75/c8LPt0O8NLhhEMI8Dgauzt0Ox2Wsyn1jQo2T5GFyEmyOQdH+5jIkKQzojgiK1JQIKXEe8tmvc6zvSaT+QQUTJI5Fo+MozI2XVKLSrT3GmSrJUrA806H1WKJtRYvoLa1SW/Q53o0REUhlZ0tcuFRm2H00202IioHOF9wsN/E2pz35+e0D9vsNZrMZgnj8SOrIqPwHoxGh4adxu7TC3EQcvnrBQZNJYi4+OU3fAaVIAYnOTk+wTlYLtdIYThoHVHdqJMXDnH8Y9cbY/Da4bXnMRkTRgalFFprTk/PKArHdL7A4Tn7/CXDuxtEoDFaIpGKvYMWQhnyrKDRaPKie8Z+8xBXCD5eXDHq3xPJkNvekMnNmLIqU/YlHvsjZBRHfLi+Ymu7Tue4S1iKQCjWeUartc+6WDObj/nw8Q+0Vrw//5lqGDMajiAX/AWDWEaO7a0KVwAAAABJRU5ErkJggg==",
-  ftree_3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACeUlEQVR42mXOSW4bRwBA0V9DV3U3B4GmmMhaJXCAAD5LgFzQRzOysBwEsjiT3TVXZWFkEfgf4OGLPz/90Uqr7L8dmOcZheLDrx/IofH6euDL5y8YZZAZdFGs7RpTJDUmtNdIrTV+duQc6TvD2A/EGNGm4+npieV6Rd+PpJQx2uIuE5dvZ+qU+Xv/D9qFyHybkUUAAkTjfDyxXDSMMti+I9wixhimv07818wMgD7sz9RQsF2P955aC8lHZJNcc2W9XPJ6fkVLTeTHZPSJmhtSaozSaKUQNFrNlBTRErbbDbUWhl8efgQGY6FJkg9IKWmtUmsmRoeQlSoyuQR+//gbqpOk8f+AFg06oygpgpCUEhgWPbVlYggIBauHkcN5z0/vH+mVpdwLp69v3w+ccxhr0bajioqQjd37R97ttigrqaLiq8eMmrk4ds+P3NPEw/PuO6A0pBqIOaCNousNqUSEgqfnn6kU0IIiK6lFiq7YtYUB+ucV0g6GUhK5RGL0hBg5Ho9M00SpFdVpZu9IZLrR4LLnOJ3wxYEFOQePEILFYkFrAokkp0rwibe3I24O3G4TpYIZerIo2NHSr3rm5NCtNWouCGmgCqw1pJTIDWYXmJwn+EwIieSu+KunCTieD6ivDb0cRtzlhvOZlBI9hhIb2iisXLC/3kkZ7hcPqRHuntH2ICVQkGEKLMcVfWcJ98B89azGd1i15Hr0qGbQzZBdg6rolKHrLLvdDrfL6Owjxi4otVKTYIqOzUoSQuF+mlmuV9ROEkJANIlE4ieHypXtZoPerLbcLnf2b0eEUHjneXl5IRXBOI6EEBiGgVgbQlVs31NzIpaIFJp/AVO9fzNAFRC1AAAAAElFTkSuQmCC",
-  fbigtree: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGSUlEQVR42rWXyZJcVxVF123fy3zZVJWyGpVSqpIsERDCCmMxMOFwAxNPgBn/w78xsDVxhAdgwiiEZFWX1WRl8/K1t2GQgafq7w+cFfvsfc654t5nh5EP9ORdwydfPKaIFcJKogisVitW+ZKP7hwyny+QH6p498GAmwc3qV1Nf5CxWs7p9zKybpeyrMiLAqnVBwLYMuzu77E/3idNLbPZlE4nJc9zQttyePs2J0fHGKU/DEBnkHL3/h1qX+OjQ0pBnudUVYXWmiRJ2Nzc5Pry6v0D6J0Ojx5/zHy1QBlJwDObzUiSBKMEWioIkdRYVqvVewbYMnz9zZeYnkUkgqjAB8fF5YThRp80TfHeU5clV1dXWGPeH0ByK+Ovf/szZ9cTyrbA4Ql4zq/O2RptcnT0MyEE2rbl5OSExFqC84j3EcPOvQG3DscsV3PuPLiDTCTzYsbV4oraVWgt8d6jhEYEQTftsJgt6PUy9Lv3PON3n33KxfQCFQ0vT47w0iFMpPUtCBBCQBBs723T7/Z5+tN/GA6HVFX57i1IeilFWzLYGqATzXw5Q1uFMYamaVBCQohsbW2xv7vHcr5ASslyuSTG+O4K+OhQiaYoCkY7I2QiKaolg40NIoGiyJHGsDXc4Pj4mMnZOVnWI7EdlosZanO88fd3AXCzmktmjA9uEYKn20kx1vLjv/9JJHL37j0WiznT6Yy2dcQQ0VpjbcL2zuj9pOD6+pon335HjBHvPU+ePKEuG+7fuw8B7t97QPSRclUipWQ8HtMfDnDOvXsK4rhDIQv6/QwfWqqqZLRzg9l8iouOR48e0frml54/fPiQyWSC0vbdRvHk+Zykt8kfv/yKh7/+DcG5dSq0Jk1TDg8PSZKEp0+fMjk9xxiz9sD5JdokKKWYTCZvr0B3OOLzbz7nx7N/4U1DjBEpBRFP2ukwX1yTJOuinohzDmMMddPw9dd/4sWLF0Qf3k4BcSPlk7885vuzH2jThmU1x3Yk+7e3ubG9QetKrF0HbDweoxAMe312R7tkpsOTf3xLqBwG+3YxTDY0K7Ei2bQQGoZJj/4gQ2hBG1pcdEAghEj0sLu9A0iMMdzcucl0OuX05SnWviVA27a8fP4C2RHUVU7WS/AxkBc5eb6kbRuklEQiSkmssQQXidGjrKHb71K7lrb1bw6gR4bPv/qCnBXffv8dWZYglUdKAUBT10Q8IFFKoaWkKIr15hOaqirIsows63N6MnkzgP2Pxhz+9pCyyVnUM27ujYjCg4xUTYkQAqkEEkEMHiEFjW9ACaSWCEAZjVDQVDVNW70+wObuDv2dDU6nZ4TUM1tdYboGbRRRrNvivSexGqIgEojR45xbL55VRVUV9HsDiqLg6mKK1m8wB5ZxxdHsmEY11KFCGuh01wvHWkuSGCDgvUcIQRTgY0BKiDESQvjlHlitllRNSZIkr6+AO19RZhWryyVNKLj/4IDlco7UhuFwSIyey8tLYggopX4pqpQiz3NSk9LtdlkucpqmwRizvhFf2wD3Ovz+Dx9zfP4CndxgvrwmTVNujHZJkoQYI3Xd0ss6OOdoqpp+v09Z1iil8N7TNA1aa0ajHZbznOvr+esB9D4a8eDTX3ExO6esC3SIWGtp2xZrLd57jo9P6XQ6VGWDDy3dbo+nT59xcHCAQBGDJwZASbQ2dLtdgpev9sBge5Nbe7tcT6esFks2BpvkixUhRIyxnByd8vLFEcEFlNAEF9kYbFIXNf1uH994ogsooUhth8SkSBR4CK17tQJWaXAR1Ubm5zMmZzletuzt7tK2Lc5HjE7RWlOXBcZYVnnF5Oyc8Xj8/08aMQiiFDgXcJWjWFVUVf1qgNDA5fEFLgkk0jAY7pJkmliv7zwlDJ2ky3Q6xWpJYhOePXtG1ukhosRaS1U1lGWNd9XanC7gnScx6asBptML+n6IkZbFfMmt/j6j/haLckHjAucXE6IU7O/ukaSGoigIAaxNaVtPVeWUZY2rHLAeUiGsoymEej0TLudzmINBUFyv+OHkBJsZZKppqhahJN1uj6LImU3na0UupmRZhtaapmwI3mO0BbE+0aMPCCnffBfk/12gEWQHA4p5Qb8zYO/2TZ7/9DPONxijsDaBBFwb2BgOiGFJVVX4GCBIIhKlDdZa/gcgaFCkqwE96wAAAABJRU5ErkJggg==",
-  fbigrock: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAD50lEQVR42u2XS2xbRRSGv7m1rxtfv93QpCSFxG1k09itI0Ds2MCKHausWCBohQgWpQ2NyrOpaAtiw4KWiodaISQEiAVCQgghJITUlOah1GmI1RTqYtK4jvOwnWv7PjzsuoQkchagfOszM7/+88/oDDQZl3aP5L+E2MiiRCIhK3qBcDBAtawzNZMVGxXgWE/xgcR+aTZqvJA6SDS2h9tzf6Evlvjg7Hk5MjkjNtWBWDQuP/zoHAvFeYQA2zbxuTUctsLy0hKn33mby5NT6xahrKUo0pWQb7x5kpvZOXbv3kvdkGxvCWBaDur1bfh8bQykBjnQu+9uAP2tmmxaC1R3C4YFUjq5NHKVZDLJQvEODbPB4nyRUqmEo0XBEq67a1YKq6JpLdj3YFKaBrhUjcOHj6AoCosL8zgdLiwD3O7trFSKROM9DA69SGb0mmhKCAde75eWZfHD9z/z1pn3cKk+jh45ztGjL6F6GtTryzg8Giv1Cg4/TGZ+xXCUeeaVp6RZr3Lx3S/Fhh04+OoTcm/sXhwOhWCgje77+pi7tYzq9HLs2CAvDw4wOjFOd3cUG4Fzu2TmeprHHn+UYrFAdVVnJp3h49Nfiw2FUFFr/DZ7BVwrzPx+mdGrPzJz4xK5fBp7W4ErV78jtj/EH3NjSLXAtRu/cH+Pn6+++QRLWSQzO4Zpl9aXAc+OnbKykBfPHe+Xsb4w+aUbzOf/ZE8kRmb6Njv8neRy8/i9Hjp2B7Fsg5s376CoTvwhDZ/PzWKpSLVSJeANEemMMTU6y9lTX4g1OVBZyAuAc6c+F5npLFbVSfuOCOnxWTraumhv76StdRfnT34rXnv2U2FXBRfP/CS62yK0enYy/PRnQhgKvpYgLkUjM3X9Hw//11vw/IknpcSkbecubMvBiYH3BVtsscUW/zc29LL19ESl1+vFtm1WV1fJ5/OUSssb2mtdQ2lfX580DItUKoXf7ycUCjE9Pc2FCxeYmBjb3Kk4Ho/LQ4cO4fMFCAQCKIpCrVajt7eX/v5+hBByfHxUbJoAVVUJBoOEw63ouo5t2yiKQqWs8/BDj6BpGqZpynR6cl0ilLUWmqZJJBKhUqlgmiaqquJ0OjEMg3K5TCQSYXh4mHh8v9wUBxqNBhMTE0SjD+ByuSiVSiwtLdHevouRkRE0TaPRaBAKhZrfgmQyKYeGhqjX6+RyOXRdp6uri0KhwK1sDr/fT61Wo1arUSgUmv8x0XUdy7IwDIOOjg7C4TDZbBZVVfF4PFSrVRRFobOzk1QqRSJxQDZVgM/jR2EbLS43U+lpfN4AlbKO0+HC7dZQ1RYMw8a2G+irdWRj7Tn8G5J+oAQcestXAAAAAElFTkSuQmCC",
-  fstump: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABA0lEQVR42u3Sy07CQACF4b/DtHUKY1kJJCpIlAY08fYKRkPilhd148uoIe40Yqi05dJpxzdAcOXCsz9fzuLAf/5AesMje3zTtr/ty85pF+UpcB379Dh2tgVE6syJ85jDqM356GzrJUIoiXFLvNCn2W3Ruz/ZChGZWSCrPl8mZZJM6F9GdG87GyOicdAiyTOsLPG0S2JmDK4irkcXGyHC8QSN/SZGFOQVg/UKcrHCyCWDYfQjIkxZYGyB8Cu4ShJnMVmZUq0rWu09Bnf9tYhYFTm6HlLVAbNFQhAqdus1drSHlRbXd9f/QAc1Pt7eCVSA1prp55RlZUkYhLyMxzw/vK79xjcf3Vaiw0BETQAAAABJRU5ErkJggg==",
+  fgrass_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAANUlEQVR42mPMnm/1nwEH+MeIKcaEppqFAQ9g+s9AEDAxUAgoMuAf40C7YBgYwPR/NAyGiQEA1lwHZseeLAoAAAAASUVORK5CYII=",
+  fgrass_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAP0lEQVR42mPMm2f1/x8jAwMDAwPDfwZMwIjGR1fD8peRAS/4j1+agYmBQsD0j5FCAyh2wTAwgOn/aBiMGsAAACcZCWJBpVbUAAAAAElFTkSuQmCC",
+  fgrass_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAKElEQVR42mPMnm/1n4FM8I+RkYGJgUIwasCoAUz/R8Ng4Az4x4hgAwDZOgVjxqllzQAAAABJRU5ErkJggg==",
+  fpath_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAMUlEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gkgEsjEiZ+T8jA8M/Qjb9Z2JgYPwHpwHFaApG5h1EiQAAAABJRU5ErkJggg==",
+  fpath_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJElEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gpgGMZGTof1AMAEb3BkCgw4jfAAAAAElFTkSuQmCC",
+  fpath_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAACYElEQVR42k2TzW4cVRCFv6p7+2/cGTzEShBLb0CRkHgKv2Behj2IJQLJkoUjQEgwsRPjyfx1T9/uW8VixnJqU5v6zjk6UsntD28dwAWyQFZwwERRBzMIong2AEIocM/k7IQgKMAReR6T513GAhGhihVn9RlRlJwyAHVREl0ABHuiXQmf6bklBMCdlAbMjFlZQlAOuz3RUMBwOTrKCT5FI2iAbAQFFSEDQUEERoWY5bNzfwbFQR00GOOUIASqqsLF2O43hBCYzWYoKC4KKHoCgx1hxJimCa0iySfW/Q6iMvuyRZpA78PR8MlN/Nj8MYJhgBSBsq2hDoxFJtXOeuz4b1hziBPxKbRgRxHAT3BWJzOx2feMmmkWLffrR376+UcmN66urohkoyxL1DJTGnExXIxRHY/CFJ2E89u7G0JT8e6PWy6/ueTm5obrf34nigh5nHCMEAVUySI4I70PXN/e8vfDko/dI7GtWXx9zpo9uRWWuztUEcQdRXBgGEdGJrxUcqn8+fAv5cUZl99/y1BmDsVEX0ycvX7BKq2JGsAnw3DcMxIEi86qW/PXaskmbVmtO3xSrIGd7bGc6dKGqimPpbsKo2UMqNsaCmH5cM8v178yf/2SZtFi0WnmNckHhtQxpI5siZhSom5KNJaMlujTwKr7xKbfMlu0vH+8h3lAamW/2xPF8Agvv5iTxwnNOBICdvrIPvUsP96x7ja8+uoVb757Q1mX9ENHM6u5WJzjY6LbfuKw2xLruiaPI4d9R9UUtE3LeEh8eH9HYS8oZcbF+YIqKeYjD/cfmFcVddPiOfM/jbZMpHynKqwAAAAASUVORK5CYII=",
+  ftree_pine: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAE1ElEQVR42u1bz0sbQRR+syw51kNDBDHgzShpEEQKQk4evYWW3oVCr/Uv8C+wV6HgvVS89egpECgiyCpWb4IiKHqIx1CyvXSWcXw7O29+Zbf1gbgkuzPzfe97P2aSMCiJTUWdlF8PxwkLNS8rA2AAgE/7v7PrnV4cjAQ2KfAiYMx2ejGIiuCEuSaGTcLjReAxMvgzrtXByuJxKiGuSIiqBp4rSM4hpSTAB3jXFlUZvAsVMF8LCuV523zAXIJf3l4EAICVueTJe4eXnWevmRo2lg0JkWvwqoW7MIzI5e1F43DwkgNEsK6A64xvQgILpYA878lAdENFDAWRhKPNM1I4RKHAm8pb517xurY6S1KC90bIB3iVvXn3ikRCUAJs8sHhZSc39m3GjUPLX1ysHMMqFazMJc+AukiwrAyxbxoSRQToJMTS5IBK7QV8ex/zrioHmHrfKAdQwYtSpsYsdn/eGFhP4L0K3J3WyEnPVblz1R6TCRiOE3a0eUYiIVT/IHtfhwQrBTTaIy0S+MKo7W7R2KLsTUuiURkU8wBfICejjKZKiNZlsNEeeQcvKsYk5FShUOo+QEya/L8u2SJRJ3uP1WuEKOUzTxUne49K8FYE5E16d1qzrgwYeBUJmCpuz++z69Hg2k8OkMFSgbssobqSt64CU1EnbW4saZdIcYGUZInt/ihEcgWovB8sB1DBU1raPBVNt+paJ0ReCAjVE8jgTUpyDIHMRAUUj4tjN9oj7TwQ+wYrJ0n5dR1SdJMlBnq6VQdo1QF2IcVyASkEpqJOWludfVJidCuEaeXQBW9aUSIKeDH7357faxERMp/wxIdVg+bGEpoMyUlQnsQFCS77gelWPfvLI8WIgOE4YVe7x1qDuvSyTtKjKGIijVCRh7GmydVZhGxXu8dPGiOjEyGuBF1ZF9Vnajstlzwbi3wpgOodXh2KcoqJWrzsBk03TDZx6xp80PMAm2TmsnLI5TCmyt9H5m+0R1qAqKDlcMLUxXzE/u35vVYJwrzv+phdJkHeHkeuwVM6RZ4f5IpBBUUxeXvsfTeoqwaTRMmJyBtfJEp+hqQA3dqPTaoCr+tJ7D7Vs7L6xDXIIRD7ijVX7TIfV1RSkeedl8G8HMCZ1vFk3j3i66pxbMCrxo1MvVIEWheYPB72nAi2CLiKaHkfYFQGbbe/ecnIZAtuMpacA0gE1FZnYVJmAtYpAWUgwdawzwheviT1QgDxMGQ0uP5n5G98IlRVEv7bEPD28bg8SdXAGxMghwGfpGwkFIG3UgAHrDMJ1boPLJjSrEJgOE6YCN5WBd0HloHHSMCUxp1gal5+O8xPXOSucTS4BqyTVHlctIOLq0xt8q/J5S5VV5leToSyRQ0glV+fGoCTdloGx8fOez8oAUWL6D4w6L9OUe93OzPQT26g25kBAIB+cmM9Xyn7ADHen733F7x8vTbfdHo0710BWG5Ym28qAasIoaihMp1gEXjfFlcJPL//4AL/vk+pFSDKv9uZMfa8a8WwkOBdLn7r+08nHSgLAX7r/VsvY7sgIS4z+M/fvjIAgN7Celq5EMDA8zK2/+tHBgwDxIGLlkeCrQqCEdBPbjLgGDCZCIwE8RnxftW9E88BvYX1FANuS8KXDx9TW/DBqgCFLFeerbRx74awP88MahME6wCMAAAAAElFTkSuQmCC",
+  ftree_oak: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABQCAYAAACpv3NFAAAFVUlEQVR42u1cMWtcRxDeXR4qfUVEBCYH7iSb+GEwIRBQpdLd4ZDeYFDtX+Bf4LSq/AcirnOpSiAIwmBOwpI6gYxAQimkUgg9F86c5/Zmd2d3Z/dOiQaM7917+95933zfzO4eJ6Xu4z7+16Hn4UP0TNvB68vbkYbjy9uRvrMEcEH0TNutD2/GxxuDRsHxxqApToIuBdwFAhNjg6diY9CokmrQ0uCfv3uifnk0IkEopRScx5nmRCk1aGnwEJgEALt73JLnObF73KqPbz6Lq0FLZ373uPWCs8+HrodrMHGSatASfgdpp2Q2RgG2qiRI0FKSx1GKhBI1oUnNOgU+RvrzEiYl67HgKS/HSL9kRzASkueGTVKIEDhvX7c+vJmoP9UUgIHEgqEUwrUEdZ0UCSY2+/jDUCT4iMDnOHagiJaOJlb6vmJ2vr/w7cWjsJxzgRXtAlR/5xSoH3++niIppfDVnBZrCnz/1bMJQJBdfCwRlIW4ypBaJGkXeDurPslLEZNii1w1kARIZ7oUeAk1THWBWYB31Re7a7jqyfrwRj1/9ySpLRqf/Pc2r+aSCFcxTiHBOFuZUurpywdTA1yk4HE1SJGyj4kB41NErnUkQRWZCtfIcAwJLlvE2qBx+R/3/fP9BXV2eKGWVhb/PXsdJKtGMZWYZGkXAaEIAcyZI+TMIj+++RzVDg30z5P3n4KAAUzp7FItr1RH0tQaIGY2SGUb1wspsoAAqjOlZn+qCMLgs8MLdXZ4wSqI9usS4AG4ry2nFmljK2Dht5/Gx2eHF2MQtgRtsJRVSsfe5tWYlJP3n8YJ7Jm243YC7SPAnhBhEr53hLBV8LinLx8U6xLwxQks4TmWCBJgyw7A+AiAzED7tAPG1lBKiITGrgG9HUWqgOMxnFk76yWKI7ZA6vzDhBSwt3k1BZ7Kvqtd2Qri1gi7xnCLHB4XZQEMHuQbG7bcc7Pja68uFcE1uChGrQWWVhaD4F0t0qWMnHUEBmkDdnUhXwt3EnB5O9LXO19YWfZZwGef8/0F8RmdTcLe5pW63vnCnhB5N0VTwdsZ4BLmyrDLOlRRzbaALygg1KyRC5g7w3QVWHvXOsVqRlUITFDInxQQOPatAzj3ZrXB2GUxlXGwCn4/tL4IAfERg8fEktDkZpeSO35vaWVx/KFSrcHpKPCcpZVFtv8nFJCa/RyiJK7NHTfRBkObIrn+L3E9Ff1Xz9j7glP7ASVIoAohBVQCfNaOUCk7+ICBbFPrBDUuqQbUqgWceUSK71PvYWoArFUDYGxyDShdB0qQaJ+LVZTTJ64d4lrZTFlzQGQthiRqgVQ1d5HgAw4qzq4B2AoxEoQPLjHrSymYWd8L+DJB9fHQh8klIWYRlRqNhLRjNklK2SnG96wagGsBtUvs68G5vTklqhNALYFnFanggxbggp8l8JTClz0TpCYfswiXNcUI8O0UY9DzoogiCuBul98177OLIKcblAZJPVcCfJXVoGSxq7YhUkMFq/98f/T2Dx2LAHi2VPajZ4Lw9XlqBcagOTJ3PXsufjmKNxxwZnwtykXA1tHJ1H1KZFuUAIoM+1fimAQXeJuEcbYr/Q2BojfvmbZbW+6zrt06OqnyBxPmpgustg8nXq8t98V+CzgXBFDZX20fTgGfNQm6BngMNBRv//q7qhWaWjLnxtpyX20dqa4WCaZU9rngt0enant0mkXa3FigZ9ru7e+/ToDzKWJ7dKqGBx/04PGLzj5XywrFLADgJgl43VHnv/0/ScLacl8ND0Z3ywKQfQr8n3/Q4CGGBx+0rZg7GRio/T78C91j8PhFp/6LwQF/H5XjK5/l/B6BfRAAAAAAAElFTkSuQmCC",
+  fstump: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgElEQVR42mNgGAUDDxhxSfAz6f1HF/v47xIjUQbwM+n9PzAlDkPcIWcRhiGM+DQfOHgTodleHashLNhccODgTQYHe3W4JnyACZtgw+qTDA45iyAGQWlk1xA0gIGBgaEh1ByVXn2SNAPwaSLaAHQXYfMGEyFNKOGCJVCJ9gIuFwAA8g02vhJoVakAAAAASUVORK5CYII=",
+  flogs: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAnElEQVR42mNkwAH4mfT+w9gf/11ixKWOBZfmhlBzOL9hNcN/XIYwMVAIqG8Ast+JEWfC5XcHe3U4ZmBgYGgINcdqCF4vHDh4k7wwQHYFMh+vAejOO3DwJoNDziIMV6CrYyLkd0JhwUSM3/GFBRMxfscXFkzYbEf2O66wwMgLMFsYGBgYGFafJMjH6gJCfsfmChQDUGwhgs/AwMAAAKFpTuC5hJkgAAAAAElFTkSuQmCC",
+  fbush_tall_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAACVklEQVR42u2US09TURSFv3Mfbbm3lPpAAcEiLdSCIETASEw0DowkxMhE/6kD/4NxYOIjIQ2PAC193b7u+9zjgDggQqKJQ77xXitrZe9suOaa/4D4l+GtnXUVJAGfP34VG7tLSqBj/K14fXtRLa6WiIlRaV8trZYR4i8NVt4UlW5BpPukMiakEgLpgiaurpCaQpWX55BaxItXzwllQBD5+IGLZWVQSrF/eHB1gpn5SZ693GQYDak7NerNUyqLC9QPOpzU+lh2BjcaoF2qnkTlbmUZxi5mVme/to9IK77vfePoeJ+0bdDutsnm7csrVN6V1MrjMsJM2Kv+wB6z6Q97zM0WGE1lqFarSAFeEv1ZofihokpPFqhWq5hJSHGmQL1xRmm+goFG7HjooUFXBYzfn7losPl+TTmih06CnlYkIbRaLZxWm7HRHH0/xHN6aKZBNm3RODpF/y1+9HZZ5SfGiOp1dG+I1BVe5NHtOWQQbMyUyGomx65DoCVYaAwb7XOD7d0tNb30gM6gia3BbOEeR80TipV5Bv0e+ZEsphvRaLbQ81ncOGTY7GCl0udbCLWYztkpnXodN6049hymZwscHxxipywanTbm1Dh3y0XOTmr4nT7FykNyE+PnW1h7XVbmiECaEuOORfaGzaDTRsSSQbuLbY9i2aP4roetmQRxRJTSCBN5nuDLp59ClwYqFCRS5/Cghgw1/G5E2siRs2+TiAz9vqTvRHhdiZApLOvmxTt4urOsQgtiEUMYY2kmMpII3UBiIOOYvDlCEAQkIzpD6V//s2sA+AUIrQ67ojxmvgAAAABJRU5ErkJggg==",
+  fbush_tall_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAACRUlEQVR42u2USU8UURSFv1evqqmSbhp0RRhE24DKFKZgwISoK4wx6p914c64MNHoxgUgEInMLd1d1TW8ruE9F2iIRgwmLjnrc77knNxcuNSl/oPEv5jvPZkzYSfk06t1Mfd83ICFfdHw0otZM7MwRdSJEeXczC5NE4cJ1kXC46s1o0TMQXMPXcowMifJI1ITnV/BHsDcnryJLmkWlxfIdMr7D+/ou1qlNlqj0WgQRX8B1Fb6zYPVFXwVgGPY3vmM6zrkuvjh0GRZ9ucKoh/Tc61MksWIkubwZA9RMiijiFSbQqQgQXadM+Lk/C3GJkbJRcbWl01wAAzXh4eRUrKxtobX4xLHKfL38Oyzu2Z6cZLNr5u0VZvh4SEylTIydIM0TrG1JPJjVNhhcGDkV8D04zvG7Sthd9skOkblinY74PDgiEp3mbyT0moEYAyO3UX9uH4GmHg0agZr/RwHR6R0EA5oCvyghWVbSClpBT5pnmEJCFWMtswp4P7TebP8cIntvS2SIkLlESf+CSO1ERxHUhSGJIqxpEVfXy+WLfEDHyF/jliCN29fY0oay7GYmpslKzrsHuwS+iHGGG7VanjuFTbW12k2m1QqFXqq1VNAkiR4lS4Sk2ALm/2dPfw4AAy2sRFCEjRj/CLEFh7VssRzu8g6+uyQZlbHjNfroZ0CLTVZkQKQqoxqtRfLWHyrN6hUKiil6C57lFz37JA+vlwXeZDjao/MzwnrCqEcPN2Nv9tGhA5lehCRpAgNri7T2vcv/9mlAPgOYVwU3VoF1RMAAAAASUVORK5CYII=",
+  fbush_small: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABf0lEQVR42qWS30vbcBTFP99vvhrTpqlUFHSyahluxcIU6t6GCPN5A/d37j/Y8x7243Wjsplo0iFj0qZJly4mdw/iwxgsFe/bPdx7OOfcC/etoxfPpe7Zctsbx5W77Gu1WJLGM3ULXP9K1J0I0uvkXg6003L+AQ9fH0n/+GAuK/pyNPwLeHbSl/ajDbwVdy4Fprl6M9h7tSVFIez0tvn08QOu3ZiLQD05eSCObfO4u0sURZS5kGclD9e3iL4Neffm/X9D1XsHT3G8JfzoK6VVMEqv2Olu83P0g1k+q7YQhD5JlpBlGUopjF7gy+ln1G+DzBGjFhFEhP39PdbWVlG6ZJqlmEULx3WqFcTjhHa7zXl4QTqJ6XQ6jK9ilmhwFobVCrrdXcbjCUYb8rxgMBggIvi+z+nboPIrdRBcYIwhCr9TliXGGJJ4QrPh0X/Zq0xB1+w6wdk5reUV3JpLlk7xPA/LslgwptrC8DLC9epsbm6w3Gxh2zWmkwxyQYrqK/wBk86Slmx0A+UAAAAASUVORK5CYII=",
+  frock: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEaklEQVR42u2WTWwUZRjHfzM7O7szOzv71ZqwbpFloVTSlg8jmng1Hrx45SCJF1M9UIgUbKMB2xgOJIp4ECOaYDhwMR7gYoxXY41AgX5RpYHtB23px9Ld2dnd2Zl9PZA0Egi2dTlg+B/f9/n453n+z/s+sEYoUoN43H3AiAieJkjrcWpv3ymK1iINcZNSweL6WHYlTlAPiLJdkQA03RAl25LqQkDTNNHc3IznOhw8uJ+WF7cwe2eSYi7H11+d5rdr4w/ECuqaKNslqS4VUAOGyKTTnPn2NIsLs0gSeJ6HGQqg1DyWl3IcP/E5wzfGKVQqa6qqvBqjZGoTx3p7uZ2dZuMLGSqOIKiZuK5CpSJhRJ5j//7DZLa0rPhEEg2iLgT8uimCegDHreEJhf7+6zQ1bcPzApSrCtMzFtdHb3PPdnEl/4rf8uKCVDcRbt/TKtyKTMBvcOjgIWRZYXFhFr/fj+d46LpOzlqipa2Fw90fMHZpcNVtUB532XXibeG5ggsXf+LYp59hBOP0HDlKV1cXarhGpZLH9fkRksDVKlwb/52CmKXn1AGxMHeXM8fPr1+E7/W+KdJbN+BTJBKxJFs3v8LMRA5ZBDlyqIsPew4wPDxMc8tLLC0vETTh1uQNXn/jNUZHh5FcmbvTS3zRc05alQaUgPmAaAIhwfTdURStwNitfv64+jMjN/uZWxrDp+e5OvQLzW0NjIz/ilDvMT55mdRmjR8vfoeiW8ws/Inksx+ZVPeHxCMr4AuZwivmpc6+faJ5R4yJmUGKdo70pm2MDs3QGNvIzNQ8UTNM6vkY5arD5GQOMx7DiMoIX5nc8iy1Wg0zGCemJ7lz0+LkJ99LAIYWF55TpeQVpAcqEA5FBYBXzEsAXx49J/01miUWTtEYyzA6OMGW9HaakmliZoJTH/0gHX7njCS7Ct/0XZAMVcPnKvTuOy/5a2EawinCaiMz2cWV5OFwRFilJemfyf91Ct7vfUuoqkIymaLqyHz87sk1P93BGKKce0yecOB+P6KhJ/eLBYO6CGnm+uMrkdBDzqoafehMC5pP11f8DM/w/4Cmhf7T6K35ZTMMUySTScLhMJ7nUSwWmZubI5+/t64FV1mL8e7du4XjuHR2dhKJRIjH44yMjHD27FkGBi7zRAgYhiEsy5La2tpER0cHphklGo0iyzLlcpnW1lb27t2LJEniypVLUt0JWNb9vV5VVWKxGIlEI7Zt43kesixjFWz2vPwqoVCIarUqBgev1X8rBqhWq2QyGSzLolqtoqoqfr8fx3EoFApkMhn6+vpoa9shnogGarUaAwMDtLRsJxAIkM/nyeVybNiQpL+/n1AoRK1WIx6P11+Eu3btEt3d3VQqFaamprBtm3Q6zfz8PBPZKSKRCOVymXK5zPz8PHVvgW3buK6L4zikUikSiQTZbBZVVTEMg1KphCzLNDU10dnZSXv7TlFXAmEjhoyPYFBnaGgI0zSxLAu/EkDXw6iqhuN4eF4Nu1ihJlavw78BJMTTPAxWbJYAAAAASUVORK5CYII=",
+  fkitty_store: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABQCAYAAADm4nCVAAAFg0lEQVR42uVdvWobQRC+WxZcuMg7uHFn1KmQsfUAgRCB2jxBukDARUCQwhBIlydIa3AI5AFkYRXqjDs3egcXLgTGTuM9Vqvd25md2Z/THbiQfHe7932z38w3t8Z1VfjxTpy8Uq5/fLmvS34+WXXgWF8cBl13dPlU/LOJfY5+rnvEPOqugH99doC6frLYNNdNFptipajuAvgUCVLElUqCKBF8bLRD80iJciT6AH7JJIi+gF8qCaJP4JdIgugb+KWRIENB43CmucDXSTi6PHnNWR0FO+HvP3+gr/n25WtVCvilkJClFYEFX6/nsUasdBLIBOhRDVktIZEfYsTWI1kdXT5Vk8UGRF4uEpIn4dSyo1oRpSbmIptxGPmAkgDtjKYmQZQIfqxWRIkkiD6AXzIJoi/gl0qC6BP4JZJALkNDDFlO8HVg75bP1WAkgYTFKVFlFyI/lhEbjGR2EoIJWN0uk0V+TCOWmwRRcuSnMmKKhBw5QZQIfg4jlouEoKVEGRwCvhm1HC/lB2+S5LsX5Bz9XKocBa2Ax5f7OmRgKPg5y8/UJWpwElYDv//4Yev7f3/+Wr/LDb4JcFuUQ87hSszBEoTpMvqi3wZ+DAnCSk0KOZKh4KtDj/bh6agpUdVKGJ6OWt8Z5DJiKjHnXgmSAj7EG7T5hVxG7G753Pw+Nwk1BXyKBPnA55IgNbaSIFVqqs/qHN8YULOGlSNJjXwlQbrkrG6XO3KU24itHeAp4H1ExHLMgio7LslZ3S6t8lOqEVtfHDZy4zo3hlmrKeBjJQgKfkwj5qqKXPJlG5tTjiQ18tt8gJIeLPgxPQAmgl1JGiNH0XpBvugvDXxu96xWFPWQVPDNBNsV8KHVD9VVsxNgRr5NgkoGX8mHmh+VCCoJsguyw23ETBKoK4JCQg1NwtCKhwv8WEbMrGZcz6aPCSXHRoKvChLUaNIlqETZaWsaKlLUXGbT4RZwepLlbmWDCcghOymNmE7C7GpVzabDHSJUVMcgQXAAwQ1+6q2JJgn6ajAlhZsEybXEY4IPNU+UZLmVmN9WAiXpQkkQrgS8L5FvrmLsSqC4akjxIPYZfCoJUE/B1orYR/BdMuYjYTCSoCinkoDuBXUR/BASMABTSBB9Ab+NBA6AQ0kQfQLfRQIXwCEkyC6Az23MFAl6ewLS44eeg+kLiT5FfqqVgDFioq/gU0ngcsO1rwzNAX4MyfE9iykrkFeO0N11wd3QfQLfd2/bSuCIct/uCNI74S6BH0ICV+OtjQTwC5kc4M+mw6ZFjD30rqatr4ORI66NvDY5EqVGfgjoTjIs98qxEsgS1EXwSydB9AF8ThI4PQDYCedOuL7ePEdids09xDFjdkmI0sFPdWBLVK6VILoA/vXZQfMD+RwiRblIiG7EckS+a07j82OvpHGTYLvOSwBkZzQX+OY2EBtgrvoce8xvHrbGTLUS2kgQucGnNM6wh06ouf0kZttistg47ye6Aj7HCnCNz0FCm96rP2y3NeXQm3O5NJ+jtByMZFUh8kojQYixMSVqyCZdmRr8+a9PDRDj82MUKFwbtPSI12VpfvNgnUdMEkRK8GfTYQN4aET6tBiaA/Q5qJ8UchTFiFE1H5oP1L1jl7MpSZBd0nwlYePPv4NyAMdcQuQoiAAq+AooWzSZuusCRZcrzpxg5oD5zUPrnMx3ChgSgiQIu8TN803QTXBN3cVotop+KiFqTmoOO7nAmLP5TBg5QhHABb4OLleLWe/9UH2Cb06238cggeRs2iJ/fH5cVVer6K3kkIemzAkrRygCzH8vQpEdW1mnJEXXXEoO4KpyzLn4iMKQwOIDsOC36a2puW0PassBHM04c0xIPqLIEakMjVlXuyLKBMycB/YzVy+KUoa7jv/612C3PxdiJQAAAABJRU5ErkJggg==",
 });
 
 // ===== data/items.js =====
@@ -1183,40 +1213,135 @@ const EXPLORE_ROOMS = {
     // either side at the crossroad (row 12). North clearing has the yoga
     // guy and wishing well; main path has a hidden pit trap; west/east
     // edges have the demon-doors sign and the flower mimic.
+    // SIMPLE LAYOUT: a tan path with grass on each side runs south-to-north
+    // from the basement door. Two clearings open off the crossroad: kitty
+    // store to the west, trader to the east. Two traps remain — the chest
+    // mimic in the north clearing, and the flower mimic by the trader.
     layout: [
       "########################",  //  0
       "########################",  //  1
-      "##########......########",  //  2  north clearing
-      "##########X....W########",  //  3  X = chest mimic, W = wishing well
-      "##########..Y...########",  //  4  Y = yoga guy
-      "###########....#########",  //  5
-      "############..##########",  //  6
-      "############..##########",  //  7
-      "############..##########",  //  8
-      "############..##########",  //  9
-      "#####S..####..####..F###",  // 10  S = demon-doors sign, F = flower mimic
-      "####..K..###..###..M..##",  // 11  K = kitty stump, M = trader
-      "####.................###",  // 12  crossroad
-      "############..##########",  // 13
-      "############..##########",  // 14
-      "############..##########",  // 15
-      "############..##########",  // 16
-      "############P.##########",  // 17  P = pit trap (step-on)
-      "############..##########",  // 18
-      "############..##########",  // 19
-      "############..##########",  // 20
-      "############..##########",  // 21
-      "############.D##########",  // 22  D = entry from basement
+      "########################",  //  2
+      "###########.p.##########",  //  3  north clearing entrance
+      "##########..p..#########",  //  4
+      "########.....p......####",  //  5  north clearing (grass)
+      "########..X..p.........#",  //  6  X = chest mimic at col 10
+      "########.....p......####",  //  7
+      "##########..p..#########",  //  8
+      "###########.p.##########",  //  9
+      "###########.p.##########",  // 10
+      "###########.p.##########",  // 11
+      "####.Kpppppppp.........#",  // 12  K = kitty store + WEST path branch
+      "####........pppppppp..F#",  // 13  F = flower mimic + EAST path branch
+      "####........p......M..##",  // 14  M = trader
+      "###########.p.##########",  // 15
+      "###########.p.##########",  // 16
+      "###########.p.##########",  // 17
+      "###########.p.##########",  // 18
+      "###########.p.##########",  // 19
+      "###########.p.##########",  // 20
+      "###########.p.##########",  // 21
+      "###########.D.##########",  // 22  D = entry door
       "########################",  // 23
     ],
-    ambient: [],
-    spawn: { x: 13, y: 21 },  // just north of the entry door (D at 13,22), facing into the forest
+    ambient: [
+      { sprite: "ftree_pine", x: 1, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 5, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 7, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 9, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 15, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 17, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 19, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 21, y: 4, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 4, size: 2.5 },
+      { sprite: "ftree_oak", x: 2, y: 6, size: 2.5 },
+      { sprite: "ftree_oak", x: 4, y: 6, size: 2.5 },
+      { sprite: "ftree_pine", x: 6, y: 6, size: 2.5 },
+      { sprite: "ftree_oak", x: 1, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 7, y: 8, size: 2.5 },
+      { sprite: "ftree_oak", x: 21, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 8, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 4, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 6, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 8, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 10, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 14, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 16, y: 10, size: 2.5 },
+      { sprite: "ftree_oak", x: 18, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 10, size: 2.5 },
+      { sprite: "ftree_pine", x: 1, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 3, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 23, y: 12, size: 2.5 },
+      { sprite: "ftree_oak", x: 2, y: 14, size: 2.5 },
+      { sprite: "ftree_pine", x: 1, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 3, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 7, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 9, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 15, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 17, y: 16, size: 2.5 },
+      { sprite: "ftree_oak", x: 19, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 21, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 16, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 4, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 6, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 8, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 10, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 14, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 16, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 18, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 18, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 18, size: 2.5 },
+      { sprite: "ftree_oak", x: 1, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 3, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 5, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 7, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 9, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 15, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 17, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 19, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 21, y: 20, size: 2.5 },
+      { sprite: "ftree_oak", x: 23, y: 20, size: 2.5 },
+      { sprite: "ftree_pine", x: 2, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 4, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 6, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 8, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 10, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 14, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 16, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 18, y: 22, size: 2.5 },
+      { sprite: "ftree_oak", x: 20, y: 22, size: 2.5 },
+      { sprite: "ftree_pine", x: 22, y: 22, size: 2.5 },
+      { sprite: "flogs", x: 20, y: 5, size: 1.0 },
+      { sprite: "frock", x: 7, y: 6, size: 1.4 },
+      { sprite: "frock", x: 22, y: 7, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 9, y: 8, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 3, y: 10, size: 1.2 },
+      { sprite: "frock", x: 7, y: 10, size: 1.4 },
+      { sprite: "frock", x: 19, y: 10, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 3, y: 14, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 6, y: 15, size: 1.2 },
+      { sprite: "frock", x: 10, y: 15, size: 1.4 },
+      { sprite: "flogs", x: 14, y: 15, size: 1.0 },
+      { sprite: "frock", x: 22, y: 15, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 3, y: 18, size: 1.2 },
+      { sprite: "fbush_tall_1", x: 15, y: 18, size: 1.2 },
+      { sprite: "frock", x: 19, y: 18, size: 1.4 },
+      { sprite: "frock", x: 7, y: 22, size: 1.4 },
+      { sprite: "fbush_tall_1", x: 15, y: 22, size: 1.2 },
+    ],
+    spawn: { x: 12, y: 21 },  // on the path, just north of the entry door at (12, 22)
     entities: {
       "K": {
-        // Kitty store landmark — a stump/rock cluster marking the building.
-        sprite: "fbigrock",
+        // Kitty store landmark — the actual cabin building. 3x2.5 tile footprint.
+        sprite: "fkitty_store",
         scene: "scene_kitty_store",
-        size: 1.6,
+        size: 3.0,
         label: "Kitty Store",
         label_position: "below"
       },
@@ -1228,36 +1353,11 @@ const EXPLORE_ROOMS = {
         label: "Trader",
         label_position: "below"
       },
-      "Y": {
-        // Yoga guy in the north clearing — dialogue trap (no death, just hard to leave).
-        sprite: "epa_man",
-        scene: "scene_yoga_guy",
-        size: 1.4
-      },
-      "W": {
-        // Wishing well — a rock formation. Random outcome on use.
-        sprite: "fbigrock",
-        scene: "scene_wishing_well",
-        size: 1.6
-      },
-      "S": {
-        // The infamous demon-doors sign.
-        sprite: "three_doors",
-        scene: "scene_demon_doors_sign",
-        size: 1.4
-      },
       "F": {
         // A pretty flower in a circle of bare earth. Bait.
         sprite: "flower_mimic_idle",
         scene: "scene_flower_mimic",
         size: 1.3
-      },
-      "P": {
-        // Pit trap covered by leaves. Step-on, no warning.
-        sprite: "bottomless_pit",
-        scene: "ending_forest_pit",
-        size: 1.0,
-        step_on: true
       },
       "X": {
         // Chest mimic — looks like loot, eats you when opened.
@@ -1893,7 +1993,7 @@ Object.assign(SCENES, {
     },
     choices: [
       { text: "Give him the speaker", next: "scene_john_speaker", requires: ["has_speaker", "charger_path_used"], unless: ["john_handled"] },
-      { text: "Ask to play another game of Magic", next: "scene_mtg_round2_loop", requires: ["_john_phase2_unlocked"] },
+      { text: "Ask to play another game of Magic", next: "scene_mtg_round2_loop", requires: ["_john_phase2_unlocked", "has_mtg_deck"] },
       { text: "Have a drink with John", next: "scene_drinks", requires: ["_john_phase2_unlocked"] },
       { text: "Back to the basement", next: "scene_test" }
     ]
@@ -3532,20 +3632,7 @@ Object.assign(SCENES, {
   },
 
   scene_pit_cycle_6: {
-    art: [
-      "DDDDDDDDDDDDDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDZZWWWWWZZDDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWggWWggWZDD",
-      "DDDZZWWWWWWWWZDD",
-      "DDDZZWWKKKKWWZDD",
-      "DDDDZZWWWWWWZDDD",
-      "DDDDDZZZZZZZDDDD",
-      "DDDDDDDZZZDDDDDD",
-      "ssssssssssssssss",
-    ],
+    sprite: "john_impressed",
     text: "The air shimmers.\n\nJohn Prime is there, drink in hand, looking impressed despite himself.\n\n\"How's the pit?\"",
     choices: [
       { text: "Still bottomless", next: "scene_pit_cycle_7" },
@@ -5083,7 +5170,7 @@ function renderExplore(sceneId) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      if (ch !== '#' && ch !== '.' && ch !== 'D') {
+      if (ch !== '#' && ch !== '.' && ch !== 'p' && ch !== 'D') {
         const def = room.entities[ch];
         if (!def) continue;
         if (def.visible && !def.visible(state)) continue;
@@ -5135,13 +5222,28 @@ function renderExplore(sceneId) {
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      const walkable = (ch === '.' || ch === 'D' || (ch !== '#' && room.entities[ch]));
+      const isPath = (ch === 'p' || ch === 'D' || ch === 'P');
+      const isGrass = (ch === '.' || (ch !== '#' && ch !== 'p' && ch !== 'P' && ch !== 'D' && room.entities[ch]));
+      const walkable = isPath || isGrass;
       if (walkable) {
         if (isForest) {
-          // Hash-pick one of three grass variants
+          // Hash-pick from grass or path variants depending on tile type.
+          // `p` (tan path) renders fpath; `.` (clearing) renders fgrass.
+          // Entity tiles default to grass (most landmarks are in clearings) —
+          // override by checking immediate horizontal neighbors for path.
+          let useType = isPath ? 'path' : 'grass';
+          if (room.entities[ch] && !isPath) {
+            // Entity (letter) — inherit from a path neighbor if one is adjacent
+            // (the pit P already maps to path above, but other entities use this).
+            const left  = x > 0 ? grid[y][x-1] : '';
+            const right = x < grid[y].length-1 ? grid[y][x+1] : '';
+            const above = y > 0 ? grid[y-1][x] : '';
+            const below = y < grid.length-1 ? grid[y+1][x] : '';
+            if (left === 'p' || right === 'p' || above === 'p' || below === 'p') useType = 'path';
+          }
           const h = (x * 7 + y * 13 + (room.seed || 0)) % 11;
           const variant = (h % 3);
-          const sprite = `fpath_${variant}`;
+          const sprite = (useType === 'path') ? `fpath_${variant}` : `fgrass_${variant}`;
           const url = SPRITES[sprite] || "";
           html += `<img class="explore-floor-tile forest-floor" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
         } else {
@@ -5154,17 +5256,19 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render walls. Forest theme uses tree sprites (image), others use CSS-gradient.
+  // Render walls. Forest theme renders walls as the SAME grass texture
+  // as the floor — visually identical, so the wall mass blends seamlessly
+  // with clearings. Trees and other props (in room.ambient) are what make
+  // forest cells visually different from open clearings. The walls still
+  // BLOCK movement; only their appearance is unified with the grass.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
         if (isForest) {
-          // Hash-pick one of four tree variants for natural variation
-          const h = (x * 11 + y * 7 + (room.seed || 0)) % 13;
-          const variant = h % 4;
-          const sprite = `ftree_${variant}`;
-          const url = SPRITES[sprite] || "";
-          html += `<img class="explore-wall forest-tree" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 11;
+          const variant = h % 3;
+          const url = SPRITES[`fgrass_${variant}`] || "";
+          html += `<img class="explore-wall forest-wall-tile" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
         } else {
           const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
           let cls = "explore-wall";
@@ -5175,16 +5279,25 @@ function renderExplore(sceneId) {
       }
     }
   }
-  // Render door tiles (the southern exit) — KEEP the dungeon door image. The
-  // 32x32 wooden-door sprite renders at size 2 so it stands 2 tiles tall,
-  // overhanging upward from the D wall position.
+  // Render door tiles (the southern exit). Door is rendered LARGE so it's
+  // unmistakable as a tappable exit, and gets an expanded transparent hit
+  // overlay so even imprecise taps near the door land successfully. The
+  // door also pulses subtly to draw the eye.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === 'D') {
         const url = SPRITES.ddoor_closed || "";
-        const doorSize = 2;
+        const doorSize = 3;            // up from 2 — more obvious as an exit
         const dOffX = (doorSize - 1) / 2;
+        // Visible door image
         html += `<img class="explore-door-img" src="${url}" style="left:${px(x - dOffX)};top:${py(y - (doorSize - 1))};width:${doorSize * tilePctX}%;height:${doorSize * tilePctY}%;" alt="" data-exit="1">`;
+        // Expanded transparent hit overlay — covers a 5x4 area around the
+        // door for forgiving taps. Pointer events on this overlay route to
+        // the door's exit handler via data-exit.
+        const hitW = 5;
+        const hitH = 4;
+        const hitOffX = (hitW - 1) / 2;
+        html += `<div class="explore-door-hit" style="left:${px(x - hitOffX)};top:${py(y - (hitH - 1))};width:${hitW * tilePctX}%;height:${hitH * tilePctY}%;" data-exit="1"></div>`;
       }
     }
   }
@@ -5286,6 +5399,29 @@ function updateCamera() {
 function handleExploreTap(ev, viewportEl) {
   if (!_exploreState) return;
   if (_exploreWalkTimer) return;  // mid-walk, ignore taps
+
+  // If the click target has data-exit="1" (door image or hit overlay),
+  // route directly to the door cell. This catches taps on the expanded
+  // transparent hit zone around the door, so imprecise taps still work.
+  if (ev.target && ev.target.dataset && ev.target.dataset.exit === "1") {
+    const { grid, blockedSet, playerPos } = _exploreState;
+    // Locate the D cell — there's only one per room
+    for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[y].length; x++) {
+        if (grid[y][x] === 'D') {
+          const approach = findApproachTile(grid, playerPos, {x, y}, blockedSet);
+          if (approach) {
+            const path = findPath(grid, playerPos, approach, blockedSet);
+            if (path !== null) {
+              walkPath(path, () => walkPath([{x, y}], () => exitRoom()));
+            }
+          }
+          return;
+        }
+      }
+    }
+    return;
+  }
 
   const { grid, entityTiles, blockedSet, playerPos,
           world_w, world_h, view_w, view_h, scrolling } = _exploreState;
@@ -5412,9 +5548,10 @@ function walkPath(path, onComplete) {
     i++;
     // Proximity check: trigger spawn animations on nearby pile-state entities
     checkExploreProximity(next);
-    // Step-on check: if we landed on a step-on entity, abort the walk and trigger it
+    // Step-on check: if we landed on a step-on entity, abort the walk and trigger it.
+    // Decorative entities (e.g. bushes) are walked over but never trigger anything.
     const stepOnHere = _exploreState.entityTiles.find(e =>
-      e.x === next.x && e.y === next.y && e.def.step_on);
+      e.x === next.x && e.y === next.y && e.def.step_on && !e.def.decorative);
     if (stepOnHere) {
       clearInterval(_exploreWalkTimer);
       _exploreWalkTimer = null;
@@ -5557,6 +5694,8 @@ function redrawEntity(entity) {
 }
 
 function triggerInteraction(entity) {
+  // Decorative entities (no scene attached) never trigger anything.
+  if (!entity.def.scene) return;
   // Save player position, then route to the entity's dialogue scene
   saveExploreState(_exploreState.roomId, _exploreState.playerPos);
   cancelSkelTimers();
