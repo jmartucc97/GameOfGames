@@ -77,8 +77,6 @@ function resetState() {
     frack_q1_pick: null,
     frack_q2_pick: null,
     frack_q3_pick: null,
-    _turns: 0,
-    _near_misses: 0,
     _deaths: getPersistedDeaths(),
     _rasputin_available: getPersistedDeaths() >= 2,
     _rasputin_summoned: false,

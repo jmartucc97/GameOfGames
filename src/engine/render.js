@@ -155,15 +155,6 @@ function render(sceneId) {
       scene._visibleCache = visible;
     }
   } else if (scene.ending) {
-    const turns = state._turns || 0;
-    const nearMisses = state._near_misses || 0;
-    const turnsLabel = turns === 1 ? "1 turn" : `${turns} turns`;
-    const missLabel = nearMisses === 1 ? "1 near-death experience" : `${nearMisses} near-death experiences`;
-    html += `<div class="stats-block">
-      <div class="stats-title">Final Report</div>
-      <div class="stats-row"><span>Turns survived:</span><span>${turnsLabel}</span></div>
-      <div class="stats-row"><span>Bullets dodged:</span><span>${missLabel}</span></div>
-    </div>`;
     html += `<button class="restart" id="restartBtn">Play again</button>`;
   } else if (scene.character_select) {
     // Custom layout: render each choice as a tappable character card with a
@@ -278,7 +269,6 @@ function render(sceneId) {
       playSfx("ow");
       flashDamage();
       state.pit_hp = Math.max(0, (state.pit_hp || 0) - 1);
-      state._near_misses = (state._near_misses || 0) + 1;
       // Track this choice as already-wrong so we don't show it on retry
       if (choiceData && choiceData.id) {
         state.pit_fight_wrong = state.pit_fight_wrong || [];
@@ -361,13 +351,8 @@ function render(sceneId) {
           if (c.consumes) state[c.consumes] = Math.max(0, (state[c.consumes] || 0) - 1);
           playSfx("drink");
         }
-        // Count turns
-        state._turns = (state._turns || 0) + 1;
         const target = (c.next === "self" || c.next == null) ? sceneId : c.next;
         const targetScene = resolveTerminal(target);
-        if (anyDeadly && targetScene && !targetScene.ending) {
-          state._near_misses = (state._near_misses || 0) + 1;
-        }
         // Door open animation: brief delay before transition for visual feedback
         if (c.door_anim) {
           const doorImg = document.querySelector(".pixel-art");

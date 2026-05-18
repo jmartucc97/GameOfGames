@@ -99,15 +99,14 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     animation: fadeIn 0.4s ease;
   }
-  .explore-room {
+  /* Viewport wraps the world. For non-scrolling rooms this is effectively
+     a no-op wrapper (world fills it 1:1). For scrolling rooms the world is
+     sized larger than the viewport and translated via transform. */
+  .explore-viewport {
     position: relative;
     width: 100%;
-    aspect-ratio: 11 / 14;
+    aspect-ratio: 11 / 14;  /* default; overridden inline per room */
     background: #1a1610;
-    background-image:
-      linear-gradient(0deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%),
-      linear-gradient(90deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%);
-    background-size: 9.09% 7.14%;
     border: 4px solid #3a2a18;
     border-radius: 4px;
     overflow: hidden;
@@ -115,6 +114,39 @@
     touch-action: manipulation;
     cursor: pointer;
   }
+  .explore-room {
+    position: relative;
+    /* Width/height set inline based on world:viewport ratio. */
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(0deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%),
+      linear-gradient(90deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%);
+    background-size: 9.09% 7.14%;
+    image-rendering: pixelated;
+    /* Smooth camera scroll */
+    transition: transform 0.18s linear;
+  }
+  /* Forest theme overrides — different border + no faint grid (grass shows through) */
+  .explore-viewport.theme-forest {
+    background: #0a160a;
+    border-color: #2a3a18;
+  }
+  .explore-viewport.theme-forest .explore-room {
+    background: none;
+  }
+  /* Forest floor/wall tiles */
+  .explore-floor-tile.forest-floor, .explore-wall.forest-tree {
+    position: absolute;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .explore-floor-tile.forest-floor { z-index: 0; }
+  .explore-wall.forest-tree { z-index: 2; }
   /* Per-room mood overlays — radial tint to suggest a light source */
   .explore-room.mood-storage::before {
     content: "";

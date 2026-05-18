@@ -139,6 +139,102 @@ const EXPLORE_ROOMS = {
     exit_to: "scene_test"
   },
 
+  forest: {
+    label: "Forest",
+    hint: "Tap to walk. The trail heads north. Detours branch east and west.",
+    theme: "forest",
+    seed: 47,
+    // 24x24 hybrid world: main path south->north with optional clearings on
+    // either side at the crossroad (row 12). North clearing has the yoga
+    // guy and wishing well; main path has a hidden pit trap; west/east
+    // edges have the demon-doors sign and the flower mimic.
+    layout: [
+      "########################",  //  0
+      "########################",  //  1
+      "##########......########",  //  2  north clearing
+      "##########X....W########",  //  3  X = chest mimic, W = wishing well
+      "##########..Y...########",  //  4  Y = yoga guy
+      "###########....#########",  //  5
+      "############..##########",  //  6
+      "############..##########",  //  7
+      "############..##########",  //  8
+      "############..##########",  //  9
+      "#####S..####..####..F###",  // 10  S = demon-doors sign, F = flower mimic
+      "####..K..###..###..M..##",  // 11  K = kitty stump, M = trader
+      "####.................###",  // 12  crossroad
+      "############..##########",  // 13
+      "############..##########",  // 14
+      "############..##########",  // 15
+      "############..##########",  // 16
+      "############P.##########",  // 17  P = pit trap (step-on)
+      "############..##########",  // 18
+      "############..##########",  // 19
+      "############..##########",  // 20
+      "############..##########",  // 21
+      "############.D##########",  // 22  D = entry from basement
+      "########################",  // 23
+    ],
+    ambient: [],
+    spawn: { x: 13, y: 21 },  // just north of the entry door (D at 13,22), facing into the forest
+    entities: {
+      "K": {
+        // Kitty store landmark — a stump/rock cluster marking the building.
+        sprite: "fbigrock",
+        scene: "scene_kitty_store",
+        size: 1.6,
+        label: "Kitty Store",
+        label_position: "below"
+      },
+      "M": {
+        // The trader, standing in his east-clearing camp.
+        sprite: "trader_idle",
+        scene: "scene_trader",
+        size: 1.4,
+        label: "Trader",
+        label_position: "below"
+      },
+      "Y": {
+        // Yoga guy in the north clearing — dialogue trap (no death, just hard to leave).
+        sprite: "epa_man",
+        scene: "scene_yoga_guy",
+        size: 1.4
+      },
+      "W": {
+        // Wishing well — a rock formation. Random outcome on use.
+        sprite: "fbigrock",
+        scene: "scene_wishing_well",
+        size: 1.6
+      },
+      "S": {
+        // The infamous demon-doors sign.
+        sprite: "three_doors",
+        scene: "scene_demon_doors_sign",
+        size: 1.4
+      },
+      "F": {
+        // A pretty flower in a circle of bare earth. Bait.
+        sprite: "flower_mimic_idle",
+        scene: "scene_flower_mimic",
+        size: 1.3
+      },
+      "P": {
+        // Pit trap covered by leaves. Step-on, no warning.
+        sprite: "bottomless_pit",
+        scene: "ending_forest_pit",
+        size: 1.0,
+        step_on: true
+      },
+      "X": {
+        // Chest mimic — looks like loot, eats you when opened.
+        sprite: "mimic_idle",
+        scene: "scene_mimic_chest",
+        size: 1.2
+      },
+      "D": {}
+    },
+    exit_to: "scene_test"
+  },
+
   basement: {
     label: "Basement",
     hint: "Three doors. Tap one to choose.",

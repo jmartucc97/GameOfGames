@@ -21,6 +21,7 @@ const JS_FILES = [
   'data/sprites.js',
   'data/sprites_chars.js',   // character sprites + CHARACTER_ROSTER
   'data/sprites_dungeon.js', // dungeon walls/floors/door/pit/vine/candle tiles
+  'data/sprites_forest.js',  // forest tileset: grass, trees, path
   'data/items.js',
   'data/rooms.js',
 
@@ -28,6 +29,7 @@ const JS_FILES = [
   'data/scenes/intro.js',
   'data/scenes/character_select.js',
   'data/scenes/driveway.js',
+  'data/scenes/forest_traps.js',
   'data/scenes/john_basement.js',
   'data/scenes/storage.js',
   'data/scenes/plumpy.js',

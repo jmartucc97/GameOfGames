@@ -13,6 +13,15 @@ function renderExplore(sceneId) {
   }
   // Build entity tile map from the layout
   const grid = room.layout;
+  // World dimensions are derived from the room's actual layout. The basement,
+  // plumpy, and storage all happen to be ROOM_W x ROOM_H (11 x 14), so for them
+  // the world equals the viewport. The forest is larger (24x24) — in that case
+  // the viewport stays ROOM_W x ROOM_H and the world scrolls underneath.
+  const world_w = grid[0].length;
+  const world_h = grid.length;
+  const view_w = Math.min(ROOM_W, world_w);
+  const view_h = Math.min(ROOM_H, world_h);
+  const scrolling = (world_w > view_w) || (world_h > view_h);
   const entityTiles = [];  // [{char, x, y, def}]
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
@@ -29,17 +38,19 @@ function renderExplore(sceneId) {
   // EXCEPT entities with step_on: true (like a pit), which are walked INTO
   const blockedSet = new Set();
   for (const e of entityTiles) {
-    if (!e.def.step_on) blockedSet.add(e.y * ROOM_W + e.x);
+    if (!e.def.step_on) blockedSet.add(e.y * world_w + e.x);
   }
 
   // Player position: saved or spawn
   let playerPos = getExploreState(roomId);
   if (!playerPos) playerPos = { ...room.spawn };
-  _exploreState = { roomId, grid, entityTiles, blockedSet, playerPos, room };
+  _exploreState = { roomId, grid, entityTiles, blockedSet, playerPos, room,
+                    world_w, world_h, view_w, view_h, scrolling };
 
-  // Compute pixel positions. Use percentage so it scales with viewport.
-  const tilePctX = 100 / ROOM_W;
-  const tilePctY = 100 / ROOM_H;
+  // Compute pixel positions as percentages of the WORLD (not the viewport).
+  // For non-scrolling rooms world == viewport, so this is unchanged behavior.
+  const tilePctX = 100 / world_w;
+  const tilePctY = 100 / world_h;
   const px = (x) => `${x * tilePctX}%`;
   const py = (y) => `${y * tilePctY}%`;
   const ptw = `${tilePctX}%`;
@@ -48,33 +59,62 @@ function renderExplore(sceneId) {
   let html = `<div class="explore-wrap">`;
   html += `<div class="explore-label">${escapeHtml(room.label)}</div>`;
   const moodClass = room.mood ? ` mood-${room.mood}` : "";
-  html += `<div class="explore-room${moodClass}" id="exploreRoom">`;
+  // Viewport wraps the world. For non-scrolling rooms world === viewport,
+  // but the extra wrapping div is harmless. For scrolling rooms the world
+  // is sized larger than the viewport and translated via transform.
+  const worldScaleX = world_w / view_w;  // 1.0 for static rooms
+  const worldScaleY = world_h / view_h;
+  const themeClass = room.theme ? ` theme-${room.theme}` : "";
+  html += `<div class="explore-viewport${themeClass}" style="aspect-ratio: ${view_w}/${view_h};">`;
+  const worldStyle = scrolling
+    ? `width:${worldScaleX * 100}%; height:${worldScaleY * 100}%;`
+    : `width:100%; height:100%;`;
+  html += `<div class="explore-room${moodClass}" id="exploreRoom" style="${worldStyle}">`;
 
-  // Render floor tiles (under everything else). Back to CSS-gradient subtle
-  // floor (the original haunted-basement vibe). We do still render a floor
-  // tile under the D exit so the door sprite has a base.
+  // Render floor tiles (under everything else). The forest theme uses image
+  // tiles (grass with subtle variants); other rooms use the original CSS-gradient
+  // haunted-basement floors. Both render a floor under the D exit too.
+  const isForest = room.theme === 'forest';
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      if (ch === '.' || ch === 'D') {
-        const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
-        let cls = "explore-floor-tile";
-        if (h === 3 || h === 11) cls += " floor-stain";
-        else if (h === 7) cls += " floor-scratch";
-        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+      const walkable = (ch === '.' || ch === 'D' || (ch !== '#' && room.entities[ch]));
+      if (walkable) {
+        if (isForest) {
+          // Hash-pick one of three grass variants
+          const h = (x * 7 + y * 13 + (room.seed || 0)) % 11;
+          const variant = (h % 3);
+          const sprite = `fpath_${variant}`;
+          const url = SPRITES[sprite] || "";
+          html += `<img class="explore-floor-tile forest-floor" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+        } else {
+          const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
+          let cls = "explore-floor-tile";
+          if (h === 3 || h === 11) cls += " floor-stain";
+          else if (h === 7) cls += " floor-scratch";
+          html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        }
       }
     }
   }
-  // Render walls with hash-distributed CSS-gradient variants (the original
-  // brown crosshatch look).
+  // Render walls. Forest theme uses tree sprites (image), others use CSS-gradient.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
-        const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
-        let cls = "explore-wall";
-        if (h === 4 || h === 13) cls += " wall-cracked";
-        else if (h === 8 || h === 16) cls += " wall-stained";
-        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        if (isForest) {
+          // Hash-pick one of four tree variants for natural variation
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 13;
+          const variant = h % 4;
+          const sprite = `ftree_${variant}`;
+          const url = SPRITES[sprite] || "";
+          html += `<img class="explore-wall forest-tree" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+        } else {
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
+          let cls = "explore-wall";
+          if (h === 4 || h === 13) cls += " wall-cracked";
+          else if (h === 8 || h === 16) cls += " wall-stained";
+          html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        }
       }
     }
   }
@@ -143,42 +183,83 @@ function renderExplore(sceneId) {
   const pOffsetX = (playerSize - 1) / 2;
   html += `<img class="explore-player" id="explorePlayer" src="${playerUrl}" style="left:${px(playerPos.x - pOffsetX)};top:${py(playerPos.y - (playerSize - 1))};width:${playerSize * tilePctX}%;height:${playerSize * tilePctY}%;" alt="">`;
 
-  html += `</div>`;  // .explore-room
+  html += `</div>`;  // .explore-room (the world)
+  html += `</div>`;  // .explore-viewport
   html += `<div class="explore-hint">${escapeHtml(room.hint || "")}</div>`;
   html += `</div>`;  // .explore-wrap
 
   app.innerHTML = html;
 
-  // Attach tap handler to the room
+  // Attach tap handler to the VIEWPORT (stable position; world translates inside it).
+  // The room element (exploreRoom) is the world inside the viewport.
   const roomEl = document.getElementById("exploreRoom");
-  roomEl.addEventListener("click", (ev) => handleExploreTap(ev, roomEl));
+  const viewportEl = roomEl.parentElement;  // the .explore-viewport wrapper
+  viewportEl.addEventListener("click", (ev) => handleExploreTap(ev, viewportEl));
+
+  // Position camera for scrolling rooms — center on player, clamp to bounds
+  updateCamera();
 
   // Initial proximity check — if player respawned near a pile, spawn it now
   checkExploreProximity(playerPos);
 }
 
-function handleExploreTap(ev, roomEl) {
+// Update camera transform on the world element to keep player centered in
+// the viewport. For non-scrolling rooms this resolves to translate(0,0).
+function updateCamera() {
+  if (!_exploreState) return;
+  const { scrolling, playerPos, world_w, world_h, view_w, view_h } = _exploreState;
+  const roomEl = document.getElementById("exploreRoom");
+  if (!roomEl) return;
+  if (!scrolling) {
+    roomEl.style.transform = "translate(0, 0)";
+    return;
+  }
+  // Target: shift world so player is at viewport center (in tile coords)
+  let targetX = playerPos.x - view_w / 2 + 0.5;
+  let targetY = playerPos.y - view_h / 2 + 0.5;
+  // Clamp to world bounds
+  targetX = Math.max(0, Math.min(world_w - view_w, targetX));
+  targetY = Math.max(0, Math.min(world_h - view_h, targetY));
+  // Translate as percentage of world's own width/height
+  const txPct = -(targetX / world_w) * 100;
+  const tyPct = -(targetY / world_h) * 100;
+  roomEl.style.transform = `translate(${txPct}%, ${tyPct}%)`;
+}
+
+function handleExploreTap(ev, viewportEl) {
   if (!_exploreState) return;
   if (_exploreWalkTimer) return;  // mid-walk, ignore taps
 
-  const rect = roomEl.getBoundingClientRect();
+  const { grid, entityTiles, blockedSet, playerPos,
+          world_w, world_h, view_w, view_h, scrolling } = _exploreState;
+  const rect = viewportEl.getBoundingClientRect();
   const cx = ev.clientX - rect.left;
   const cy = ev.clientY - rect.top;
-  const tx = Math.floor(cx / (rect.width / ROOM_W));
-  const ty = Math.floor(cy / (rect.height / ROOM_H));
+  // Pixel-per-visible-tile (using viewport dims, since that's what the user sees)
+  const tilePxX = rect.width / view_w;
+  const tilePxY = rect.height / view_h;
+  // Visible tile under tap
+  const visibleX = cx / tilePxX;
+  const visibleY = cy / tilePxY;
+  // Camera offset (in tiles) — same math as updateCamera
+  let camX = 0, camY = 0;
+  if (scrolling) {
+    camX = Math.max(0, Math.min(world_w - view_w, playerPos.x - view_w / 2 + 0.5));
+    camY = Math.max(0, Math.min(world_h - view_h, playerPos.y - view_h / 2 + 0.5));
+  }
+  const tx = Math.floor(visibleX + camX);
+  const ty = Math.floor(visibleY + camY);
 
-  // Pulse animation at tap point
+  // Pulse animation at tap point (in viewport, stays put for the brief animation)
   const pulse = document.createElement("div");
   pulse.className = "explore-tap-pulse";
-  const pulseSize = rect.width / ROOM_W * 0.9;
+  const pulseSize = tilePxX * 0.9;
   pulse.style.left = `${cx - pulseSize/2}px`;
   pulse.style.top = `${cy - pulseSize/2}px`;
   pulse.style.width = `${pulseSize}px`;
   pulse.style.height = `${pulseSize}px`;
-  roomEl.appendChild(pulse);
+  viewportEl.appendChild(pulse);
   setTimeout(() => pulse.remove(), 500);
-
-  const { grid, entityTiles, blockedSet, playerPos } = _exploreState;
 
   // Was an entity tapped?
   const entityTapped = entityTiles.find(e => e.x === tx && e.y === ty);
@@ -223,7 +304,7 @@ function handleExploreTap(ev, roomEl) {
   if (ty < 0 || ty >= grid.length || tx < 0 || tx >= grid[0].length) return;
   const tile = grid[ty][tx];
   if (tile === '#') return;  // can't walk into walls
-  if (blockedSet.has(ty * ROOM_W + tx)) return;
+  if (blockedSet.has(ty * world_w + tx)) return;
   const path = findPath(grid, playerPos, {x: tx, y: ty}, blockedSet);
   if (path !== null) walkPath(path, null);
 }
@@ -259,8 +340,9 @@ function walkPath(path, onComplete) {
       else if (dy < 0) state._facing = "north";
     }
     _exploreState.playerPos = next;
-    const tilePctX = 100 / ROOM_W;
-    const tilePctY = 100 / ROOM_H;
+    // Player position is a percentage of the WORLD (not viewport) — same as render.
+    const tilePctX = 100 / _exploreState.world_w;
+    const tilePctY = 100 / _exploreState.world_h;
     const playerSize = 1.4;
     const pOffsetX = (playerSize - 1) / 2;
     playerEl.style.left = `${(next.x - pOffsetX) * tilePctX}%`;
@@ -268,6 +350,8 @@ function walkPath(path, onComplete) {
     // Swap sprite to match the new direction + the alternating walk frame
     walkFrame ^= 1;
     playerEl.src = getPlayerSpriteUrl(state._facing, walkFrame);
+    // Update camera (for scrolling rooms — no-op for static)
+    updateCamera();
     i++;
     // Proximity check: trigger spawn animations on nearby pile-state entities
     checkExploreProximity(next);
@@ -397,8 +481,8 @@ function redrawEntity(entity) {
   // Find the entity image by its position; simpler approach: rerender entire room
   // But that resets the player position transition, so we only update the one <img>.
   const room = _exploreState.room;
-  const tilePctX = 100 / ROOM_W;
-  const tilePctY = 100 / ROOM_H;
+  const tilePctX = 100 / _exploreState.world_w;
+  const tilePctY = 100 / _exploreState.world_h;
   // We can identify the image by its style.left/top
   const imgs = document.querySelectorAll('.explore-entity, .explore-entity.searched');
   // Easier: full-room rerender, then restore player visual position

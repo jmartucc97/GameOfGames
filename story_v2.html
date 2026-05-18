@@ -107,15 +107,14 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     animation: fadeIn 0.4s ease;
   }
-  .explore-room {
+  /* Viewport wraps the world. For non-scrolling rooms this is effectively
+     a no-op wrapper (world fills it 1:1). For scrolling rooms the world is
+     sized larger than the viewport and translated via transform. */
+  .explore-viewport {
     position: relative;
     width: 100%;
-    aspect-ratio: 11 / 14;
+    aspect-ratio: 11 / 14;  /* default; overridden inline per room */
     background: #1a1610;
-    background-image:
-      linear-gradient(0deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%),
-      linear-gradient(90deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%);
-    background-size: 9.09% 7.14%;
     border: 4px solid #3a2a18;
     border-radius: 4px;
     overflow: hidden;
@@ -123,6 +122,39 @@
     touch-action: manipulation;
     cursor: pointer;
   }
+  .explore-room {
+    position: relative;
+    /* Width/height set inline based on world:viewport ratio. */
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(0deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%),
+      linear-gradient(90deg, transparent 49%, rgba(0,0,0,0.18) 50%, transparent 51%);
+    background-size: 9.09% 7.14%;
+    image-rendering: pixelated;
+    /* Smooth camera scroll */
+    transition: transform 0.18s linear;
+  }
+  /* Forest theme overrides — different border + no faint grid (grass shows through) */
+  .explore-viewport.theme-forest {
+    background: #0a160a;
+    border-color: #2a3a18;
+  }
+  .explore-viewport.theme-forest .explore-room {
+    background: none;
+  }
+  /* Forest floor/wall tiles */
+  .explore-floor-tile.forest-floor, .explore-wall.forest-tree {
+    position: absolute;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .explore-floor-tile.forest-floor { z-index: 0; }
+  .explore-wall.forest-tree { z-index: 2; }
   /* Per-room mood overlays — radial tint to suggest a light source */
   .explore-room.mood-storage::before {
     content: "";
@@ -832,6 +864,12 @@ const PALETTE = {
 
 const START_SCENE = "scene_title";
 
+// Chest mimic — forest trap sprites (rest = disguised, attack = teeth)
+Object.assign(SPRITES, {
+  mimic_idle: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAASCAYAAABB7B6eAAAACGFjVEwAAAAEAAAAAHzNZtAAAAAaZmNUTAAAAAAAAAAYAAAAEgAAAAAAAAAAAAEABQIA+wtGjgAAATBJREFUeJxjYBgFBAAjuoCrlvR/Sgzcfe0pipkoHFct6f8GekpEGXTh0j0GGUEmDPEn7/+hWAJnEDL87bvPcPbjJ6+xGo7NEhZchiADYSFeBmEhXhQLvv7CVMfNhinGiMv1xUY/GXrPsWNowBU0DAwMcEu52RC+wKqy2Ogng3haMEOx0U+sBuEC3GyYvoAH0YVL9xCiRtIMWMWh4Mn7f0RbCrcANYgQLjfQU2JwOfaAgYGBgWGPlQJKEEU8RjVshSymI3CmIlgcwCI+/MZbhpUawgzCQrxYLYEZ/vUXA8P7rzhSETKARTAs9eyx4mUQRpJHTkVzxRkYGH4h4uD9V4QcwWSKnDyRASwyV8gyMHDjciW6BbgMw2U5AwOqT3DmAxigaVGBbAlRNuAA6IUdzQEAdP+A+crP9E8AAAAaZmNUTAAAAAEAAAAWAAAADgAAAAEAAAADAAEABQIABfRJOgAAASpmZEFUAAAAAnictZQxisJAFIb/LCEWIYWZwiIKi5VYiKS0Xk+wxXoCL5Bz7BHs3TNobSliIVstgrFaNIWkSAq1kDe+ycxAYNm/epnMfO/nzZ84YBr3oxv+oMXu6FAti3E/ug0H3VqAzfYH7eaLtp5mVwl36kBP54usD+mvEVqFu6bDXCIMIMJAAeelvs/31GfH5DaJC3yuG9ph2wgAyGa+93Ct7UriAq3pO5K4MAJs8j3VtUtOpOJIcVhVml1rNXIBQB3F0+lw0MXbag8AWI5elVFMDipo3lGbG1NBM6YL/fg+4asnIMLACCdoXgJZXkkFF10cpWE5CiDYe56KWQtA+ZxxlrNRAOa48Zhx0SXNO4Bv3MHANoitadW5lmMq/uWT5vBaZIv4T+gOgyF+gvzI0VoAAAAaZmNUTAAAAAMAAAAWAAAADgAAAAEAAAABAAEABQIAf/2L+gAAASFmZEFUAAAABHicY2RAAq5a0v8ZKAC7rz1lhLHhDFct6f8GekpEGXDh0j0GGUEmDPEn7//BDWckxtC37z7D2Y+fvMZqKLrhLNg0IwNhIV4GYSFeFIO//sJUx82GymekRhAwMDDALeNmg7gaq6pio59EWYQMuNlQXY1hcLHRTwbxtGCyDEcGLAwMEC/CgZE0nIkiDgVP3v8j3mDUMEa41EBPicHl2AMGBgYGhj1WCihhHPEY1aAVsqiWY01uxUY/GXrPscNTSviNtwwrNYQZhIV4sRoOM/TrLwaG91/Rkhsy6D3HzsDAwICUzN6iJDnk5DZXnIGB4Rci8t5/RQoKBgbs6Rhm2B4rBRRx5NhHT78wADcY2UXoAFfmgbkWmwU0KysA+6F5QFDphnYAAAAaZmNUTAAAAAUAAAAWAAAADgAAAAEAAAABAAEABQIAkjf5gAAAASVmZEFUAAAABnicY2RAAq5a0v8ZKAC7rz1lhLHhDFct6f8GekpEGXDh0j0GGUEmDPEn7//BDWckxtC37z7D2Y+fvMZqKLrhLNg0IwNhIV4GYSFeFIO//sJUx82GymekRhAwMDDALeNmg7gaq6pio59EWYQMuNlQXY1hcLHRTwbxtGCyDEcGLAwMEC/CgZE0nIkiDgVP3v8j3mDUMEa41EBPicHl2AMGBgYGhj1WCihhHPEY1aAVsqiWY01uxUY/GXrPscNTSviNtwwrNYQZhIV4sRoOM/TrLwaG91/Rkhsy6D3HzsDAwABPZnuseBmEkeSRk9tccQYGhl+IyHv/FSkoGBiwp2Pk9IsMYLG/QpaBgRurCiSDcRmCy1J0l2NkEBiD2mUFALS1eSHXQdM6AAAAAElFTkSuQmCC",
+  mimic_attack: "data:image/png;base64,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",
+});
+
 
 // ===== data/sprites_chars.js =====
 // Character sprites for the character-select system.
@@ -930,6 +968,24 @@ Object.assign(SPRITES, {
   damb_vine_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABrElEQVR42qWS3WoTURSFvzOZNp2/zKQVjYoP4k20bSBtBzOYBG3SiIIgvpIXQhHUUsRKEEGsr6OiNKS1k5lp62wvxIljkyC47s7aZ++1ztpH8QeqQV1KlxaJTxJIhf1ne+rOw67sPn2hmAItd9A0kiRhf/u1Mm2TWq8h4UkEgFEqyt/Na50gz1kXvRzRfLwlk1Tny4bU277UNxuScxB+Heasjo7Dibarq8sYtsX7nb7SAFzDypQse2xVTs9+Pa0yrlebdXE9jzfbuyrL4DAKM+XwOFFOyRCAoj7HxoOWNFq3M/W54jxxFJ0P0bXMTOX7UaQA+s/31HA4ZDAYQGUhq9uGmQ2Yuh7TXZDRYawAbnR9QS/gGCbJ0YgPL/tZnz5twO9mgDRNcQ2Ht0921Mx/sBH40u3dPbc6OftBHI4mCuUcWG6JOD3NzrX2uhiOjYigaRr/DH8zkMLSOLSV9ppMuzsxAylo3Kytouu6LHoeXz595r/QedTLOWhsNeXWvZbM3ALA9WBFrl2+QhRGOT5MYi5crbB+vykzB7hOiW8HByyVyzn+46t3CmC548tPQdSV6G3WXGoAAAAASUVORK5CYII=",
   damb_vine_3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAArUlEQVR42mNgGAWjYNAADn72/9jE/cKD/kckxvzHp5eFgYGB4cfHn4zYJD98+sjw689v4l3iFub93zc26D8DAwODlZfD/8i0WLy283Pz/Gf0jQ/+v3nhWkYLH4f/YmJiDIyMjAwM//4xcHJwMXz88IHhz88/DLvXbWXE6YU///4xBGVG/v/54zfDpnmrUBQGJIT9F+AVwKqRj5P3/6fvnyHqXWN9/3snh/4nJwIA7C860Ikvu1cAAAAASUVORK5CYII=",
   damb_candle: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJklEQVR42mNgGAWjYMgALi6u/4PDJdycA+kSqtvOy83zv7+74z8A4jAHHArAvFIAAAAASUVORK5CYII=",
+});
+
+// ===== data/sprites_forest.js =====
+// Forest tileset sprites v7: TAN PATHS + DENSE TREE WALLS.
+// All from Forest_Tileset_v2.png. Tan tiles for walkable areas,
+// dense pine canopy composited on dark forest-floor for walls.
+
+Object.assign(SPRITES, {
+  fpath_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJ0lEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gpgGMaBn6HxEa/0ExAHKfBz7Ii2H1AAAAAElFTkSuQmCC",
+  fpath_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAKUlEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gkgEsjNDM/J8RQv8j0RYAp2gGRhc94EYAAAAASUVORK5CYII=",
+  fpath_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAAJElEQVR42mO8tmvqfwYKABMDhWDUgFEDRg2gkgEsyJx/ZBgAADQoBERvCFbkAAAAAElFTkSuQmCC",
+  ftree_0: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACtElEQVR42i2S227bRhQAZy/cJSlZknMx7DpJ00vaAk2f/BC0adGi39Ff6Z/agOEYli3LulEUl+QuTx/cD5h5GIz6/d/PUtcVs+MJr09OCG3DarMhxohRCkRxc3ODczknJ6csHpZ0Xcf5+TkMCqs9TP0Rk+kYY6FvegaJoCJRBOdyzr/+iq5N6Axen7xksVhwd3eHxqB3ux19SkQZqA41+/2Ovm8REUSEpmkAsEpjUBRFwWw2Y1SWkAZsCAGtNdoAQNs+wwDGGIoip65rMpthjKGuK5xzjMsRX+ov2PHkCKWE0LYopVBGo7VCBkEphRbI/renlBARlBJgwBiFzjKDySwiQozxWaIUACLCZrPBe09KidA2lGVOCIH5fA6AbvsO5xwu94iCFAWFATTDAN4XOJdjrUVrTd/37HYbdvstUSJWa810OkVEWC6XSBowxoAIQ4LMWtbrNUo9B6x2e5Q1nL97S57l6LOzM7LMk+clfZ+w1iEJUpcoXE5oWo5nL8h8znq7Y7uv+PDjD7z/9huUNegsywghcHl5ibMZfdsxDMLkaMrV1RXeF6xWK/q+Z/5wz8+/fGQ0HqO0Zvpiil4t1zw+PJKZDGcdfR8pfcl2vcNZjzEZ1jpubm7568+/GURQ1tDEDusderPZopRiXI6IccBbT103PD2tefPmHW3oub2757fPf9CnyHg6Y7VZE2UgKkFbnVH4kmpTQYLcFdzdzvG+IISO+/sFnz79Stv2iDLsqgpXjnBFDkqhD9WB6+trrHU45wihYxgGUhQWD0suLi4YBphOjum6SBQoRiWH0IFW6O16x6E64LOccGjZPm2ZlBNC3ZDSgPfP41T1nslsii9yHh8fKccj6tCgfvrno5y+PeV+MadPkRg7jLOIej6x6Rq++/A9L1+9IpFAC7bwhHDAOcd/6elsdvPidYMAAAAASUVORK5CYII=",
+  ftree_1: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACR0lEQVR42j2Sy3JkRQxEj1Sq6tsvN2GCiWENfMt8F78JwQrMCs/Ybvd91L2SWLRj9spMxcmUL79/yZfnrzy/fMPdqW3AzNg8cXe0GvM8UijUViASSTCFiMD+/OMvCgU1w4YdmcmydgLQorSdEmnggUgS6XgEiYAKZmYUEVIEd2fbNlDhcDpxOp3o64y7s8RChKMCaoVd23E4HDDRJAMik6KK1IpnsEwTy7Lw+edPqCqZSe8dgFIKwzDw8PCAQZIZBImKoSJEJO4bsQatNcyMzDsTd6f7xjhP2FgxgBAQhIggMgG+C9/e3jifz7TWKKV8NxrHkQiwZZ1RCmaGmqLAuq7M83wHuq0MwwCAu0MqRZUtNlZ37JfffuXt5ZXX1yvLsqCqqCo7q4gI3TdUFfmAnCHUWu+Bqti4jOyPA23Y8fT0hGcQIQy1Mo4jtTb+/fsfVk/2+z2ZyTRNlFLZYsXQJFWo1Xj86ZH5NjOOI+t6fz0TMpOhVS6XC3AfkHtStGChwuwLsibH8wGA7p11XlDdk55EBKUazQxS0VQiggT0x8+fOByPrBnYrnE8n3h8fMTM6Ot8P/zYwPvblffrlXVdkQRN0MNpz/7hQKnKvCz0baMNO0qr9N7JTGqtKMJ0G5luIypCqxUyset4Q4syHA9M7zdiS5odOZ/P4EGf7i2kftRIoiKICLEllkBrlYcfLvTeaaaUWrlcGhLJf9NXMgIiKKqQQjgEGxKJWVGcu3PvnaoFnzZweP72Sq2VjLuoakMRel8xU1ru+R+oGm8fgog7TQAAAABJRU5ErkJggg==",
+  ftree_2: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACy0lEQVR42m2RS08bVwBGz32Nx+MxBgOOAWMcTCiJ2lXaKlXUVVbdVWp/UP8gzaKLtlQk1MTGYDB+jD32zNx7u2BR9XF+wNGn84mvvv/Wr3SGLAtyuSYVKwgcu3vbXF5d8vbtN7i8QGuNABaLhCRJ6HTaTGZT5MPwmiDVJMOE9SRDWUEtrjIcDum+OCYrMqJazDSZUalWKFci0nTBYrFAKYE4ftPx/AvfFey2d2m2m8iSIUmXKKVQWpPnOVJL+v0+R+0Wkv/BoHne6qClwVuQQjNPlqTrDGECdBgSb9e5Gz/+V/DsdJuvX3+Jcw5rPd4JJpMZpVL5aYVSWDymFJAslv8UmA3NZ1+8IqiU8FKglMBby8PdiHq1RhSEUFiKRcp09ECozd+CqFXn3Q/fkRrHp4dbZKixvuD+/o5GfYthr4fOHTLNeegNqMoAvbZPEYOjbXYOd8j9itbJAV4XFD5jMOjjrcUoA7lFSgneE0Yh0+mUKI6RebvM63dvWKmcPHDcTG75/c8LPt0O8NLhhEMI8Dgauzt0Ox2Wsyn1jQo2T5GFyEmyOQdH+5jIkKQzojgiK1JQIKXEe8tmvc6zvSaT+QQUTJI5Fo+MozI2XVKLSrT3GmSrJUrA806H1WKJtRYvoLa1SW/Q53o0REUhlZ0tcuFRm2H00202IioHOF9wsN/E2pz35+e0D9vsNZrMZgnj8SOrIqPwHoxGh4adxu7TC3EQcvnrBQZNJYi4+OU3fAaVIAYnOTk+wTlYLtdIYThoHVHdqJMXDnH8Y9cbY/Da4bXnMRkTRgalFFprTk/PKArHdL7A4Tn7/CXDuxtEoDFaIpGKvYMWQhnyrKDRaPKie8Z+8xBXCD5eXDHq3xPJkNvekMnNmLIqU/YlHvsjZBRHfLi+Ymu7Tue4S1iKQCjWeUartc+6WDObj/nw8Q+0Vrw//5lqGDMajiAX/AWDWEaO7a0KVwAAAABJRU5ErkJggg==",
+  ftree_3: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACeUlEQVR42mXOSW4bRwBA0V9DV3U3B4GmmMhaJXCAAD5LgFzQRzOysBwEsjiT3TVXZWFkEfgf4OGLPz/90Uqr7L8dmOcZheLDrx/IofH6euDL5y8YZZAZdFGs7RpTJDUmtNdIrTV+duQc6TvD2A/EGNGm4+npieV6Rd+PpJQx2uIuE5dvZ+qU+Xv/D9qFyHybkUUAAkTjfDyxXDSMMti+I9wixhimv07818wMgD7sz9RQsF2P955aC8lHZJNcc2W9XPJ6fkVLTeTHZPSJmhtSaozSaKUQNFrNlBTRErbbDbUWhl8efgQGY6FJkg9IKWmtUmsmRoeQlSoyuQR+//gbqpOk8f+AFg06oygpgpCUEhgWPbVlYggIBauHkcN5z0/vH+mVpdwLp69v3w+ccxhr0bajioqQjd37R97ttigrqaLiq8eMmrk4ds+P3NPEw/PuO6A0pBqIOaCNousNqUSEgqfnn6kU0IIiK6lFiq7YtYUB+ucV0g6GUhK5RGL0hBg5Ho9M00SpFdVpZu9IZLrR4LLnOJ3wxYEFOQePEILFYkFrAokkp0rwibe3I24O3G4TpYIZerIo2NHSr3rm5NCtNWouCGmgCqw1pJTIDWYXmJwn+EwIieSu+KunCTieD6ivDb0cRtzlhvOZlBI9hhIb2iisXLC/3kkZ7hcPqRHuntH2ICVQkGEKLMcVfWcJ98B89azGd1i15Hr0qGbQzZBdg6rolKHrLLvdDrfL6Owjxi4otVKTYIqOzUoSQuF+mlmuV9ROEkJANIlE4ieHypXtZoPerLbcLnf2b0eEUHjneXl5IRXBOI6EEBiGgVgbQlVs31NzIpaIFJp/AVO9fzNAFRC1AAAAAElFTkSuQmCC",
+  fbigtree: "data:image/png;base64,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",
+  fbigrock: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAD50lEQVR42u2XS2xbRRSGv7m1rxtfv93QpCSFxG1k09itI0Ds2MCKHausWCBohQgWpQ2NyrOpaAtiw4KWiodaISQEiAVCQgghJITUlOah1GmI1RTqYtK4jvOwnWv7PjzsuoQkchagfOszM7/+88/oDDQZl3aP5L+E2MiiRCIhK3qBcDBAtawzNZMVGxXgWE/xgcR+aTZqvJA6SDS2h9tzf6Evlvjg7Hk5MjkjNtWBWDQuP/zoHAvFeYQA2zbxuTUctsLy0hKn33mby5NT6xahrKUo0pWQb7x5kpvZOXbv3kvdkGxvCWBaDur1bfh8bQykBjnQu+9uAP2tmmxaC1R3C4YFUjq5NHKVZDLJQvEODbPB4nyRUqmEo0XBEq67a1YKq6JpLdj3YFKaBrhUjcOHj6AoCosL8zgdLiwD3O7trFSKROM9DA69SGb0mmhKCAde75eWZfHD9z/z1pn3cKk+jh45ztGjL6F6GtTryzg8Giv1Cg4/TGZ+xXCUeeaVp6RZr3Lx3S/Fhh04+OoTcm/sXhwOhWCgje77+pi7tYzq9HLs2CAvDw4wOjFOd3cUG4Fzu2TmeprHHn+UYrFAdVVnJp3h49Nfiw2FUFFr/DZ7BVwrzPx+mdGrPzJz4xK5fBp7W4ErV78jtj/EH3NjSLXAtRu/cH+Pn6+++QRLWSQzO4Zpl9aXAc+OnbKykBfPHe+Xsb4w+aUbzOf/ZE8kRmb6Njv8neRy8/i9Hjp2B7Fsg5s376CoTvwhDZ/PzWKpSLVSJeANEemMMTU6y9lTX4g1OVBZyAuAc6c+F5npLFbVSfuOCOnxWTraumhv76StdRfnT34rXnv2U2FXBRfP/CS62yK0enYy/PRnQhgKvpYgLkUjM3X9Hw//11vw/IknpcSkbecubMvBiYH3BVtsscUW/zc29LL19ESl1+vFtm1WV1fJ5/OUSssb2mtdQ2lfX580DItUKoXf7ycUCjE9Pc2FCxeYmBjb3Kk4Ho/LQ4cO4fMFCAQCKIpCrVajt7eX/v5+hBByfHxUbJoAVVUJBoOEw63ouo5t2yiKQqWs8/BDj6BpGqZpynR6cl0ilLUWmqZJJBKhUqlgmiaqquJ0OjEMg3K5TCQSYXh4mHh8v9wUBxqNBhMTE0SjD+ByuSiVSiwtLdHevouRkRE0TaPRaBAKhZrfgmQyKYeGhqjX6+RyOXRdp6uri0KhwK1sDr/fT61Wo1arUSgUmv8x0XUdy7IwDIOOjg7C4TDZbBZVVfF4PFSrVRRFobOzk1QqRSJxQDZVgM/jR2EbLS43U+lpfN4AlbKO0+HC7dZQ1RYMw8a2G+irdWRj7Tn8G5J+oAQcestXAAAAAElFTkSuQmCC",
+  fstump: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAABA0lEQVR42u3Sy07CQACF4b/DtHUKY1kJJCpIlAY08fYKRkPilhd148uoIe40Yqi05dJpxzdAcOXCsz9fzuLAf/5AesMje3zTtr/ty85pF+UpcB379Dh2tgVE6syJ85jDqM356GzrJUIoiXFLvNCn2W3Ruz/ZChGZWSCrPl8mZZJM6F9GdG87GyOicdAiyTOsLPG0S2JmDK4irkcXGyHC8QSN/SZGFOQVg/UKcrHCyCWDYfQjIkxZYGyB8Cu4ShJnMVmZUq0rWu09Bnf9tYhYFTm6HlLVAbNFQhAqdus1drSHlRbXd9f/QAc1Pt7eCVSA1prp55RlZUkYhLyMxzw/vK79xjcf3Vaiw0BETQAAAABJRU5ErkJggg==",
 });
 
 // ===== data/items.js =====
@@ -1112,6 +1168,102 @@ const EXPLORE_ROOMS = {
         sprite: (s) => s.reactor_powered ? "ddoor_open" : "ddoor_closed",
         scene: (s) => s.reactor_powered ? "scene_backroom_router" : "scene_locked_door_message",
         size: 1.5
+      },
+      "D": {}
+    },
+    exit_to: "scene_test"
+  },
+
+  forest: {
+    label: "Forest",
+    hint: "Tap to walk. The trail heads north. Detours branch east and west.",
+    theme: "forest",
+    seed: 47,
+    // 24x24 hybrid world: main path south->north with optional clearings on
+    // either side at the crossroad (row 12). North clearing has the yoga
+    // guy and wishing well; main path has a hidden pit trap; west/east
+    // edges have the demon-doors sign and the flower mimic.
+    layout: [
+      "########################",  //  0
+      "########################",  //  1
+      "##########......########",  //  2  north clearing
+      "##########X....W########",  //  3  X = chest mimic, W = wishing well
+      "##########..Y...########",  //  4  Y = yoga guy
+      "###########....#########",  //  5
+      "############..##########",  //  6
+      "############..##########",  //  7
+      "############..##########",  //  8
+      "############..##########",  //  9
+      "#####S..####..####..F###",  // 10  S = demon-doors sign, F = flower mimic
+      "####..K..###..###..M..##",  // 11  K = kitty stump, M = trader
+      "####.................###",  // 12  crossroad
+      "############..##########",  // 13
+      "############..##########",  // 14
+      "############..##########",  // 15
+      "############..##########",  // 16
+      "############P.##########",  // 17  P = pit trap (step-on)
+      "############..##########",  // 18
+      "############..##########",  // 19
+      "############..##########",  // 20
+      "############..##########",  // 21
+      "############.D##########",  // 22  D = entry from basement
+      "########################",  // 23
+    ],
+    ambient: [],
+    spawn: { x: 13, y: 21 },  // just north of the entry door (D at 13,22), facing into the forest
+    entities: {
+      "K": {
+        // Kitty store landmark — a stump/rock cluster marking the building.
+        sprite: "fbigrock",
+        scene: "scene_kitty_store",
+        size: 1.6,
+        label: "Kitty Store",
+        label_position: "below"
+      },
+      "M": {
+        // The trader, standing in his east-clearing camp.
+        sprite: "trader_idle",
+        scene: "scene_trader",
+        size: 1.4,
+        label: "Trader",
+        label_position: "below"
+      },
+      "Y": {
+        // Yoga guy in the north clearing — dialogue trap (no death, just hard to leave).
+        sprite: "epa_man",
+        scene: "scene_yoga_guy",
+        size: 1.4
+      },
+      "W": {
+        // Wishing well — a rock formation. Random outcome on use.
+        sprite: "fbigrock",
+        scene: "scene_wishing_well",
+        size: 1.6
+      },
+      "S": {
+        // The infamous demon-doors sign.
+        sprite: "three_doors",
+        scene: "scene_demon_doors_sign",
+        size: 1.4
+      },
+      "F": {
+        // A pretty flower in a circle of bare earth. Bait.
+        sprite: "flower_mimic_idle",
+        scene: "scene_flower_mimic",
+        size: 1.3
+      },
+      "P": {
+        // Pit trap covered by leaves. Step-on, no warning.
+        sprite: "bottomless_pit",
+        scene: "ending_forest_pit",
+        size: 1.0,
+        step_on: true
+      },
+      "X": {
+        // Chest mimic — looks like loot, eats you when opened.
+        sprite: "mimic_idle",
+        scene: "scene_mimic_chest",
+        size: 1.2
       },
       "D": {}
     },
@@ -1367,7 +1519,13 @@ Object.assign(SCENES, {
   },
 
   scene_exit_router: {
-    route: (s) => s.plumpy_disarmed_mine ? "scene_driveway" : "ending_tripmine"
+    route: (s) => s.plumpy_disarmed_mine ? "scene_forest" : "ending_tripmine"
+  },
+
+  // The forest. Replaces the old text-based driveway scene. Triggers the
+  // explore-mode renderer with the 24x24 scrolling room.
+  scene_forest: {
+    explore_room: "forest"
   },
 
   // -----------------------------------------------
@@ -1401,8 +1559,11 @@ Object.assign(SCENES, {
 
 
 // ===== data/scenes/driveway.js =====
-// Scenes for module: driveway.
-// Original source lines 771-1045 of monolithic story_v2_explore.html
+// Scenes for module: driveway (now: forest landmarks).
+// The "driveway" hub and all scenic-route old-people scenes have been
+// retired — the player now walks around the forest room directly. The
+// trader and kitty-store scenes survive, with route-backs pointing to
+// `scene_forest` (the explore room) instead of the old text hub.
 Object.assign(SCENES, {
   // TRIPMINE — premature exit before Plumpy disarms
   // -----------------------------------------------
@@ -1415,15 +1576,15 @@ Object.assign(SCENES, {
   },
 
   // -----------------------------------------------
-  // TRADER — outside the Exit, offers the three items
+  // TRADER — in his clearing east of the main forest path
   // -----------------------------------------------
 
   scene_trader: {
     sprite: "trader_idle",
-    text: "You walk over to the hooded figure. He looks up.\n\n\"Customer. Good. Plumpy said someone might be down.\"",
+    text: "You walk up to the hooded figure. He looks up from where he's leaning against his cart.\n\n\"Customer. Good. Plumpy said someone might be down.\"",
     choices: [
       { text: "What've you got?",  next: "scene_trader_offer" },
-      { text: "Maybe later",       next: "scene_driveway" }
+      { text: "Maybe later",       next: "scene_forest" }
     ]
   },
 
@@ -1434,7 +1595,7 @@ Object.assign(SCENES, {
       { text: "I'll take some uranium",     next: "scene_trader_uranium" },
       { text: "I'll take some bananas",     next: "scene_trader_bananas" },
       { text: "Funko pops, please",         next: "scene_trader_funko" },
-      { text: "Maybe later",                next: "scene_driveway" }
+      { text: "Maybe later",                next: "scene_forest" }
     ]
   },
 
@@ -1456,7 +1617,7 @@ Object.assign(SCENES, {
       error_next: "scene_trader_bananas_wrong_router"
     },
     choices: [
-      { text: "Let me get back to you on that...", next: "scene_driveway" }
+      { text: "Let me get back to you on that...", next: "scene_forest" }
     ]
   },
 
@@ -1497,171 +1658,32 @@ Object.assign(SCENES, {
     ]
   },
 
-  // -----------------------------------------------
-  // DRIVEWAY HUB — outside the Exit, branches to trader or kitty food store
-  // -----------------------------------------------
-
-  scene_driveway: {
-    text: (s) => {
-      if (s.met_cat && (s.has_tube || s.has_hard_treats || s.has_catnip))
-        return "You're back in the driveway. The trader is still propped against his cart, watching. You've got the cat treat in your pocket. Just the cold dark and your car ticking as it cools.";
-      if (s.met_cat)
-        return "You're back in the driveway. The trader is still leaning on his cart, watching you. The kitty food store is closing soon — better not dawdle.";
-      if (s.has_bananas)
-        return "You're back in the driveway. The trader is still leaning on his cart, watching you. Whatever else is going on inside that basement, the bananas are handled.";
-      return "You step outside. The driveway is dark.\n\nA hooded figure is leaning against a beat-up cart. Behind him, your car waits — keys still in the ignition. Plumpy is somewhere inside still muttering about the trader.";
-    },
-    choices: [
-      { text: "Talk to the trader",            next: "scene_trader",            unless: ["has_bananas"] },
-      { text: "Check in with the trader",      next: "scene_trader_followup",   requires: ["has_bananas"] },
-      { text: "Drive to the kitty food store", next: "scene_drive_route_select", requires: ["met_cat"], unless: ["has_tube", "has_hard_treats", "has_catnip"] },
-      { text: "Go back inside",                next: "scene_test" }
-    ]
-  },
-
   // Post-bananas trader check-in
   scene_trader_followup: {
     sprite: "trader_idle_3",
     text: "The trader straightens up off the cart and waves you over.\n\n\"How are those bananas working out? I had to pull a lot of strings for that.\"",
     choices: [
-      { text: "Fueled the reactor. Thanks.", next: "scene_driveway" },
-      { text: "Don't ask.",                   next: "scene_driveway" }
+      { text: "Fueled the reactor. Thanks.", next: "scene_forest" },
+      { text: "Don't ask.",                   next: "scene_forest" }
     ]
   },
 
   // -----------------------------------------------
-  // DRIVE TO STORE — route selection
-  // -----------------------------------------------
-
-  scene_drive_route_select: {
-    text: "You slide into the car. The dash clock reads 4:53. The store closes at 5:00. GPS pings up two routes.\n\n• Scenic Route — bright pleasant valley road, 11 minutes\n• Alternate — desolate hellscape, 4 minutes\n\nFrom somewhere very deep, you hear what sounds like a thousand souls screaming in agony. The GPS does not comment on this.",
-    choices: [
-      { text: "Take the scenic route",        next: "scene_drive_scenic_1" },
-      { text: "Take the desolate hellscape",  next: "scene_drive_hellscape" }
-    ]
-  },
-
-  scene_drive_hellscape: {
-    text: "You take the hellscape.\n\nThe screaming intensifies. Visibility drops to about ten feet. The things at the side of the road are technically still alive but show no interest in moving. None of them step into the road. None of them dare.\n\nYou arrive at the store with three minutes to spare.",
-    choices: [
-      { text: "Pull into the parking lot", next: "scene_kitty_store" }
-    ]
-  },
-
-  // -----------------------------------------------
-  // SCENIC ROUTE — three old-people crossings
-  // -----------------------------------------------
-
-  scene_drive_scenic_1: {
-    sprite: "old_grym",
-    text: "The scenic route is gorgeous. Late sun on the autumn trees. A charming red barn. The radio plays Fleetwood Mac.\n\nAn elderly man with a walker is halfway across the road. He sees your car. He waves cheerfully. He continues at approximately the speed of continental drift.",
-    choices: [
-      { text: "Run him over",          next: "scene_drive_scenic_1_run",  sfx: "explode" },
-      { text: "Wait for him to cross", next: "scene_drive_scenic_1_wait", set: { kitty_late: true } }
-    ]
-  },
-
-  scene_drive_scenic_1_run: {
-    text: "There is a soft, definitive *thump*. Then a second, less polite one. The walker bounces off the windshield and into the field.\n\nYou grind over the helpless old man. Do you feel good about yourself? Fleetwood Mac is still playing. They do not appear to feel one way or the other about it.\n\nYou press on.",
-    choices: [
-      { text: "Continue driving", next: "scene_drive_scenic_2" }
-    ]
-  },
-
-  scene_drive_scenic_1_wait: {
-    text: "You sit, engine idling, and watch the old man execute one step approximately every fifteen seconds.\n\nThe dash clock blinks forward. The store is closing soon, and you find yourself worrying — if you come home without that treat, John Prime is not going to take it well at all.\n\nThe old man finally clears the lane. You press on.",
-    choices: [
-      { text: "Continue driving", next: "scene_drive_scenic_2" }
-    ]
-  },
-
-  scene_drive_scenic_2: {
-    sprite: "old_hana",
-    text: "You drive on. The next farmhouse comes into view.\n\nAn elderly woman is shepherding a folding wire cart full of groceries across the lane. She's making decent progress, by which you mean roughly half a mile per hour. She nods politely at your windshield.",
-    choices: [
-      { text: "Run her over",          next: "scene_drive_scenic_2_run",  sfx: "explode" },
-      { text: "Wait for her to cross", next: "scene_drive_scenic_2_wait", set: { kitty_late: true } }
-    ]
-  },
-
-  scene_drive_scenic_2_run: {
-    text: "Groceries explode across the windshield in a brief, colorful supernova of canned peaches and what was probably a casserole.\n\nYou grind over the helpless old lady. Do you feel good about yourself? Her wire cart is now part of your front grille. The casserole is, in a strange way, an improvement.\n\nYou press on.",
-    choices: [
-      { text: "Continue driving", next: "scene_drive_scenic_3" }
-    ]
-  },
-
-  scene_drive_scenic_2_wait: {
-    text: "You stop. She nods at you again, mistaking your courtesy for kindness. She is roughly the third of the way across.\n\nThe clock is moving. The store is closing soon, and you cannot stop picturing John Prime's face when you come home empty-handed.\n\nShe clears the lane eventually. You press on.",
-    choices: [
-      { text: "Continue driving", next: "scene_drive_scenic_3" }
-    ]
-  },
-
-  scene_drive_scenic_3: {
-    sprite: "old_janik",
-    text: "You can see the store sign now, just through the trees ahead.\n\nA final elderly gentleman steps off the curb directly in front of you. He raises one hand in the universal gesture of 'I am crossing now, dear, mind yourself.' He has a cane. He is not in a hurry. He never will be.",
-    choices: [
-      { text: "Run him over",          next: "scene_drive_scenic_3_run",  sfx: "explode" },
-      { text: "Wait for him to cross", next: "scene_drive_scenic_3_wait", set: { kitty_late: true } }
-    ]
-  },
-
-  scene_drive_scenic_3_run: {
-    text: "The cane snaps cleanly in half against your bumper. The old gentleman, briefly airborne, is given a final view of the autumn trees he loved so much.\n\nYou grind over the helpless old man. Do you feel good about yourself? The store sign is visible through your bug-spattered windshield. You are going to make it.\n\nYou press on.",
-    choices: [
-      { text: "Pull into the parking lot", next: "scene_drive_scenic_resolve" }
-    ]
-  },
-
-  scene_drive_scenic_3_wait: {
-    text: "You wait. The old gentleman is, if anything, slower than the previous two. The store sign is right there.\n\nYou stare at the dash clock and try not to think about John Prime, but the longer you sit here, the more vivid the mental image becomes.\n\nHe clears the lane. You press on.",
-    choices: [
-      { text: "Pull into the parking lot", next: "scene_drive_scenic_resolve" }
-    ]
-  },
-
-  scene_drive_scenic_resolve: {
-    route: (s) => s.kitty_late ? "scene_kitty_store_closed" : "scene_kitty_store"
-  },
-
-  // -----------------------------------------------
-  // KITTY STORE — on time
+  // KITTY STORE — landmark in the western clearing
   // -----------------------------------------------
 
   scene_kitty_store: {
-    text: "You pull in just as the clerk is reaching for the lock. He sees the look on your face and steps back from the door.\n\n\"Five minutes,\" he says, waving you toward the cat-treat aisle. \"You know what you're after?\"",
+    text: "You step into the little shop tucked into the western clearing. The clerk looks up from a half-finished crossword. He sets down his pen.\n\n\"Cat treats? Aisle one. Only aisle, really.\"\n\nHe waves you toward a single shelf with three options.",
     choices: [
-      { text: "The treat tube",  next: "scene_drive_back", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },
-      { text: "The hard treats", next: "scene_drive_back", set: { has_tube: false, has_hard_treats: true, has_catnip: false } },
-      { text: "The catnip",      next: "scene_drive_back", set: { has_tube: false, has_hard_treats: false, has_catnip: true } }
-    ]
-  },
-
-  scene_drive_back: {
-    text: "Treat in hand, you drive back. The route home is uneventful, presumably because everyone is now indoors for dinner.\n\nYou pull into the driveway, climb out, and head back inside.",
-    choices: [
-      { text: "Enter the basement", next: "scene_test" }
+      { text: "The treat tube",  next: "scene_forest", set: { has_tube: true, has_hard_treats: false, has_catnip: false } },
+      { text: "The hard treats", next: "scene_forest", set: { has_tube: false, has_hard_treats: true, has_catnip: false } },
+      { text: "The catnip",      next: "scene_forest", set: { has_tube: false, has_hard_treats: false, has_catnip: true } }
     ]
   },
 
   // -----------------------------------------------
-  // KITTY STORE — too late
+  // JOHN FURIOUS / REAGAN (bananas wrong-number aftermath)
   // -----------------------------------------------
-
-  scene_kitty_store_closed: {
-    text: "You pull into the parking lot at 5:04.\n\nThe clerk is locking the front door. He sees you, sighs, and points sympathetically at the OPEN/CLOSED sign — which has been flipped. He gets into his own car and drives away.\n\nThe lot is empty. The cat at home is, presumably, still doing what it does.",
-    choices: [
-      { text: "Drive home defeated", next: "ending_kitty_store_closed" }
-    ]
-  },
-
-  ending_kitty_store_closed: {
-    text: "You return to the basement empty-handed.\n\nThe cat is still at the lever. The lever is still doing what the lever does. With nothing to distract it, the cat continues. The lever eventually fails. The Strait of Hormuz, suspended between open and closed, resolves into 'permanently both at once.' Markets cannot price reality. World War Three begins on schedule.\n\nSomewhere on the scenic route, three elderly people are shuffling home, complaining about how kids these days have no patience.",
-    ending: true,
-    ending_label: "Held Up by Old People",
-    ending_class: "bad"
-  },
 
   scene_john_furious: {
     sprite: "john_appear",
@@ -1676,6 +1698,176 @@ Object.assign(SCENES, {
     text: "You fall for an indeterminate length of time.\n\nEventually you stop falling, despite the pit being bottomless. Things make less sense down here.\n\nA figure shimmers into existence next to you. Silver hair, blue suit, slight glow. He extends a hand and helps you to your feet.\n\n\"Well, hello there. Ronald Reagan. Former President of the United States. Currently the Ghost Of. They put me down here in 1989 for reasons that were not adequately explained to me at the time.\"\n\nHe pats his pockets, finds nothing.\n\n\"I'm afraid we're both stuck. Bottomless pit. No bottom. No top, anymore, either. We will remain here until some brave and handsome savior comes to rescue us. I have been waiting for him for some time. Decades, in fact. Couldn't tell you exactly. Doesn't matter much.\"\n\nHe smiles warmly.\n\n\"In the meantime — would you like to hear about supply-side economics?\"",
     ending: true,
     ending_label: "Trapped with Reagan",
+    ending_class: "bad"
+  },
+});
+
+
+// ===== data/scenes/forest_traps.js =====
+// Forest trap scenes. Entities are placed in the forest room (data/rooms.js);
+// each one's `scene` field points here. Most are bad endings; the yoga guy
+// is a comedic dialogue trap with an escape; the wishing well randomizes.
+Object.assign(SCENES, {
+
+  // -----------------------------------------------
+  // PIT TRAP — step-on, no warning
+  // -----------------------------------------------
+
+  ending_forest_pit: {
+    text: "You step onto the hole.\n\nThere is a hole right there in the path. It is, in retrospect, the most hole-shaped thing you have ever seen. The shadow alone tells you everything you needed to know.\n\nYou step on it anyway.\n\nThe hole, on its end, does what holes do.",
+    ending: true,
+    ending_label: "Hole in One",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // YOGA GUY — dialogue trap, comedic, no death
+  // -----------------------------------------------
+
+  scene_yoga_guy: {
+    sprite: "epa_man",
+    text: "A bearded man sits cross-legged on a bare patch of grass. His eyes are closed. He is humming, very quietly, the same three notes in a loop.\n\nHe opens one eye as you approach. \"Friend. Welcome. The forest has called you here, as it called me, eight years ago. Sit. We will breathe.\"",
+    choices: [
+      { text: "Sit and breathe", next: "scene_yoga_breathe" },
+      { text: "I don't have time for this", next: "scene_yoga_rude" },
+      { text: "Walk away (he's still talking)", next: "scene_forest" }
+    ]
+  },
+
+  scene_yoga_breathe: {
+    sprite: "epa_man",
+    text: "You sit. He nods, slowly. The three-note hum resumes. He waits for you to join in. You don't.\n\n\"In through the nose,\" he says. \"Out through the mouth. The mouth is the gateway. The nose is also a gateway. Each gateway has two doors. The doors are also gateways.\"\n\nHe smiles, eyes closed. He breathes. He hums. Eight years pass, in his head. Two minutes pass, in yours.",
+    choices: [
+      { text: "Listen to more breathing wisdom", next: "scene_yoga_breathe" },
+      { text: "Stand up and leave", next: "scene_forest" }
+    ]
+  },
+
+  scene_yoga_rude: {
+    sprite: "epa_man",
+    text: "He opens both eyes. The humming stops.\n\n\"No time. No time. You have all the time, friend. The time is the forest. The forest is the time. You think you're going somewhere? You're already there. You're at the trader. You're at the kitty store. You're in the basement. You're in the pit. You're —\"\n\nHe is, in his way, correct about most of these.",
+    choices: [
+      { text: "Just walk away", next: "scene_forest" },
+      { text: "OK fine, tell me more", next: "scene_yoga_breathe" }
+    ]
+  },
+
+  // -----------------------------------------------
+  // WISHING WELL — random outcome
+  // -----------------------------------------------
+
+  scene_wishing_well: {
+    text: "A circle of mossy stones surrounds a hole that drops further than it should. You can hear water somewhere far below, or possibly something pretending to be water.\n\nA weather-worn sign next to the well reads MAKE A WISH. (Coin optional. Wish at your own risk. Refunds not honored.)",
+    choices: [
+      { text: "Wish for a sandwich", next: "scene_well_random" },
+      { text: "Wish for the basement to make sense", next: "scene_well_random" },
+      { text: "Wish for everyone to be okay", next: "scene_well_random" },
+      { text: "Walk away (suspicious)", next: "scene_forest" }
+    ]
+  },
+
+  // Router: 1/3 good, 2/3 bad. The randomness IS the joke.
+  scene_well_random: {
+    route: () => {
+      const r = Math.random();
+      if (r < 0.34) return "scene_well_good";
+      if (r < 0.67) return "ending_well_drown";
+      return "ending_well_sandwich";
+    }
+  },
+
+  scene_well_good: {
+    text: "The well makes a sound like polite agreement.\n\nNothing falls out. Nothing visibly happens. You feel, briefly, like things are going to be okay. The feeling fades.\n\nYou step back. You are inexplicably a little taller.",
+    choices: [
+      { text: "Walk away (mysteriously satisfied)", next: "scene_forest" }
+    ]
+  },
+
+  ending_well_drown: {
+    text: "The well, with the air of a thing finally getting what it wanted, opens its mouth wider.\n\nThe stones tilt. The ground tilts. You tilt.\n\nYou tilt directly into the well.\n\nThings down here are wet, and several other things.",
+    ending: true,
+    ending_label: "Drowned in Wishes",
+    ending_class: "bad"
+  },
+
+  ending_well_sandwich: {
+    text: "A sandwich materializes in the air above the well.\n\nIt is comically large. Two stories of bread, easy. A wheel of cheese the size of a manhole cover. Pickles arranged in concentric rings.\n\nIt hovers, briefly, in defiance of every relevant law.\n\nThen it falls.\n\nIt falls onto you.",
+    ending: true,
+    ending_label: "Crushed by Sandwich",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // DEMON DOORS SIGN — both choices bad, one walk-away
+  // -----------------------------------------------
+
+  scene_demon_doors_sign: {
+    sprite: "three_doors",
+    text: "Nailed to a tree: a hand-painted sign that says READ THIS SIGN.\n\nBelow it, a smaller sign: \"Choose the LEFT door for great rewards. Choose the RIGHT door for inner peace.\"\n\nTwo doors are set into the trunks of trees just past the sign. Neither was there a moment ago. Both look slightly wet.",
+    choices: [
+      { text: "Open the left door (great rewards)", next: "ending_demon_left" },
+      { text: "Open the right door (inner peace)", next: "ending_demon_right" },
+      { text: "This is obviously a trap", next: "scene_forest" }
+    ]
+  },
+
+  ending_demon_left: {
+    sprite: "demon_imp",
+    text: "You open the left door.\n\nThe door was not lying — there are, in fact, great rewards inside. The rewards are for the demon.\n\nThe reward is you.",
+    ending: true,
+    ending_label: "Door Number Two Was Worse",
+    ending_class: "bad"
+  },
+
+  ending_demon_right: {
+    sprite: "demon_balor",
+    text: "You open the right door.\n\nYou achieve inner peace immediately and permanently, as the considerably-larger demon on the other side stops your inner anything from continuing.",
+    ending: true,
+    ending_label: "Inner Peace",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // FLOWER MIMIC — bait, tap to interact, pick = death
+  // -----------------------------------------------
+
+  scene_flower_mimic: {
+    sprite: "flower_mimic_idle",
+    text: "A single tulip grows in a perfect circle of bare earth, vivid red against the green. It seems... waiting? You can't tell. Tulips don't have faces.\n\nThis one might, when it's not pretending.",
+    choices: [
+      { text: "Pick the flower", next: "ending_mimic_eaten" },
+      { text: "Sniff it cautiously", next: "ending_mimic_eaten" },
+      { text: "Walk away", next: "scene_forest" }
+    ]
+  },
+
+  ending_mimic_eaten: {
+    sprite: "flower_mimic_attack",
+    text: "You reach for the flower.\n\nThe flower reaches back, considerably faster, and with considerably more teeth than a flower has any right to.",
+    ending: true,
+    ending_label: "Eaten by Tulip",
+    ending_class: "bad"
+  },
+
+  // -----------------------------------------------
+  // CHEST MIMIC — looks like loot, eats you when opened
+  // -----------------------------------------------
+
+  scene_mimic_chest: {
+    sprite: "mimic_idle",
+    text: "Tucked in the far corner of the clearing: a wooden chest. Bound in iron. Slightly scuffed, like it's been here a while and nobody's claimed it.\n\nIt could be ANYTHING in there. Coins. A sword. The cat treats you've been driving — well, walking — across the forest to find.\n\nThe chest is, you note, breathing very slightly. Probably the wind.",
+    choices: [
+      { text: "Open the chest", next: "ending_mimic_chest_eaten" },
+      { text: "Kick the chest, see what happens", next: "ending_mimic_chest_eaten" },
+      { text: "Leave it. Chests in clearings are never just chests.", next: "scene_forest" }
+    ]
+  },
+
+  ending_mimic_chest_eaten: {
+    sprite: "mimic_attack",
+    text: "The chest, with the practiced enthusiasm of something that has done this many times before, unfolds.\n\nThere are teeth where the latch was. There is a tongue where the keepsakes were going to be. There is, briefly, a sound — wet, considered, satisfied — and then there isn't.\n\nThe chest reassembles. The chest waits for the next one.",
+    ending: true,
+    ending_label: "Should Have Known",
     ending_class: "bad"
   },
 });
@@ -4594,8 +4786,6 @@ function resetState() {
     frack_q1_pick: null,
     frack_q2_pick: null,
     frack_q3_pick: null,
-    _turns: 0,
-    _near_misses: 0,
     _deaths: getPersistedDeaths(),
     _rasputin_available: getPersistedDeaths() >= 2,
     _rasputin_summoned: false,
@@ -4880,6 +5070,15 @@ function renderExplore(sceneId) {
   }
   // Build entity tile map from the layout
   const grid = room.layout;
+  // World dimensions are derived from the room's actual layout. The basement,
+  // plumpy, and storage all happen to be ROOM_W x ROOM_H (11 x 14), so for them
+  // the world equals the viewport. The forest is larger (24x24) — in that case
+  // the viewport stays ROOM_W x ROOM_H and the world scrolls underneath.
+  const world_w = grid[0].length;
+  const world_h = grid.length;
+  const view_w = Math.min(ROOM_W, world_w);
+  const view_h = Math.min(ROOM_H, world_h);
+  const scrolling = (world_w > view_w) || (world_h > view_h);
   const entityTiles = [];  // [{char, x, y, def}]
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
@@ -4896,17 +5095,19 @@ function renderExplore(sceneId) {
   // EXCEPT entities with step_on: true (like a pit), which are walked INTO
   const blockedSet = new Set();
   for (const e of entityTiles) {
-    if (!e.def.step_on) blockedSet.add(e.y * ROOM_W + e.x);
+    if (!e.def.step_on) blockedSet.add(e.y * world_w + e.x);
   }
 
   // Player position: saved or spawn
   let playerPos = getExploreState(roomId);
   if (!playerPos) playerPos = { ...room.spawn };
-  _exploreState = { roomId, grid, entityTiles, blockedSet, playerPos, room };
+  _exploreState = { roomId, grid, entityTiles, blockedSet, playerPos, room,
+                    world_w, world_h, view_w, view_h, scrolling };
 
-  // Compute pixel positions. Use percentage so it scales with viewport.
-  const tilePctX = 100 / ROOM_W;
-  const tilePctY = 100 / ROOM_H;
+  // Compute pixel positions as percentages of the WORLD (not the viewport).
+  // For non-scrolling rooms world == viewport, so this is unchanged behavior.
+  const tilePctX = 100 / world_w;
+  const tilePctY = 100 / world_h;
   const px = (x) => `${x * tilePctX}%`;
   const py = (y) => `${y * tilePctY}%`;
   const ptw = `${tilePctX}%`;
@@ -4915,33 +5116,62 @@ function renderExplore(sceneId) {
   let html = `<div class="explore-wrap">`;
   html += `<div class="explore-label">${escapeHtml(room.label)}</div>`;
   const moodClass = room.mood ? ` mood-${room.mood}` : "";
-  html += `<div class="explore-room${moodClass}" id="exploreRoom">`;
+  // Viewport wraps the world. For non-scrolling rooms world === viewport,
+  // but the extra wrapping div is harmless. For scrolling rooms the world
+  // is sized larger than the viewport and translated via transform.
+  const worldScaleX = world_w / view_w;  // 1.0 for static rooms
+  const worldScaleY = world_h / view_h;
+  const themeClass = room.theme ? ` theme-${room.theme}` : "";
+  html += `<div class="explore-viewport${themeClass}" style="aspect-ratio: ${view_w}/${view_h};">`;
+  const worldStyle = scrolling
+    ? `width:${worldScaleX * 100}%; height:${worldScaleY * 100}%;`
+    : `width:100%; height:100%;`;
+  html += `<div class="explore-room${moodClass}" id="exploreRoom" style="${worldStyle}">`;
 
-  // Render floor tiles (under everything else). Back to CSS-gradient subtle
-  // floor (the original haunted-basement vibe). We do still render a floor
-  // tile under the D exit so the door sprite has a base.
+  // Render floor tiles (under everything else). The forest theme uses image
+  // tiles (grass with subtle variants); other rooms use the original CSS-gradient
+  // haunted-basement floors. Both render a floor under the D exit too.
+  const isForest = room.theme === 'forest';
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       const ch = grid[y][x];
-      if (ch === '.' || ch === 'D') {
-        const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
-        let cls = "explore-floor-tile";
-        if (h === 3 || h === 11) cls += " floor-stain";
-        else if (h === 7) cls += " floor-scratch";
-        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+      const walkable = (ch === '.' || ch === 'D' || (ch !== '#' && room.entities[ch]));
+      if (walkable) {
+        if (isForest) {
+          // Hash-pick one of three grass variants
+          const h = (x * 7 + y * 13 + (room.seed || 0)) % 11;
+          const variant = (h % 3);
+          const sprite = `fpath_${variant}`;
+          const url = SPRITES[sprite] || "";
+          html += `<img class="explore-floor-tile forest-floor" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+        } else {
+          const h = (x * 7 + y * 13 + (room.seed || 0)) % 17;
+          let cls = "explore-floor-tile";
+          if (h === 3 || h === 11) cls += " floor-stain";
+          else if (h === 7) cls += " floor-scratch";
+          html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        }
       }
     }
   }
-  // Render walls with hash-distributed CSS-gradient variants (the original
-  // brown crosshatch look).
+  // Render walls. Forest theme uses tree sprites (image), others use CSS-gradient.
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] === '#') {
-        const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
-        let cls = "explore-wall";
-        if (h === 4 || h === 13) cls += " wall-cracked";
-        else if (h === 8 || h === 16) cls += " wall-stained";
-        html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        if (isForest) {
+          // Hash-pick one of four tree variants for natural variation
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 13;
+          const variant = h % 4;
+          const sprite = `ftree_${variant}`;
+          const url = SPRITES[sprite] || "";
+          html += `<img class="explore-wall forest-tree" src="${url}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};" alt="">`;
+        } else {
+          const h = (x * 11 + y * 7 + (room.seed || 0)) % 19;
+          let cls = "explore-wall";
+          if (h === 4 || h === 13) cls += " wall-cracked";
+          else if (h === 8 || h === 16) cls += " wall-stained";
+          html += `<div class="${cls}" style="left:${px(x)};top:${py(y)};width:${ptw};height:${pth};"></div>`;
+        }
       }
     }
   }
@@ -5010,42 +5240,83 @@ function renderExplore(sceneId) {
   const pOffsetX = (playerSize - 1) / 2;
   html += `<img class="explore-player" id="explorePlayer" src="${playerUrl}" style="left:${px(playerPos.x - pOffsetX)};top:${py(playerPos.y - (playerSize - 1))};width:${playerSize * tilePctX}%;height:${playerSize * tilePctY}%;" alt="">`;
 
-  html += `</div>`;  // .explore-room
+  html += `</div>`;  // .explore-room (the world)
+  html += `</div>`;  // .explore-viewport
   html += `<div class="explore-hint">${escapeHtml(room.hint || "")}</div>`;
   html += `</div>`;  // .explore-wrap
 
   app.innerHTML = html;
 
-  // Attach tap handler to the room
+  // Attach tap handler to the VIEWPORT (stable position; world translates inside it).
+  // The room element (exploreRoom) is the world inside the viewport.
   const roomEl = document.getElementById("exploreRoom");
-  roomEl.addEventListener("click", (ev) => handleExploreTap(ev, roomEl));
+  const viewportEl = roomEl.parentElement;  // the .explore-viewport wrapper
+  viewportEl.addEventListener("click", (ev) => handleExploreTap(ev, viewportEl));
+
+  // Position camera for scrolling rooms — center on player, clamp to bounds
+  updateCamera();
 
   // Initial proximity check — if player respawned near a pile, spawn it now
   checkExploreProximity(playerPos);
 }
 
-function handleExploreTap(ev, roomEl) {
+// Update camera transform on the world element to keep player centered in
+// the viewport. For non-scrolling rooms this resolves to translate(0,0).
+function updateCamera() {
+  if (!_exploreState) return;
+  const { scrolling, playerPos, world_w, world_h, view_w, view_h } = _exploreState;
+  const roomEl = document.getElementById("exploreRoom");
+  if (!roomEl) return;
+  if (!scrolling) {
+    roomEl.style.transform = "translate(0, 0)";
+    return;
+  }
+  // Target: shift world so player is at viewport center (in tile coords)
+  let targetX = playerPos.x - view_w / 2 + 0.5;
+  let targetY = playerPos.y - view_h / 2 + 0.5;
+  // Clamp to world bounds
+  targetX = Math.max(0, Math.min(world_w - view_w, targetX));
+  targetY = Math.max(0, Math.min(world_h - view_h, targetY));
+  // Translate as percentage of world's own width/height
+  const txPct = -(targetX / world_w) * 100;
+  const tyPct = -(targetY / world_h) * 100;
+  roomEl.style.transform = `translate(${txPct}%, ${tyPct}%)`;
+}
+
+function handleExploreTap(ev, viewportEl) {
   if (!_exploreState) return;
   if (_exploreWalkTimer) return;  // mid-walk, ignore taps
 
-  const rect = roomEl.getBoundingClientRect();
+  const { grid, entityTiles, blockedSet, playerPos,
+          world_w, world_h, view_w, view_h, scrolling } = _exploreState;
+  const rect = viewportEl.getBoundingClientRect();
   const cx = ev.clientX - rect.left;
   const cy = ev.clientY - rect.top;
-  const tx = Math.floor(cx / (rect.width / ROOM_W));
-  const ty = Math.floor(cy / (rect.height / ROOM_H));
+  // Pixel-per-visible-tile (using viewport dims, since that's what the user sees)
+  const tilePxX = rect.width / view_w;
+  const tilePxY = rect.height / view_h;
+  // Visible tile under tap
+  const visibleX = cx / tilePxX;
+  const visibleY = cy / tilePxY;
+  // Camera offset (in tiles) — same math as updateCamera
+  let camX = 0, camY = 0;
+  if (scrolling) {
+    camX = Math.max(0, Math.min(world_w - view_w, playerPos.x - view_w / 2 + 0.5));
+    camY = Math.max(0, Math.min(world_h - view_h, playerPos.y - view_h / 2 + 0.5));
+  }
+  const tx = Math.floor(visibleX + camX);
+  const ty = Math.floor(visibleY + camY);
 
-  // Pulse animation at tap point
+  // Pulse animation at tap point (in viewport, stays put for the brief animation)
   const pulse = document.createElement("div");
   pulse.className = "explore-tap-pulse";
-  const pulseSize = rect.width / ROOM_W * 0.9;
+  const pulseSize = tilePxX * 0.9;
   pulse.style.left = `${cx - pulseSize/2}px`;
   pulse.style.top = `${cy - pulseSize/2}px`;
   pulse.style.width = `${pulseSize}px`;
   pulse.style.height = `${pulseSize}px`;
-  roomEl.appendChild(pulse);
+  viewportEl.appendChild(pulse);
   setTimeout(() => pulse.remove(), 500);
-
-  const { grid, entityTiles, blockedSet, playerPos } = _exploreState;
 
   // Was an entity tapped?
   const entityTapped = entityTiles.find(e => e.x === tx && e.y === ty);
@@ -5090,7 +5361,7 @@ function handleExploreTap(ev, roomEl) {
   if (ty < 0 || ty >= grid.length || tx < 0 || tx >= grid[0].length) return;
   const tile = grid[ty][tx];
   if (tile === '#') return;  // can't walk into walls
-  if (blockedSet.has(ty * ROOM_W + tx)) return;
+  if (blockedSet.has(ty * world_w + tx)) return;
   const path = findPath(grid, playerPos, {x: tx, y: ty}, blockedSet);
   if (path !== null) walkPath(path, null);
 }
@@ -5126,8 +5397,9 @@ function walkPath(path, onComplete) {
       else if (dy < 0) state._facing = "north";
     }
     _exploreState.playerPos = next;
-    const tilePctX = 100 / ROOM_W;
-    const tilePctY = 100 / ROOM_H;
+    // Player position is a percentage of the WORLD (not viewport) — same as render.
+    const tilePctX = 100 / _exploreState.world_w;
+    const tilePctY = 100 / _exploreState.world_h;
     const playerSize = 1.4;
     const pOffsetX = (playerSize - 1) / 2;
     playerEl.style.left = `${(next.x - pOffsetX) * tilePctX}%`;
@@ -5135,6 +5407,8 @@ function walkPath(path, onComplete) {
     // Swap sprite to match the new direction + the alternating walk frame
     walkFrame ^= 1;
     playerEl.src = getPlayerSpriteUrl(state._facing, walkFrame);
+    // Update camera (for scrolling rooms — no-op for static)
+    updateCamera();
     i++;
     // Proximity check: trigger spawn animations on nearby pile-state entities
     checkExploreProximity(next);
@@ -5264,8 +5538,8 @@ function redrawEntity(entity) {
   // Find the entity image by its position; simpler approach: rerender entire room
   // But that resets the player position transition, so we only update the one <img>.
   const room = _exploreState.room;
-  const tilePctX = 100 / ROOM_W;
-  const tilePctY = 100 / ROOM_H;
+  const tilePctX = 100 / _exploreState.world_w;
+  const tilePctY = 100 / _exploreState.world_h;
   // We can identify the image by its style.left/top
   const imgs = document.querySelectorAll('.explore-entity, .explore-entity.searched');
   // Easier: full-room rerender, then restore player visual position
@@ -5471,15 +5745,6 @@ function render(sceneId) {
       scene._visibleCache = visible;
     }
   } else if (scene.ending) {
-    const turns = state._turns || 0;
-    const nearMisses = state._near_misses || 0;
-    const turnsLabel = turns === 1 ? "1 turn" : `${turns} turns`;
-    const missLabel = nearMisses === 1 ? "1 near-death experience" : `${nearMisses} near-death experiences`;
-    html += `<div class="stats-block">
-      <div class="stats-title">Final Report</div>
-      <div class="stats-row"><span>Turns survived:</span><span>${turnsLabel}</span></div>
-      <div class="stats-row"><span>Bullets dodged:</span><span>${missLabel}</span></div>
-    </div>`;
     html += `<button class="restart" id="restartBtn">Play again</button>`;
   } else if (scene.character_select) {
     // Custom layout: render each choice as a tappable character card with a
@@ -5594,7 +5859,6 @@ function render(sceneId) {
       playSfx("ow");
       flashDamage();
       state.pit_hp = Math.max(0, (state.pit_hp || 0) - 1);
-      state._near_misses = (state._near_misses || 0) + 1;
       // Track this choice as already-wrong so we don't show it on retry
       if (choiceData && choiceData.id) {
         state.pit_fight_wrong = state.pit_fight_wrong || [];
@@ -5677,13 +5941,8 @@ function render(sceneId) {
           if (c.consumes) state[c.consumes] = Math.max(0, (state[c.consumes] || 0) - 1);
           playSfx("drink");
         }
-        // Count turns
-        state._turns = (state._turns || 0) + 1;
         const target = (c.next === "self" || c.next == null) ? sceneId : c.next;
         const targetScene = resolveTerminal(target);
-        if (anyDeadly && targetScene && !targetScene.ending) {
-          state._near_misses = (state._near_misses || 0) + 1;
-        }
         // Door open animation: brief delay before transition for visual feedback
         if (c.door_anim) {
           const doorImg = document.querySelector(".pixel-art");

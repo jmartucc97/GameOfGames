@@ -87,7 +87,13 @@ Object.assign(SCENES, {
   },
 
   scene_exit_router: {
-    route: (s) => s.plumpy_disarmed_mine ? "scene_driveway" : "ending_tripmine"
+    route: (s) => s.plumpy_disarmed_mine ? "scene_forest" : "ending_tripmine"
+  },
+
+  // The forest. Replaces the old text-based driveway scene. Triggers the
+  // explore-mode renderer with the 24x24 scrolling room.
+  scene_forest: {
+    explore_room: "forest"
   },
 
   // -----------------------------------------------
