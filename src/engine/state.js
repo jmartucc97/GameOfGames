@@ -83,6 +83,12 @@ function resetState() {
     _basement_entered: false,
     _skel_state: {},
     _skel_timers: {},
+    // Player name persists across deaths/restarts. Loaded from localStorage
+    // on every resetState so the player only ever has to enter their name
+    // once per browser session (and the value survives page refreshes too).
+    // null means "no name set yet" — the title flow handles routing to the
+    // name-entry scene only when this is null.
+    player_name: getPersistedName(),
   };
 }
 
@@ -98,6 +104,28 @@ function incrementDeaths() {
     localStorage.setItem("gog_deaths", String(cur + 1));
     state._deaths = cur + 1;
   } catch {}
+}
+
+// ---- Persisted player name ----
+// Stored in localStorage so it survives both in-game restarts (after death)
+// and full page refreshes. Returns null if no name has ever been set.
+function getPersistedName() {
+  try {
+    const v = localStorage.getItem("gog_player_name");
+    return v && v.length > 0 ? v : null;
+  } catch { return null; }
+}
+
+function setPersistedName(name) {
+  try {
+    if (name && name.length > 0) {
+      localStorage.setItem("gog_player_name", name);
+    }
+  } catch {}
+}
+
+function clearPersistedName() {
+  try { localStorage.removeItem("gog_player_name"); } catch {}
 }
 
 const app = document.getElementById("app");

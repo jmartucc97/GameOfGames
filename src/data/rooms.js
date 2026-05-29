@@ -179,6 +179,31 @@ const EXPLORE_ROOMS = {
       "########################",  // 23
     ],
     ambient: [
+      // Far-north tree wall — solid bands in rows 0 and 1 (currently bare
+      // wall) so the top of the screen reads as an impassable forest edge.
+      // Path column 12 is left clear in both rows to visibly let the trail
+      // "end against" the tree wall.
+      { sprite: "ftree_pine", x: 0,  y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 2,  y: 0, size: 2.5 },
+      { sprite: "ftree_pine", x: 4,  y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 6,  y: 0, size: 2.5 },
+      { sprite: "ftree_pine", x: 8,  y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 10, y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 14, y: 0, size: 2.5 },
+      { sprite: "ftree_pine", x: 16, y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 18, y: 0, size: 2.5 },
+      { sprite: "ftree_pine", x: 20, y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 22, y: 0, size: 2.5 },
+      { sprite: "ftree_oak",  x: 1,  y: 1, size: 2.5 },
+      { sprite: "ftree_pine", x: 3,  y: 1, size: 2.5 },
+      { sprite: "ftree_oak",  x: 5,  y: 1, size: 2.5 },
+      { sprite: "ftree_pine", x: 7,  y: 1, size: 2.5 },
+      { sprite: "ftree_oak",  x: 9,  y: 1, size: 2.5 },
+      { sprite: "ftree_pine", x: 15, y: 1, size: 2.5 },
+      { sprite: "ftree_oak",  x: 17, y: 1, size: 2.5 },
+      { sprite: "ftree_pine", x: 19, y: 1, size: 2.5 },
+      { sprite: "ftree_oak",  x: 21, y: 1, size: 2.5 },
+      { sprite: "ftree_pine", x: 23, y: 1, size: 2.5 },
       // North dead-end band — extra dense trees in rows 2-3 to signal that
       // the path tops out at the yoga-man/mimic-chest clearing (rows 5-7).
       // All sit on wall tiles (cols 0-10 and 14-23 in rows 2-3), so player

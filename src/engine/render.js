@@ -252,7 +252,10 @@ function render(sceneId) {
     // Check if any visible choice leads to a terminal ending
     const anyDeadly = visible.some(c => {
       if (!c.next || c.next === "self") return false;
-      const t = resolveTerminal(c.next);
+      // Resolve function-form next() to a static scene id for terminal detection
+      const nextId = typeof c.next === "function" ? c.next(state) : c.next;
+      if (!nextId) return false;
+      const t = resolveTerminal(nextId);
       return t && t.ending;
     });
 
@@ -374,7 +377,12 @@ function render(sceneId) {
           if (c.consumes) state[c.consumes] = Math.max(0, (state[c.consumes] || 0) - 1);
           playSfx("drink");
         }
-        const target = (c.next === "self" || c.next == null) ? sceneId : c.next;
+        // Resolve choice.next — supports either a string scene id or a
+        // function (state) => sceneId. The function form is used when the
+        // next scene depends on state (e.g. skipping name entry on replay).
+        let nextResolved = c.next;
+        if (typeof nextResolved === "function") nextResolved = nextResolved(state);
+        const target = (nextResolved === "self" || nextResolved == null) ? sceneId : nextResolved;
         const targetScene = resolveTerminal(target);
         // Door open animation: brief delay before transition for visual feedback
         if (c.door_anim) {
@@ -413,7 +421,15 @@ function render(sceneId) {
           errorEl.textContent = errMsg;
           return;
         }
-        if (scene.input.store_as) state[scene.input.store_as] = rawTrimmed;
+        if (scene.input.store_as) {
+          state[scene.input.store_as] = rawTrimmed;
+          // Special case: persist player_name to localStorage so the player
+          // only has to enter it once per browser session. Survives death,
+          // restarts, and page refreshes.
+          if (scene.input.store_as === "player_name" && typeof setPersistedName === "function") {
+            setPersistedName(rawTrimmed);
+          }
+        }
         if (scene.input.set) Object.assign(state, scene.input.set);
         render(scene.input.success_next);
         return;

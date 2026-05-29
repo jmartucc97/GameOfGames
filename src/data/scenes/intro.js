@@ -11,7 +11,15 @@ Object.assign(SCENES, {
     tagline: "You'll figure it out.",
     sprite: "john_idle",
     choices: [
-      { text: "Start", next: "scene_name_entry" }
+      {
+        text: "Start",
+        // If the player has entered a name in this browser before, skip the
+        // name-entry scene entirely and go straight to John's quip. Their
+        // previous name is already in state.player_name (loaded via
+        // resetState from localStorage). First-time players still see the
+        // name prompt as normal.
+        next: (s) => s.player_name ? "scene_john_name_quip" : "scene_name_entry"
+      }
     ]
   },
 
@@ -47,7 +55,17 @@ Object.assign(SCENES, {
       const key = rawName.toLowerCase();
       // === NAME → QUIP TABLE (populate from next-chat mapping) ===
       const quips = {
-        "arla": "Ah, you've been here before it seems. Your chance of survival look slim.",
+        "arla":    "Ah, you've been here before it seems. Your chance of survival look slim.",
+        "peter":   "Wow, finally playing the game huh. Seems like you should be making Johnny a \"Kill Devil Reef\" but what do I know, I'm just an incorporeal observer.",
+        "darrell": "Darrell huh? Bad news big man, no cigars in this game and it is a usability nightmare. Your chances of survival look grim.",
+        "jake":    "Jake huh. Y'know you should be good at this... your chances of survival look slim.",
+        "jina":    "Jina, your husband roped you into this madness... it is up to him to get you out.",
+        "otto":    "Y'know.... you could always just play some games... see where it leads you... your chances of survival may not be so slim.",
+        "alec":    "Bawk? Bach. Boch. BockaBocka Bawk.",
+        "paul":    "There is no chance this will be enjoyable for you, your chances of survival look grim.",
+        "amelia":  "Amelia huh? Is Otto hammered right now? Anyway, your chances of survival look grim.",
+        "colleen": "Y'know, you and Rosie should really team up on this one.",
+        "diane":   "Oh boy. You are really going to need to tap the screen. Like with intention. If you can get out of the first room you should be proud.",
       };
       const template = quips[key]
         || "Hmmmm... Your chances of survival seem grim.";
